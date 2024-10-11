@@ -81,18 +81,26 @@ export const PatientRow = ({
           <Text>MRN: {patient.mrn}</Text>
         </View>
       </View>
-      <View>
+      {patient.one_liner ? (
+        <View>
+          <Text
+            style={{
+              padding: "2px",
+              fontStyle: "italic",
+            }}
+          >
+            {patient.one_liner}
+          </Text>
+        </View>
+      ) : undefined}
+      <View style={{ padding: "2px" }}>
         <Text
           style={{
-            padding: "2px",
-            fontStyle: "italic",
+            fontWeight: 700,
           }}
         >
-          {patient.one_liner}
+          Events:
         </Text>
-      </View>
-      <View style={{ padding: "2px" }}>
-        <Text>Events:</Text>
       </View>
     </View>
     <View key={`${pageIndex}-${index}-2`} style={patientRowStyles.box}>
