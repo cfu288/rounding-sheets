@@ -2,6 +2,21 @@ import { PDFViewer } from "@react-pdf/renderer";
 import { Document, Page, StyleSheet } from "@react-pdf/renderer";
 import { PatientRow } from "./PatientRow";
 import { CALC_PAGES, patient_list, PATIENTS_PER_PAGE } from "./const";
+import { Font } from "@react-pdf/renderer";
+import source1 from "./assets/Atkinson-Hyperlegible-Regular.ttf";
+import source2 from "./assets/Atkinson-Hyperlegible-Italic.ttf";
+import source3 from "./assets/Atkinson-Hyperlegible-BoldItalic.ttf";
+import source4 from "./assets/Atkinson-Hyperlegible-Bold.ttf";
+
+Font.register({
+  family: "Atkinson",
+  fonts: [
+    { src: source1, fontWeight: "normal" }, // font-style: normal, font-weight: normal
+    { src: source2, fontStyle: "italic" },
+    { src: source3, fontStyle: "italic", fontWeight: 700 },
+    { src: source4, fontWeight: 700 },
+  ],
+});
 
 export type Patient = {
   last_name?: string;
@@ -39,6 +54,9 @@ const documentStyles = StyleSheet.create({
     height: "11.5in",
     fontSize: "8px",
     padding: "0.125in",
+    // fontFamily: "Atkinson",
+    fontFamily: "Atkinson",
+    fontWeight: "normal",
   },
 });
 
