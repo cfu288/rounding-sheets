@@ -24,14 +24,13 @@ export type Patient = {
   dob?: string;
   mrn?: string;
   one_liner?: string;
+  todos?: Todo[];
 };
 
-export type ToDo = {
+export type Todo = {
   description: string;
-  due_date: string;
-  status: string;
-  assigned_to: string;
-  notes: string;
+  due_date?: string;
+  status: "OPEN" | "CLOSED";
 };
 
 const App = () => (

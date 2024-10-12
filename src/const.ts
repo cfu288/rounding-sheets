@@ -1,4 +1,19 @@
-import { Patient } from "./App";
+import { Patient, Todo } from "./App";
+
+export const daily_todo_list: Todo[] = [
+  {
+    description: "Note",
+    status: "OPEN",
+  },
+  {
+    description: "Hospital Course",
+    status: "OPEN",
+  },
+  {
+    description: "Labs",
+    status: "OPEN",
+  },
+];
 
 export const patient_list: Patient[] = [
   {
@@ -7,6 +22,13 @@ export const patient_list: Patient[] = [
     dob: "01/01/1970",
     mrn: "123456",
     one_liner: "This is a one-liner",
+    todos: [
+      {
+        description: "This is a todo",
+        due_date: "01/01/2022",
+        status: "OPEN",
+      },
+    ],
   },
   {
     last_name: "Smith",

@@ -1,13 +1,13 @@
-import { Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Text, View, StyleSheet, Svg, Line } from "@react-pdf/renderer";
 import { Patient } from "./App";
-import { N_ROWS, PATIENTS_PER_PAGE } from "./const";
+import { daily_todo_list, PATIENTS_PER_PAGE } from "./const";
 
 // Create styles for PatientRow component
 const patientRowStyles = StyleSheet.create({
   box: {
     width: "50%",
     height: `${100 / PATIENTS_PER_PAGE}%`,
-    border: "1px solid black",
+    border: "0.5px solid black",
     display: "flex",
     position: "relative",
     flexDirection: "column",
@@ -25,11 +25,16 @@ const patientRowStyles = StyleSheet.create({
     whiteSpace: "nowrap",
     padding: "2px",
   },
-  splitBoxContainer: {
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    flexDirection: "column",
+  oneLinerText: {
+    padding: "2px",
+    fontStyle: "italic",
+  },
+  eventsTextContainer: {
+    padding: "2px",
+  },
+  eventsText: {
+    fontWeight: 700,
+    minHeight: "25%",
   },
   gridContainer: {
     flex: 1,
@@ -41,8 +46,33 @@ const patientRowStyles = StyleSheet.create({
     width: "50%",
     height: "50%",
   },
+  labsGridBox: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "space-around",
+    paddingHorizontal: "12px",
+  },
+  gridBoxText: {
+    padding: "2px",
+    fontWeight: 700,
+  },
+  splitBoxContainer: {
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+  },
+  apText: {
+    padding: "2px",
+    fontWeight: 700,
+  },
   flexContainer: {
     flex: 1,
+  },
+  todoText: {
+    padding: "2px",
+    fontWeight: 700,
   },
   footer: {
     position: "absolute",
@@ -52,6 +82,37 @@ const patientRowStyles = StyleSheet.create({
     borderTop: "1px solid black",
     width: "100%",
     padding: "2px",
+  },
+  todoDescription: {
+    paddingHorizontal: "4px",
+    paddingVertical: "2px",
+  },
+  dailyTodoDescription: {
+    paddingRight: "8px",
+  },
+  todoContainer: {
+    display: "flex",
+    flexDirection: "column",
+    flexWrap: "wrap",
+    height: "50%",
+  },
+  fishboneContainer: {
+    display: "flex",
+    flexDirection: "row",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "space-around",
+  },
+  fishboneRow: {
+    display: "flex",
+    flexDirection: "row",
+  },
+  fishboneSvg: {
+    margin: "16px",
+    marginVertical: "8px",
+  },
+  peText: {
+    paddingLeft: "2px",
   },
 });
 
@@ -83,94 +144,168 @@ export const PatientRow = ({
       </View>
       {patient.one_liner ? (
         <View>
-          <Text
-            style={{
-              padding: "2px",
-              fontStyle: "italic",
-            }}
-          >
-            {patient.one_liner}
-          </Text>
+          <Text style={patientRowStyles.oneLinerText}>{patient.one_liner}</Text>
         </View>
       ) : undefined}
-      <View style={{ padding: "2px" }}>
-        <Text
-          style={{
-            fontWeight: 700,
-          }}
-        >
-          Events:
-        </Text>
+      <View style={patientRowStyles.eventsTextContainer}>
+        <Text style={patientRowStyles.eventsText}>Events:</Text>
+      </View>
+      <View style={patientRowStyles.gridContainer}>
+        <View style={patientRowStyles.gridBox}>
+          <Text style={patientRowStyles.gridBoxText}>Vitals:</Text>
+        </View>
+        <View style={patientRowStyles.gridBox}>
+          <Text style={patientRowStyles.gridBoxText}>Labs:</Text>
+          <View style={patientRowStyles.labsGridBox}>
+            <View style={patientRowStyles.fishboneContainer}>
+              {/* Y fishbone */}
+              <Svg height="20" width="20" style={patientRowStyles.fishboneSvg}>
+                <Line
+                  x1="0"
+                  y1="0"
+                  x2="10"
+                  y2="10"
+                  stroke="black"
+                  strokeWidth="1"
+                />
+                <Line
+                  x1="10"
+                  y1="10"
+                  x2="20"
+                  y2="0"
+                  stroke="black"
+                  strokeWidth="1"
+                />
+                <Line
+                  x1="10"
+                  y1="10"
+                  x2="10"
+                  y2="20"
+                  stroke="black"
+                  strokeWidth="1"
+                />
+              </Svg>
+              {/* X fishbone */}
+              <Svg height="20" width="20" style={patientRowStyles.fishboneSvg}>
+                <Line
+                  x1="0"
+                  y1="0"
+                  x2="20"
+                  y2="20"
+                  stroke="black"
+                  strokeWidth="1"
+                />
+                <Line
+                  x1="0"
+                  y1="20"
+                  x2="20"
+                  y2="0"
+                  stroke="black"
+                  strokeWidth="1"
+                />
+              </Svg>
+            </View>
+            <View style={patientRowStyles.fishboneRow}>
+              {/* fishbone, -|-|< one horizontal line, with two vertical lines crossing it, and 2 tail lines 45 deg at the right end */}
+              <Svg height="20" width="70" style={patientRowStyles.fishboneSvg}>
+                <Line
+                  x1="0"
+                  y1="10"
+                  x2="55"
+                  y2="10"
+                  stroke="black"
+                  strokeWidth="1"
+                />
+                <Line
+                  x1="20"
+                  y1="0"
+                  x2="20"
+                  y2="20"
+                  stroke="black"
+                  strokeWidth="1"
+                />
+                <Line
+                  x1="40"
+                  y1="0"
+                  x2="40"
+                  y2="20"
+                  stroke="black"
+                  strokeWidth="1"
+                />
+                {/* 45deg line to top right */}
+                <Line
+                  x1="55"
+                  y1="10"
+                  x2="65"
+                  y2="0"
+                  stroke="black"
+                  strokeWidth="1"
+                />
+                {/* 45deg line to bottom right*/}
+                <Line
+                  x1="55"
+                  y1="10"
+                  x2="65"
+                  y2="20"
+                  stroke="black"
+                  strokeWidth="1"
+                />
+              </Svg>
+            </View>
+          </View>
+        </View>
+        <View style={patientRowStyles.gridBox}>
+          <Text style={patientRowStyles.gridBoxText}>Today:</Text>
+        </View>
+        <View style={patientRowStyles.gridBox}>
+          <Text style={patientRowStyles.gridBoxText}>PE:</Text>
+          <Text style={patientRowStyles.peText}>AAOx</Text>
+          <Text style={patientRowStyles.peText}>CVS:</Text>
+          <Text style={patientRowStyles.peText}>Pulm:</Text>
+          <Text style={patientRowStyles.peText}>Abd:</Text>
+          <Text style={patientRowStyles.peText}>MSK:</Text>
+        </View>
       </View>
     </View>
     <View key={`${pageIndex}-${index}-2`} style={patientRowStyles.box}>
       <View style={patientRowStyles.splitBoxContainer}>
-        <Text
-          style={{
-            padding: "2px",
-          }}
-        >
-          A/P:
-        </Text>
+        <Text style={patientRowStyles.apText}>A/P:</Text>
         <View style={patientRowStyles.gridContainer}>
           <View style={patientRowStyles.gridBox}>
-            <Text
-              style={{
-                padding: "2px",
-              }}
-            >
-              #
-            </Text>
+            <Text style={patientRowStyles.gridBoxText}>#</Text>
           </View>
           <View style={patientRowStyles.gridBox}>
-            <Text
-              style={{
-                padding: "2px",
-              }}
-            >
-              #
-            </Text>
+            <Text style={patientRowStyles.gridBoxText}>#</Text>
           </View>
           <View style={patientRowStyles.gridBox}>
-            <Text
-              style={{
-                padding: "2px",
-              }}
-            >
-              #
-            </Text>
+            <Text style={patientRowStyles.gridBoxText}>#</Text>
           </View>
           <View style={patientRowStyles.gridBox}>
-            <Text
-              style={{
-                padding: "2px",
-              }}
-            >
-              #
-            </Text>
+            <Text style={patientRowStyles.gridBoxText}>#</Text>
           </View>
         </View>
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            flexWrap: "wrap",
-            height: "50%",
-          }}
-        >
+        <View style={patientRowStyles.todoContainer}>
           <View style={patientRowStyles.flexContainer}>
-            <Text
-              style={{
-                padding: "2px",
-              }}
-            >
-              TODO:
-            </Text>
+            <Text style={patientRowStyles.todoText}>Todo:</Text>
+            {patient.todos?.map((todo, i) => (
+              <View key={i}>
+                <Text style={patientRowStyles.todoDescription}>
+                  [{"  "}] {todo.description}
+                </Text>
+              </View>
+            ))}
           </View>
-          <View style={patientRowStyles.footer}>
-            <Text style={{ paddingRight: "8px" }}>[{"  "}] item 1</Text>
-            <Text style={{ paddingRight: "8px" }}>[{"  "}] item 1</Text>
-          </View>
+          {daily_todo_list && (
+            <View style={patientRowStyles.footer}>
+              {daily_todo_list.map((todo, i) => (
+                <View key={i}>
+                  <Text style={patientRowStyles.dailyTodoDescription}>
+                    [{"  "}] {todo.description}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
       </View>
     </View>
