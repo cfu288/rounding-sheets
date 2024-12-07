@@ -1,13 +1,30 @@
-import { Text, View, StyleSheet, Svg, Line } from "@react-pdf/renderer";
-import { Patient } from "./App";
+import { Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Patient } from "./Patient";
 import { daily_todo_list, PATIENTS_PER_PAGE } from "./const";
+import { XFishbone } from "./XFishbone";
+import { YFishbone } from "./YFishbone";
+import { CMPFishbone } from "./CMPFishbone";
 
 // Create styles for PatientRow component
 const patientRowStyles = StyleSheet.create({
   box: {
     width: "50%",
     height: `${100 / PATIENTS_PER_PAGE}%`,
-    border: "0.5px solid black",
+    borderTop: "0.5px solid black",
+    borderBottom: "0.5px solid black",
+    borderLeft: "0.5px solid black",
+    borderRight: "0.5px solid black",
+    display: "flex",
+    position: "relative",
+    flexDirection: "column",
+  },
+  doubleHeightBox: {
+    width: "50%",
+    height: `${(100 / PATIENTS_PER_PAGE) * 2}%`,
+    borderTop: "0.5px solid black",
+    borderBottom: "0.5px solid black",
+    borderLeft: "0.5px solid black",
+    borderRight: "0.5px solid black",
     display: "flex",
     position: "relative",
     flexDirection: "column",
@@ -17,6 +34,9 @@ const patientRowStyles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
   },
+  dobText: {
+    fontSize: "8px",
+  },
   bannerBox: {
     flex: 1,
     backgroundColor: "white",
@@ -25,14 +45,31 @@ const patientRowStyles = StyleSheet.create({
     whiteSpace: "nowrap",
     padding: "2px",
   },
-  oneLinerText: {
+  bannerBoxShrinkable: {
+    backgroundColor: "white",
+    borderBottom: "1px solid black",
+    borderRight: "1px solid black",
+    whiteSpace: "nowrap",
     padding: "2px",
-    fontStyle: "italic",
+    flexShrink: 1,
+    minWidth: "30px",
+    minHeight: "13px",
+  },
+  bannerBoxShrinkableLarge: {
+    backgroundColor: "white",
+    borderBottom: "1px solid black",
+    borderRight: "1px solid black",
+    whiteSpace: "nowrap",
+    padding: "2px",
+    flexShrink: 1,
+    minWidth: "50px",
+    minHeight: "13px",
   },
   eventsTextContainer: {
     padding: "2px",
   },
   eventsText: {
+    padding: "2px",
     fontWeight: 700,
     minHeight: "25%",
   },
@@ -42,19 +79,26 @@ const patientRowStyles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
   },
-  gridBox: {
+  apGridBox: {
     width: "50%",
-    height: "50%",
+    minHeight: "33%",
+    maxHeight: "50%",
+  },
+  subObjGridBox: {
+    width: "50%",
+    minHeight: "25%",
+    maxHeight: "50%",
   },
   labsGridBox: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "space-around",
-    paddingHorizontal: "12px",
   },
   gridBoxText: {
     padding: "2px",
+    paddingBottom: "1px",
+    paddingTop: "3px",
     fontWeight: 700,
   },
   splitBoxContainer: {
@@ -67,12 +111,19 @@ const patientRowStyles = StyleSheet.create({
     padding: "2px",
     fontWeight: 700,
   },
-  flexContainer: {
+  oneLinerText: {
+    padding: "2px",
+    fontStyle: "italic",
+    fontWeight: 400,
+  },
+  todoFlexContainer: {
+    padding: "2px",
     flex: 1,
+    width: "100%",
   },
   todoText: {
-    padding: "2px",
     fontWeight: 700,
+    width: "100%",
   },
   footer: {
     position: "absolute",
@@ -84,8 +135,14 @@ const patientRowStyles = StyleSheet.create({
     padding: "2px",
   },
   todoDescription: {
-    paddingHorizontal: "4px",
+    paddingHorizontal: "2px",
     paddingVertical: "2px",
+  },
+  todoBlank: {
+    paddingHorizontal: "2px",
+    paddingVertical: "2px",
+    borderBottom: "0.5px solid grey",
+    width: "100%",
   },
   dailyTodoDescription: {
     paddingRight: "8px",
@@ -108,15 +165,43 @@ const patientRowStyles = StyleSheet.create({
     flexDirection: "row",
   },
   fishboneSvg: {
-    margin: "16px",
-    marginVertical: "8px",
+    margin: "8px",
+    marginVertical: "2px",
+  },
+  fishboneLabelText: {
+    fontSize: "3px",
+    color: "rgba(243, 244, 246, 0.1)",
+  },
+  fishboneValueText: {
+    fontSize: "8px",
   },
   peText: {
     paddingLeft: "2px",
   },
+  medsText: {
+    paddingLeft: "2px",
+    fontSize: "6px",
+  },
+  leftBulletText: {
+    paddingLeft: "2px",
+    color: "#333",
+    fontSize: "8px",
+    listStyleType: "disc",
+  },
+  smallBannerText: {
+    fontSize: 3,
+    textAlign: "left",
+  },
+  medsContainer: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  medsColumn: {
+    width: "50%",
+  },
 });
 
-// Create PatientRow Component
 export const PatientRow = ({
   patient,
   pageIndex,
@@ -127,171 +212,181 @@ export const PatientRow = ({
   index: number;
 }) => (
   <>
-    <View key={`${pageIndex}-${index}-1`} style={patientRowStyles.box}>
+    <View
+      key={`${pageIndex}-${index}-1`}
+      style={
+        patient?.display_size === "2x"
+          ? patientRowStyles.doubleHeightBox
+          : patientRowStyles.box
+      }
+    >
       <View style={patientRowStyles.bannerContainer}>
-        <View style={patientRowStyles.bannerBox}>
-          <Text>{patient.first_name}</Text>
+        <View style={patientRowStyles.bannerBoxShrinkable}>
+          <Text
+            style={!patient.location ? patientRowStyles.smallBannerText : {}}
+          >
+            {patient.location ? patient.location : "LOCATION"}
+          </Text>
         </View>
         <View style={patientRowStyles.bannerBox}>
-          <Text>{patient.last_name?.toUpperCase()}</Text>
+          <Text
+            style={
+              !patient.last_name && !patient.first_name
+                ? patientRowStyles.smallBannerText
+                : {}
+            }
+          >
+            {patient.last_name || patient.first_name
+              ? `${patient.last_name?.toUpperCase()}${
+                  patient.last_name && patient.first_name ? ", " : ""
+                }${patient.first_name}`
+              : "NAME"}
+          </Text>
         </View>
-        <View style={patientRowStyles.bannerBox}>
-          <Text>DOB: {patient.dob}</Text>
+        <View style={patientRowStyles.bannerBoxShrinkableLarge}>
+          <Text style={!patient.dob ? patientRowStyles.smallBannerText : {}}>
+            {patient.dob
+              ? `DOB: ${patient.dob} (${
+                  new Date().getFullYear() - new Date(patient.dob).getFullYear()
+                })`
+              : "DOB"}
+          </Text>
         </View>
-        <View style={patientRowStyles.bannerBox}>
-          <Text>MRN: {patient.mrn}</Text>
+        <View style={patientRowStyles.bannerBoxShrinkableLarge}>
+          <Text style={!patient.mrn ? patientRowStyles.smallBannerText : {}}>
+            {patient.mrn ? `MRN: ${patient.mrn}` : "MRN"}
+          </Text>
         </View>
       </View>
-      {patient.one_liner ? (
-        <View>
-          <Text style={patientRowStyles.oneLinerText}>{patient.one_liner}</Text>
+      {patient.hpi?.map((hpi, i) => (
+        <View key={i}>
+          <Text style={patientRowStyles.oneLinerText}>
+            {i === 0 && <Text style={patientRowStyles.apText}>HPI: </Text>}
+            {hpi}
+          </Text>
         </View>
-      ) : undefined}
-      <View style={patientRowStyles.eventsTextContainer}>
-        <Text style={patientRowStyles.eventsText}>Events:</Text>
-      </View>
+      ))}
+
       <View style={patientRowStyles.gridContainer}>
-        <View style={patientRowStyles.gridBox}>
-          <Text style={patientRowStyles.gridBoxText}>Vitals:</Text>
+        <View style={patientRowStyles.subObjGridBox}>
+          <Text style={patientRowStyles.eventsText}>Events:</Text>
         </View>
-        <View style={patientRowStyles.gridBox}>
+        <View style={patientRowStyles.subObjGridBox}>
+          <Text style={patientRowStyles.gridBoxText}>Vitals:</Text>
+          <Text style={patientRowStyles.peText}>Temp:</Text>
+          <Text style={patientRowStyles.peText}>Sys:</Text>
+          <Text style={patientRowStyles.peText}>Dias:</Text>
+          <Text style={patientRowStyles.peText}>RR:</Text>
+          <Text style={patientRowStyles.peText}>HR:</Text>
+          <Text style={patientRowStyles.peText}>O2:</Text>
+        </View>
+        <View style={patientRowStyles.subObjGridBox}>
           <Text style={patientRowStyles.gridBoxText}>Labs:</Text>
           <View style={patientRowStyles.labsGridBox}>
             <View style={patientRowStyles.fishboneContainer}>
-              {/* Y fishbone */}
-              <Svg height="20" width="20" style={patientRowStyles.fishboneSvg}>
-                <Line
-                  x1="0"
-                  y1="0"
-                  x2="10"
-                  y2="10"
-                  stroke="black"
-                  strokeWidth="1"
-                />
-                <Line
-                  x1="10"
-                  y1="10"
-                  x2="20"
-                  y2="0"
-                  stroke="black"
-                  strokeWidth="1"
-                />
-                <Line
-                  x1="10"
-                  y1="10"
-                  x2="10"
-                  y2="20"
-                  stroke="black"
-                  strokeWidth="1"
-                />
-              </Svg>
-              {/* X fishbone */}
-              <Svg height="20" width="20" style={patientRowStyles.fishboneSvg}>
-                <Line
-                  x1="0"
-                  y1="0"
-                  x2="20"
-                  y2="20"
-                  stroke="black"
-                  strokeWidth="1"
-                />
-                <Line
-                  x1="0"
-                  y1="20"
-                  x2="20"
-                  y2="0"
-                  stroke="black"
-                  strokeWidth="1"
-                />
-              </Svg>
+              <YFishbone />
+              <XFishbone />
             </View>
-            <View style={patientRowStyles.fishboneRow}>
-              {/* fishbone, -|-|< one horizontal line, with two vertical lines crossing it, and 2 tail lines 45 deg at the right end */}
-              <Svg height="20" width="70" style={patientRowStyles.fishboneSvg}>
-                <Line
-                  x1="0"
-                  y1="10"
-                  x2="55"
-                  y2="10"
-                  stroke="black"
-                  strokeWidth="1"
-                />
-                <Line
-                  x1="20"
-                  y1="0"
-                  x2="20"
-                  y2="20"
-                  stroke="black"
-                  strokeWidth="1"
-                />
-                <Line
-                  x1="40"
-                  y1="0"
-                  x2="40"
-                  y2="20"
-                  stroke="black"
-                  strokeWidth="1"
-                />
-                {/* 45deg line to top right */}
-                <Line
-                  x1="55"
-                  y1="10"
-                  x2="65"
-                  y2="0"
-                  stroke="black"
-                  strokeWidth="1"
-                />
-                {/* 45deg line to bottom right*/}
-                <Line
-                  x1="55"
-                  y1="10"
-                  x2="65"
-                  y2="20"
-                  stroke="black"
-                  strokeWidth="1"
-                />
-              </Svg>
-            </View>
+            <CMPFishbone />
           </View>
         </View>
-        <View style={patientRowStyles.gridBox}>
-          <Text style={patientRowStyles.gridBoxText}>Today:</Text>
-        </View>
-        <View style={patientRowStyles.gridBox}>
+        <View style={patientRowStyles.subObjGridBox}>
           <Text style={patientRowStyles.gridBoxText}>PE:</Text>
-          <Text style={patientRowStyles.peText}>AAOx</Text>
+          <Text style={patientRowStyles.peText}>GEN:</Text>
+          <Text style={patientRowStyles.peText}>HEENT:</Text>
+          <Text style={patientRowStyles.peText}>Skin:</Text>
           <Text style={patientRowStyles.peText}>CVS:</Text>
           <Text style={patientRowStyles.peText}>Pulm:</Text>
-          <Text style={patientRowStyles.peText}>Abd:</Text>
+          <Text style={patientRowStyles.peText}>GI:</Text>
           <Text style={patientRowStyles.peText}>MSK:</Text>
+          <Text style={patientRowStyles.peText}>Neuro:</Text>
+          <Text style={patientRowStyles.peText}>Lines:</Text>
+        </View>
+        <View style={patientRowStyles.subObjGridBox}>
+          <Text style={patientRowStyles.gridBoxText}>Meds:</Text>
+          <View style={patientRowStyles.medsContainer}>
+            <View style={patientRowStyles.medsColumn}>
+              <Text style={patientRowStyles.medsText}>
+                Amlodipine 10mg PO BID
+              </Text>
+              <Text style={patientRowStyles.medsText}>
+                Lisinopril 20mg PO QD
+              </Text>
+              <Text style={patientRowStyles.medsText}>
+                Metformin 500mg PO BID
+              </Text>
+              <Text style={patientRowStyles.medsText}>
+                Atorvastatin 40mg PO QHS
+              </Text>
+            </View>
+            <View style={patientRowStyles.medsColumn}>
+              <Text style={patientRowStyles.medsText}>
+                Omeprazole 20mg PO QD
+              </Text>
+              <Text style={patientRowStyles.medsText}>
+                Insulin Glargine 10 units SC QHS
+              </Text>
+              <Text style={patientRowStyles.medsText}>
+                Insulin Lispro 5 units SC TID with meals
+              </Text>
+            </View>
+          </View>
         </View>
       </View>
     </View>
-    <View key={`${pageIndex}-${index}-2`} style={patientRowStyles.box}>
+    <View
+      key={`${pageIndex}-${index}-2`}
+      style={
+        patient?.display_size === "2x"
+          ? patientRowStyles.doubleHeightBox
+          : patientRowStyles.box
+      }
+    >
       <View style={patientRowStyles.splitBoxContainer}>
-        <Text style={patientRowStyles.apText}>A/P:</Text>
+        <View
+          style={{
+            display: "flex",
+          }}
+        >
+          <Text style={patientRowStyles.apText}>
+            A/P:{" "}
+            {patient.one_liner && (
+              <Text style={patientRowStyles.oneLinerText}>
+                {patient.one_liner}
+              </Text>
+            )}
+          </Text>
+        </View>
         <View style={patientRowStyles.gridContainer}>
-          <View style={patientRowStyles.gridBox}>
-            <Text style={patientRowStyles.gridBoxText}>#</Text>
-          </View>
-          <View style={patientRowStyles.gridBox}>
-            <Text style={patientRowStyles.gridBoxText}>#</Text>
-          </View>
-          <View style={patientRowStyles.gridBox}>
-            <Text style={patientRowStyles.gridBoxText}>#</Text>
-          </View>
-          <View style={patientRowStyles.gridBox}>
-            <Text style={patientRowStyles.gridBoxText}>#</Text>
-          </View>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <View key={i} style={patientRowStyles.apGridBox}>
+              <Text style={patientRowStyles.gridBoxText}>
+                {patient.assessment_and_plan && patient.assessment_and_plan[i]
+                  ? `# ${patient.assessment_and_plan?.[i].assessment}:`
+                  : "#"}
+              </Text>
+              {patient.assessment_and_plan &&
+                patient.assessment_and_plan?.[i]?.plan.map((plan, j) => (
+                  <Text style={patientRowStyles.leftBulletText} key={j}>
+                    • {plan}
+                  </Text>
+                ))}
+            </View>
+          ))}
         </View>
         <View style={patientRowStyles.todoContainer}>
-          <View style={patientRowStyles.flexContainer}>
+          <View style={patientRowStyles.todoFlexContainer}>
             <Text style={patientRowStyles.todoText}>Todo:</Text>
             {patient.todos?.map((todo, i) => (
               <View key={i}>
                 <Text style={patientRowStyles.todoDescription}>
                   [{"  "}] {todo.description}
                 </Text>
+              </View>
+            ))}
+            {[0, 1, 2].map((i) => (
+              <View key={i}>
+                <Text style={patientRowStyles.todoBlank}>[{"  "}]</Text>
               </View>
             ))}
           </View>
