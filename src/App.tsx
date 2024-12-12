@@ -1,12 +1,10 @@
-import { patient_list } from "./const";
+import { KnownTemplateIds, patient_list } from "./const";
 import { Font } from "@react-pdf/renderer";
 import source1 from "./assets/Atkinson-Hyperlegible-Regular.ttf";
 import source2 from "./assets/Atkinson-Hyperlegible-Italic.ttf";
 import source3 from "./assets/Atkinson-Hyperlegible-BoldItalic.ttf";
 import source4 from "./assets/Atkinson-Hyperlegible-Bold.ttf";
-import { useEffect, useState } from "react";
 import { PatientListPrintout } from "./PatientListPrintout";
-import { Patient } from "./Patient";
 import { usePDF } from "@react-pdf/renderer";
 import { Route, Routes } from "react-router";
 import { useParams } from "react-router-dom";
@@ -22,29 +20,29 @@ Font.register({
   ],
 });
 
-const usePatientList = () => {
-  const [patientList, setPatientList] = useState<Patient[]>(() => {
-    return patient_list.sort((a, b) => {
-      if (!a?.location) return 1;
-      if (!b?.location) return -1;
-      return a.location.localeCompare(b.location);
-    });
-  });
+// const usePatientList = () => {
+//   const [patientList, setPatientList] = useState<Patient[]>(() => {
+//     return patient_list.sort((a, b) => {
+//       if (!a?.location) return 1;
+//       if (!b?.location) return -1;
+//       return a.location.localeCompare(b.location);
+//     });
+//   });
 
-  useEffect(() => {
-    localStorage.setItem("patientList", JSON.stringify(patientList));
-  }, [patientList]);
+//   useEffect(() => {
+//     localStorage.setItem("patientList", JSON.stringify(patientList));
+//   }, [patientList]);
 
-  return [patientList, setPatientList] as const;
-};
+//   return [patientList, setPatientList] as const;
+// };
 
 const ShowPDF = () => {
-  const { templateId } = useParams<{ templateId: string }>();
-  const [instance, update] = usePDF({
+  const { templateId } = useParams<{ templateId: KnownTemplateIds }>();
+  const [instance, _] = usePDF({
     document: (
       <PatientListPrintout
         patients={patient_list}
-        templateId={templateId || "default_template"}
+        templateId={templateId || "3_pt_floor_template"}
       />
     ),
   });

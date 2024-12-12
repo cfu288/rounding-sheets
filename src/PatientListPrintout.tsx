@@ -1,7 +1,7 @@
 import { Page, View } from "@react-pdf/renderer";
 import { PatientRow } from "./PatientRow/PatientRow";
 import { Document, StyleSheet } from "@react-pdf/renderer";
-import { getTemplate, KnownTemplateIds, patient_list } from "./const";
+import { getTemplate, KnownTemplateIds } from "./const";
 import { Patient } from "./Patient";
 import { useMemo } from "react";
 
@@ -32,7 +32,7 @@ export const PatientListPrintout = ({
       template_id: templateId,
     }).patientsPerPage;
 
-    for (const patient of patient_list) {
+    for (const patient of patients) {
       const size: number =
         getTemplate({
           template_id: templateId,
@@ -61,12 +61,12 @@ export const PatientListPrintout = ({
 
     return result;
   }, [templateId]);
-  const totalPatients = patients.length;
-  const patientsPerPage =
-    ACTUAL_PATIENTS_PER_PAGE.length > 0
-      ? ACTUAL_PATIENTS_PER_PAGE[0].length
-      : 0;
-  const totalPages = Math.ceil(totalPatients / patientsPerPage);
+  // const totalPatients = patients.length;
+  // const patientsPerPage =
+  //   ACTUAL_PATIENTS_PER_PAGE.length > 0
+  //     ? ACTUAL_PATIENTS_PER_PAGE[0].length
+  //     : 0;
+  // const totalPages = Math.ceil(totalPatients / patientsPerPage);
 
   return (
     <Document

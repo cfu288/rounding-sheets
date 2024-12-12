@@ -1,4 +1,3 @@
-import { getTemplate } from "../const";
 import { CMPFishbone } from "./Labs/CMPFishbone";
 import { HHFishbone } from "./Labs/HHFishbone";
 import { ReverseYFishbone } from "./Labs/ReverseYFishbone";
