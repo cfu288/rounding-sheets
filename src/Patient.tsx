@@ -1,3 +1,4 @@
+import { DisplayTemplate } from "./DisplayTemplate";
 import { Todo } from "./Todo";
 
 export type Patient = {
@@ -13,7 +14,7 @@ export type Patient = {
     assessment: string;
     plan: string[];
   }[];
-  display_size?: "1x" | "2x" | "3x";
+  display_template_overrides?: Partial<DisplayTemplate>[];
 };
 
 export const PatientSchema = {
@@ -47,7 +48,7 @@ export const PatientSchema = {
         required: ["assessment", "plan"],
       },
     },
-    display_size: { type: "string", enum: ["1x", "2x", "3x"] },
+    display_size: { type: "string", enum: ["1x", "2x"] },
   },
   definitions: {
     Todo: {

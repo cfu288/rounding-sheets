@@ -2,20 +2,9 @@ import { Svg, Line, Text } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 
 const fishboneStyles = StyleSheet.create({
-  fishboneContainer: {
-    display: "flex",
-    flexDirection: "row",
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "space-around",
-  },
-  fishboneRow: {
-    display: "flex",
-    flexDirection: "row",
-  },
   fishboneSvg: {
-    margin: "8px",
-    marginVertical: "2px",
+    // margin: "8px",
+    // marginVertical: "2px",
   },
   fishboneLabelText: {
     fontSize: "3px",
@@ -26,18 +15,43 @@ const fishboneStyles = StyleSheet.create({
   },
 });
 
-// Create PatientRow Component
-export function XFishbone({
-  hgb = 13.5,
-  hct = 40.0,
-  wbc = 6.0,
-  plt = 250,
+function formatXFishboneValues({
+  alt,
+  bili,
+  ast,
+  alkPhos,
 }: {
-  hgb?: number;
-  hct?: number;
-  wbc?: number;
-  plt?: number;
+  alt?: number;
+  bili?: number;
+  ast?: number;
+  alkPhos?: number;
+}): {
+  alt: string;
+  bili: string;
+  ast: string;
+  alkPhos: string;
+} {
+  return {
+    alt: alt !== undefined ? alt.toFixed(0) : " ",
+    bili: bili !== undefined ? bili.toFixed(1) : " ",
+    ast: ast !== undefined ? ast.toFixed(0) : " ",
+    alkPhos: alkPhos !== undefined ? alkPhos.toFixed(0) : " ",
+  };
+}
+
+export function XFishbone({
+  alt,
+  bili,
+  ast,
+  alkPhos,
+}: {
+  alt?: number;
+  bili?: number;
+  ast?: number;
+  alkPhos?: number;
 }) {
+  const formattedValues = formatXFishboneValues({ alt, bili, ast, alkPhos });
+
   return (
     <Svg height="40" width="60" style={fishboneStyles.fishboneSvg}>
       <Line x1="20" y1="10" x2="40" y2="30" stroke="black" strokeWidth="1" />
@@ -48,7 +62,7 @@ export function XFishbone({
         textAnchor="end"
         style={fishboneStyles.fishboneLabelText}
       >
-        WBC
+        ALT
       </Text>
       <Text
         x="19"
@@ -56,7 +70,7 @@ export function XFishbone({
         textAnchor="end"
         style={fishboneStyles.fishboneValueText}
       >
-        {wbc}
+        {formattedValues.alt}
       </Text>
       <Text
         x="30"
@@ -64,7 +78,7 @@ export function XFishbone({
         textAnchor="middle"
         style={fishboneStyles.fishboneLabelText}
       >
-        HGB
+        Bili
       </Text>
       <Text
         x="30"
@@ -72,23 +86,7 @@ export function XFishbone({
         textAnchor="middle"
         style={fishboneStyles.fishboneValueText}
       >
-        {hgb}
-      </Text>
-      <Text
-        x="30"
-        y="27"
-        textAnchor="middle"
-        style={fishboneStyles.fishboneLabelText}
-      >
-        HCT
-      </Text>
-      <Text
-        x="30"
-        y="34"
-        textAnchor="middle"
-        style={fishboneStyles.fishboneValueText}
-      >
-        {hct}
+        {formattedValues.bili}
       </Text>
       <Text
         x="33"
@@ -96,7 +94,7 @@ export function XFishbone({
         textAnchor="start"
         style={fishboneStyles.fishboneLabelText}
       >
-        PLT
+        AST
       </Text>
       <Text
         x="39"
@@ -104,7 +102,23 @@ export function XFishbone({
         textAnchor="start"
         style={fishboneStyles.fishboneValueText}
       >
-        {plt}
+        {formattedValues.ast}
+      </Text>
+      <Text
+        x="30"
+        y="27"
+        textAnchor="middle"
+        style={fishboneStyles.fishboneLabelText}
+      >
+        Alk P
+      </Text>
+      <Text
+        x="30"
+        y="34"
+        textAnchor="middle"
+        style={fishboneStyles.fishboneValueText}
+      >
+        {formattedValues.alkPhos}
       </Text>
     </Svg>
   );

@@ -1,138 +1,193 @@
-import { Todo } from "./Todo";
 import { Patient } from "./Patient";
+import { DisplayTemplate } from "./DisplayTemplate";
 
-export const daily_todo_list: Todo[] = [
+export const display_templates: DisplayTemplate[] = [
   {
-    description: "Note",
-    status: "OPEN",
+    templateName: "Floor Template (3 Patients)",
+    description:
+      "Scutsheet designed for floors that fits 3 patients on a single page",
+    templateId: "3_pt_floor_template",
+    imagePreview: "/images/3person.png",
+    displaySize: "1x",
+    physicalExam: {
+      sections: ["HEENT", "Skin", "CVS", "Pulm", "GI", "MSK", "Neuro", "Lines"],
+    },
+    vitals: {
+      sections: ["Temp", "Sys", "Dias", "RR", "HR", "SpO2"],
+    },
+    dailyTodoList: [
+      {
+        description: "Note",
+        status: "OPEN",
+      },
+      {
+        description: "Labs",
+        status: "OPEN",
+      },
+      {
+        description: "Hospital Course",
+        status: "OPEN",
+      },
+    ],
+    patientsPerPage: 3,
   },
   {
-    description: "Labs",
-    status: "OPEN",
-  },
-  {
-    description: "Hospital Course",
-    status: "OPEN",
+    templateName: "Floor Template (2 Patients)",
+    templateId: "2_pt_floor_template",
+    imagePreview: "/images/2person.png",
+    description:
+      "Scutsheet designed for floors that fits 2 patients on a single page",
+    displaySize: "1x",
+    physicalExam: {
+      sections: ["HEENT", "Skin", "CVS", "Pulm", "GI", "MSK", "Neuro", "Lines"],
+    },
+    vitals: {
+      sections: ["Temp", "Sys", "Dias", "RR", "HR", "SpO2"],
+    },
+    dailyTodoList: [
+      {
+        description: "Note",
+        status: "OPEN",
+      },
+      {
+        description: "Labs",
+        status: "OPEN",
+      },
+      {
+        description: "Hospital Course",
+        status: "OPEN",
+      },
+    ],
+    patientsPerPage: 2,
   },
 ];
 
+export const KnownTemplateIds = [
+  "3_pt_floor_template",
+  "2_pt_floor_template",
+] as const;
+export type KnownTemplateIds = (typeof KnownTemplateIds)[number];
+
+export function getTemplate({
+  template_id = "3_pt_floor_template",
+  custom_override_templates = display_templates,
+}: {
+  template_id?: KnownTemplateIds;
+  custom_override_templates?: Partial<DisplayTemplate>[];
+} = {}): DisplayTemplate {
+  const baseTemplate = display_templates.find(
+    (template) => template.templateId === template_id
+  );
+
+  if (!baseTemplate) {
+    throw new Error(
+      `Template with id ${template_id} not found in display templates`
+    );
+  }
+
+  if (custom_override_templates) {
+    const overrideTemplate = custom_override_templates.find(
+      (template) => template.templateId === template_id
+    );
+
+    if (overrideTemplate) {
+      return { ...baseTemplate, ...overrideTemplate };
+    }
+  }
+
+  return baseTemplate;
+}
+
 export const patient_list: Patient[] = [
   {
-    last_name: "Doe",
-    first_name: "Jane",
-    dob: "",
-    location: "",
-    mrn: "1234567",
-    one_liner:
-      "54-year-old female with atypical chest pain and a history of hypertension and hyperlipidemia.",
-    hpi: [
-      "Jane Doe is a 54-year-old female with a past medical history of hypertension and hyperlipidemia presenting with a 4-hour history of intermittent chest discomfort.",
-      "The pain is described as a mild, dull ache located in the left anterior chest. The discomfort does not radiate and is not associated with exertion.",
-      "She denies any associated shortness of breath, diaphoresis, palpitations, nausea, or syncope. She notes that the pain sometimes improves with position changes and resolves spontaneously within 5–10 minutes.",
-      "She denies recent fevers, chills, upper respiratory symptoms, or cough. No history of prior similar episodes.",
-      "She does not recall any specific activities precipitating today's episode. She denies recent travel, immobilization, or a history of deep vein thrombosis/pulmonary embolism (DVT/PE).",
-      "Social history reveals she is a nonsmoker, has no alcohol intake, and has no recreational drug use. Family history is significant for her father's myocardial infarction at age 58.",
-    ],
-    todos: [
-      {
-        description: "Serial troponins q6 hours x 2 to rule out NSTEMI",
-        due_date: null,
-        status: "OPEN",
-      },
-      {
-        description: "Continuous telemetry monitoring",
-        due_date: null,
-        status: "OPEN",
-      },
-      {
-        description: "Repeat EKG in 4-6 hours or sooner if symptoms worsen",
-        due_date: null,
-        status: "OPEN",
-      },
-      {
-        description: "Continue ASA 81 mg daily",
-        due_date: null,
-        status: "OPEN",
-      },
-      {
-        description: "PRN acetaminophen for musculoskeletal chest pain",
-        due_date: null,
-        status: "OPEN",
-      },
-      {
-        description:
-          "Consider trial of omeprazole 20 mg daily for possible GERD",
-        due_date: null,
-        status: "OPEN",
-      },
-    ],
-    assessment_and_plan: [
-      {
-        assessment: "Acute Coronary Syndrome (ACS)",
-        plan: [
-          "Serial troponins q6 hours x 2",
-          "Continuous telemetry monitoring",
-          "Repeat EKG in 4-6 hours or sooner if symptoms worsen",
-          "Continue ASA 81 mg daily",
-        ],
-      },
-      {
-        assessment: "Hypertension",
-        plan: [
-          "Blood pressure elevated but at baseline. Continue home medication (amlodipine).",
-        ],
-      },
-      {
-        assessment: "Hyperlipidemia",
-        plan: ["Continue atorvastatin 20 mg"],
-      },
-      {
-        assessment: "Musculoskeletal Chest Pain (Possible)",
-        plan: [
-          "PRN acetaminophen for discomfort if chest wall tenderness develops",
-        ],
-      },
-      {
-        assessment: "GERD/Dyspepsia (Possible)",
-        plan: ["Consider trial of omeprazole 20 mg daily"],
-      },
-    ],
-    display_size: "2x",
+    // last_name: "Doe",
+    // first_name: "Jane",
+    // dob: "",
+    // location: "",
+    // mrn: "1234567",
+    // one_liner:
+    //   "54-year-old female with atypical chest pain and a history of hypertension and hyperlipidemia.",
+    // hpi: [
+    //   "Jane Doe is a 54-year-old female with a past medical history of hypertension and hyperlipidemia presenting with a 4-hour history of intermittent chest discomfort.",
+    //   "The pain is described as a mild, dull ache located in the left anterior chest. The discomfort does not radiate and is not associated with exertion.",
+    //   "She denies any associated shortness of breath, diaphoresis, palpitations, nausea, or syncope. She notes that the pain sometimes improves with position changes and resolves spontaneously within 5–10 minutes.",
+    //   "She denies recent fevers, chills, upper respiratory symptoms, or cough. No history of prior similar episodes.",
+    //   "She does not recall any specific activities precipitating today's episode. She denies recent travel, immobilization, or a history of deep vein thrombosis/pulmonary embolism (DVT/PE).",
+    //   "Social history reveals she is a nonsmoker, has no alcohol intake, and has no recreational drug use. Family history is significant for her father's myocardial infarction at age 58.",
+    // ],
+    // todos: [
+    //   {
+    //     description: "Serial troponins q6 hours x 2 to rule out NSTEMI",
+    //     due_date: null,
+    //     status: "OPEN",
+    //   },
+    //   {
+    //     description: "Continuous telemetry monitoring",
+    //     due_date: null,
+    //     status: "OPEN",
+    //   },
+    //   {
+    //     description: "Repeat EKG in 4-6 hours or sooner if symptoms worsen",
+    //     due_date: null,
+    //     status: "OPEN",
+    //   },
+    //   {
+    //     description: "Continue ASA 81 mg daily",
+    //     due_date: null,
+    //     status: "OPEN",
+    //   },
+    //   {
+    //     description: "PRN acetaminophen for musculoskeletal chest pain",
+    //     due_date: null,
+    //     status: "OPEN",
+    //   },
+    //   {
+    //     description:
+    //       "Consider trial of omeprazole 20 mg daily for possible GERD",
+    //     due_date: null,
+    //     status: "OPEN",
+    //   },
+    // ],
+    // assessment_and_plan: [
+    //   {
+    //     assessment: "Acute Coronary Syndrome (ACS)",
+    //     plan: [
+    //       "Serial troponins q6 hours x 2",
+    //       "Continuous telemetry monitoring",
+    //       "Repeat EKG in 4-6 hours or sooner if symptoms worsen",
+    //       "Continue ASA 81 mg daily",
+    //     ],
+    //   },
+    //   {
+    //     assessment: "Hypertension",
+    //     plan: [
+    //       "Blood pressure elevated but at baseline. Continue home medication (amlodipine).",
+    //     ],
+    //   },
+    // {
+    //   assessment: "Hyperlipidemia",
+    //   plan: ["Continue atorvastatin 20 mg"],
+    // },
+    // {
+    //   assessment: "Musculoskeletal Chest Pain (Possible)",
+    //   plan: [
+    //     "PRN acetaminophen for discomfort if chest wall tenderness develops",
+    //   ],
+    // },
+    // {
+    //   assessment: "GERD/Dyspepsia (Possible)",
+    //   plan: ["Consider trial of omeprazole 20 mg daily"],
+    // },
+    // ],
+    // display_size: "2x",
   },
+  {},
+  {},
+  {},
   {},
   {},
 ]; //
 
-// Calculate the number of rows based on the patient list count
-export const N_ROWS = patient_list.length || 0;
-
-export const PATIENTS_PER_PAGE = 3;
-
-export const ACTUAL_PATIENTS_PER_PAGE = (() => {
-  const result: Patient[][] = [];
-  let currentPage: Patient[] = [];
-  let remainingSpace: number = PATIENTS_PER_PAGE;
-
-  for (const patient of patient_list) {
-    const size: number = patient.display_size === "2x" ? 2 : 1;
-
-    if (remainingSpace >= size) {
-      currentPage.push(patient);
-      remainingSpace -= size;
-    } else {
-      result.push(currentPage);
-      currentPage = [patient];
-      remainingSpace = PATIENTS_PER_PAGE - size;
-    }
-  }
-
-  if (currentPage.length > 0) {
-    result.push(currentPage);
-  }
-
-  return result;
-})();
-
-export const CALC_PAGES = Math.ceil(
-  patient_list.length / ACTUAL_PATIENTS_PER_PAGE.length
-);
+// export const CALC_PAGES = Math.ceil(
+//   patient_list.length / ACTUAL_PATIENTS_PER_PAGE.length
+// );

@@ -1,13 +1,32 @@
 import { Text, View, StyleSheet } from "@react-pdf/renderer";
 import { Patient } from "./Patient";
-import { daily_todo_list, PATIENTS_PER_PAGE } from "./const";
-import { XFishbone } from "./XFishbone";
-import { YFishbone } from "./YFishbone";
-import { CMPFishbone } from "./CMPFishbone";
+import { getTemplate, KnownTemplateIds, PATIENTS_PER_PAGE } from "./const";
+import { TodoSection } from "./PatientRow/TodoSection";
+import { AssessmentAndPlan } from "./PatientRow/AssessmentAndPlan";
+import { HPISection } from "./PatientRow/HPISection";
+import { Banner } from "./PatientRow/Banner";
+import { GridSection } from "./PatientRow/GridSection";
 
-// Create styles for PatientRow component
+interface PatientRowProps {
+  patient: Patient;
+  pageIndex: number;
+  index: number;
+  templateId: KnownTemplateIds;
+}
+
 const patientRowStyles = StyleSheet.create({
-  box: {
+  leftBox: {
+    width: "50%",
+    height: `${100 / PATIENTS_PER_PAGE}%`,
+    borderTop: "0.5px solid black",
+    borderBottom: "0.5px solid black",
+    borderLeft: "0.5px solid black",
+    // borderRight: "0.5px solid black",
+    display: "flex",
+    position: "relative",
+    flexDirection: "column",
+  },
+  rightBox: {
     width: "50%",
     height: `${100 / PATIENTS_PER_PAGE}%`,
     borderTop: "0.5px solid black",
@@ -18,7 +37,18 @@ const patientRowStyles = StyleSheet.create({
     position: "relative",
     flexDirection: "column",
   },
-  doubleHeightBox: {
+  leftDoubleHeightBox: {
+    width: "50%",
+    height: `${(100 / PATIENTS_PER_PAGE) * 2}%`,
+    borderTop: "0.5px solid black",
+    borderBottom: "0.5px solid black",
+    borderLeft: "0.5px solid black",
+    // borderRight: "0.5px solid black",
+    display: "flex",
+    position: "relative",
+    flexDirection: "column",
+  },
+  rightDoubleHeightBox: {
     width: "50%",
     height: `${(100 / PATIENTS_PER_PAGE) * 2}%`,
     borderTop: "0.5px solid black",
@@ -40,15 +70,15 @@ const patientRowStyles = StyleSheet.create({
   bannerBox: {
     flex: 1,
     backgroundColor: "white",
-    borderBottom: "1px solid black",
-    borderRight: "1px solid black",
+    borderBottom: "0.5px solid black",
+    borderRight: "0.5px solid black",
     whiteSpace: "nowrap",
     padding: "2px",
   },
   bannerBoxShrinkable: {
     backgroundColor: "white",
-    borderBottom: "1px solid black",
-    borderRight: "1px solid black",
+    borderBottom: "0.5px solid black",
+    borderRight: "0.5px solid black",
     whiteSpace: "nowrap",
     padding: "2px",
     flexShrink: 1,
@@ -57,16 +87,22 @@ const patientRowStyles = StyleSheet.create({
   },
   bannerBoxShrinkableLarge: {
     backgroundColor: "white",
-    borderBottom: "1px solid black",
-    borderRight: "1px solid black",
+    borderBottom: "0.5px solid black",
+    borderRight: "0.5px solid black",
     whiteSpace: "nowrap",
     padding: "2px",
     flexShrink: 1,
     minWidth: "50px",
     minHeight: "13px",
   },
-  eventsTextContainer: {
+  bannerBoxShrinkableLargeRightNoBorder: {
+    backgroundColor: "white",
+    borderBottom: "0.5px solid black",
+    whiteSpace: "nowrap",
     padding: "2px",
+    flexShrink: 1,
+    minWidth: "50px",
+    minHeight: "13px",
   },
   eventsText: {
     padding: "2px",
@@ -89,6 +125,11 @@ const patientRowStyles = StyleSheet.create({
     minHeight: "25%",
     maxHeight: "50%",
   },
+  subObjGridBoxFullWidth: {
+    width: "100%",
+    minHeight: "25%",
+    maxHeight: "50%",
+  },
   labsGridBox: {
     display: "flex",
     flexDirection: "column",
@@ -97,7 +138,7 @@ const patientRowStyles = StyleSheet.create({
   },
   gridBoxText: {
     padding: "2px",
-    paddingBottom: "1px",
+    paddingBottom: "0.5px",
     paddingTop: "3px",
     fontWeight: 700,
   },
@@ -130,7 +171,7 @@ const patientRowStyles = StyleSheet.create({
     bottom: 0,
     display: "flex",
     flexDirection: "row",
-    borderTop: "1px solid black",
+    borderTop: "0.5px solid black",
     width: "100%",
     padding: "2px",
   },
@@ -141,7 +182,7 @@ const patientRowStyles = StyleSheet.create({
   todoBlank: {
     paddingHorizontal: "2px",
     paddingVertical: "2px",
-    borderBottom: "0.5px solid grey",
+    borderBottom: "0.5px dotted grey",
     width: "100%",
   },
   dailyTodoDescription: {
@@ -182,11 +223,36 @@ const patientRowStyles = StyleSheet.create({
     paddingLeft: "2px",
     fontSize: "6px",
   },
+  medsEmptyPlaceholder: {
+    marginLeft: "2px",
+    marginRight: "2px",
+    borderBottom: "0.5px dotted grey",
+    width: "100%",
+  },
   leftBulletText: {
     paddingLeft: "2px",
     color: "#333",
     fontSize: "8px",
     listStyleType: "disc",
+  },
+  leftBulletTextUnderline: {
+    paddingLeft: "2px",
+    marginRight: "2px",
+    marginLeft: "8px",
+    color: "#333",
+    fontSize: "8px",
+    listStyleType: "disc",
+    borderBottom: "0.5px dotted grey",
+    width: "90%",
+    height: "12px",
+  },
+  assessmentBlankUnderline: {
+    borderBottom: "0.5px dotted grey",
+    width: "95%",
+    // marginRight: "2px",
+    // height: "12px",
+    // display: "flex",
+    // alignItems: "center",
   },
   smallBannerText: {
     fontSize: 3,
@@ -202,207 +268,72 @@ const patientRowStyles = StyleSheet.create({
   },
 });
 
-export const PatientRow = ({
+export const PatientRow: React.FC<PatientRowProps> = ({
   patient,
   pageIndex,
   index,
-}: {
-  patient: Patient;
-  pageIndex: number;
-  index: number;
-}) => (
-  <>
-    <View
-      key={`${pageIndex}-${index}-1`}
-      style={
-        patient?.display_size === "2x"
-          ? patientRowStyles.doubleHeightBox
-          : patientRowStyles.box
-      }
-    >
-      <View style={patientRowStyles.bannerContainer}>
-        <View style={patientRowStyles.bannerBoxShrinkable}>
-          <Text
-            style={!patient.location ? patientRowStyles.smallBannerText : {}}
-          >
-            {patient.location ? patient.location : "LOCATION"}
-          </Text>
-        </View>
-        <View style={patientRowStyles.bannerBox}>
-          <Text
-            style={
-              !patient.last_name && !patient.first_name
-                ? patientRowStyles.smallBannerText
-                : {}
-            }
-          >
-            {patient.last_name || patient.first_name
-              ? `${patient.last_name?.toUpperCase()}${
-                  patient.last_name && patient.first_name ? ", " : ""
-                }${patient.first_name}`
-              : "NAME"}
-          </Text>
-        </View>
-        <View style={patientRowStyles.bannerBoxShrinkableLarge}>
-          <Text style={!patient.dob ? patientRowStyles.smallBannerText : {}}>
-            {patient.dob
-              ? `DOB: ${patient.dob} (${
-                  new Date().getFullYear() - new Date(patient.dob).getFullYear()
-                })`
-              : "DOB"}
-          </Text>
-        </View>
-        <View style={patientRowStyles.bannerBoxShrinkableLarge}>
-          <Text style={!patient.mrn ? patientRowStyles.smallBannerText : {}}>
-            {patient.mrn ? `MRN: ${patient.mrn}` : "MRN"}
-          </Text>
-        </View>
-      </View>
-      {patient.hpi?.map((hpi, i) => (
-        <View key={i}>
-          <Text style={patientRowStyles.oneLinerText}>
-            {i === 0 && <Text style={patientRowStyles.apText}>HPI: </Text>}
-            {hpi}
-          </Text>
-        </View>
-      ))}
+  templateId,
+}) => {
+  const vitals = ["Temp", "Sys", "Dias", "RR", "HR", "SpO2"];
+  const physicalExams = [
+    "GEN",
+    "HEENT",
+    "Skin",
+    "CVS",
+    "Pulm",
+    "GI",
+    "MSK",
+    "Neuro",
+    "Lines",
+  ];
 
-      <View style={patientRowStyles.gridContainer}>
-        <View style={patientRowStyles.subObjGridBox}>
-          <Text style={patientRowStyles.eventsText}>Events:</Text>
-        </View>
-        <View style={patientRowStyles.subObjGridBox}>
-          <Text style={patientRowStyles.gridBoxText}>Vitals:</Text>
-          <Text style={patientRowStyles.peText}>Temp:</Text>
-          <Text style={patientRowStyles.peText}>Sys:</Text>
-          <Text style={patientRowStyles.peText}>Dias:</Text>
-          <Text style={patientRowStyles.peText}>RR:</Text>
-          <Text style={patientRowStyles.peText}>HR:</Text>
-          <Text style={patientRowStyles.peText}>O2:</Text>
-        </View>
-        <View style={patientRowStyles.subObjGridBox}>
-          <Text style={patientRowStyles.gridBoxText}>Labs:</Text>
-          <View style={patientRowStyles.labsGridBox}>
-            <View style={patientRowStyles.fishboneContainer}>
-              <YFishbone />
-              <XFishbone />
-            </View>
-            <CMPFishbone />
-          </View>
-        </View>
-        <View style={patientRowStyles.subObjGridBox}>
-          <Text style={patientRowStyles.gridBoxText}>PE:</Text>
-          <Text style={patientRowStyles.peText}>GEN:</Text>
-          <Text style={patientRowStyles.peText}>HEENT:</Text>
-          <Text style={patientRowStyles.peText}>Skin:</Text>
-          <Text style={patientRowStyles.peText}>CVS:</Text>
-          <Text style={patientRowStyles.peText}>Pulm:</Text>
-          <Text style={patientRowStyles.peText}>GI:</Text>
-          <Text style={patientRowStyles.peText}>MSK:</Text>
-          <Text style={patientRowStyles.peText}>Neuro:</Text>
-          <Text style={patientRowStyles.peText}>Lines:</Text>
-        </View>
-        <View style={patientRowStyles.subObjGridBox}>
-          <Text style={patientRowStyles.gridBoxText}>Meds:</Text>
-          <View style={patientRowStyles.medsContainer}>
-            <View style={patientRowStyles.medsColumn}>
-              <Text style={patientRowStyles.medsText}>
-                Amlodipine 10mg PO BID
-              </Text>
-              <Text style={patientRowStyles.medsText}>
-                Lisinopril 20mg PO QD
-              </Text>
-              <Text style={patientRowStyles.medsText}>
-                Metformin 500mg PO BID
-              </Text>
-              <Text style={patientRowStyles.medsText}>
-                Atorvastatin 40mg PO QHS
-              </Text>
-            </View>
-            <View style={patientRowStyles.medsColumn}>
-              <Text style={patientRowStyles.medsText}>
-                Omeprazole 20mg PO QD
-              </Text>
-              <Text style={patientRowStyles.medsText}>
-                Insulin Glargine 10 units SC QHS
-              </Text>
-              <Text style={patientRowStyles.medsText}>
-                Insulin Lispro 5 units SC TID with meals
-              </Text>
-            </View>
-          </View>
-        </View>
+  return (
+    <>
+      <View
+        key={`${pageIndex}-${index}-1`}
+        style={
+          getTemplate({
+            template_id: templateId,
+            custom_override_templates: patient.display_template_overrides,
+          }).displaySize === "2x"
+            ? patientRowStyles.leftDoubleHeightBox
+            : patientRowStyles.leftBox
+        }
+      >
+        <Banner patient={patient} />
+        <HPISection patient={patient} />
+        <GridSection vitals={vitals} physicalExams={physicalExams} />
       </View>
-    </View>
-    <View
-      key={`${pageIndex}-${index}-2`}
-      style={
-        patient?.display_size === "2x"
-          ? patientRowStyles.doubleHeightBox
-          : patientRowStyles.box
-      }
-    >
-      <View style={patientRowStyles.splitBoxContainer}>
-        <View
-          style={{
-            display: "flex",
-          }}
-        >
-          <Text style={patientRowStyles.apText}>
-            A/P:{" "}
-            {patient.one_liner && (
-              <Text style={patientRowStyles.oneLinerText}>
-                {patient.one_liner}
-              </Text>
-            )}
-          </Text>
-        </View>
-        <View style={patientRowStyles.gridContainer}>
-          {Array.from({ length: 4 }).map((_, i) => (
-            <View key={i} style={patientRowStyles.apGridBox}>
-              <Text style={patientRowStyles.gridBoxText}>
-                {patient.assessment_and_plan && patient.assessment_and_plan[i]
-                  ? `# ${patient.assessment_and_plan?.[i].assessment}:`
-                  : "#"}
-              </Text>
-              {patient.assessment_and_plan &&
-                patient.assessment_and_plan?.[i]?.plan.map((plan, j) => (
-                  <Text style={patientRowStyles.leftBulletText} key={j}>
-                    • {plan}
-                  </Text>
-                ))}
-            </View>
-          ))}
-        </View>
-        <View style={patientRowStyles.todoContainer}>
-          <View style={patientRowStyles.todoFlexContainer}>
-            <Text style={patientRowStyles.todoText}>Todo:</Text>
-            {patient.todos?.map((todo, i) => (
-              <View key={i}>
-                <Text style={patientRowStyles.todoDescription}>
-                  [{"  "}] {todo.description}
+      <View
+        key={`${pageIndex}-${index}-2`}
+        style={
+          getTemplate({
+            template_id: templateId,
+            custom_override_templates: patient.display_template_overrides,
+          }).displaySize === "2x"
+            ? patientRowStyles.leftDoubleHeightBox
+            : patientRowStyles.rightBox
+        }
+      >
+        <View style={patientRowStyles.splitBoxContainer}>
+          <View
+            style={{
+              display: "flex",
+            }}
+          >
+            <Text style={patientRowStyles.apText}>
+              A/P:{" "}
+              {patient.one_liner && (
+                <Text style={patientRowStyles.oneLinerText}>
+                  {patient.one_liner}
                 </Text>
-              </View>
-            ))}
-            {[0, 1, 2].map((i) => (
-              <View key={i}>
-                <Text style={patientRowStyles.todoBlank}>[{"  "}]</Text>
-              </View>
-            ))}
+              )}
+            </Text>
           </View>
-          {daily_todo_list && (
-            <View style={patientRowStyles.footer}>
-              {daily_todo_list.map((todo, i) => (
-                <View key={i}>
-                  <Text style={patientRowStyles.dailyTodoDescription}>
-                    [{"  "}] {todo.description}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
+          <AssessmentAndPlan patient={patient} />
+          <TodoSection patient={patient} />
         </View>
       </View>
-    </View>
-  </>
-);
+    </>
+  );
+};
