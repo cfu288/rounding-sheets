@@ -16,8 +16,8 @@ export interface HPISectionProps {
 }
 
 export interface GridSectionProps {
-  vitals: string[];
-  physicalExams: string[];
+  patient: Patient;
+  templateId: KnownTemplateIds;
 }
 
 export interface AssessmentAndPlanProps {
@@ -26,48 +26,6 @@ export interface AssessmentAndPlanProps {
 }
 
 const patientRowStyles = StyleSheet.create({
-  // leftBox: {
-  //   width: "50%",
-  //   height: `${100 / getTemplate({}).patientsPerPage}%`,
-  //   borderTop: "0.5px solid black",
-  //   borderBottom: "0.5px solid black",
-  //   borderLeft: "0.5px solid black",
-  //   display: "flex",
-  //   position: "relative",
-  //   flexDirection: "column",
-  // },
-  // rightBox: {
-  //   width: "50%",
-  //   height: `${100 / getTemplate({}).patientsPerPage}%`,
-  //   borderTop: "0.5px solid black",
-  //   borderBottom: "0.5px solid black",
-  //   borderLeft: "0.5px solid black",
-  //   borderRight: "0.5px solid black",
-  //   display: "flex",
-  //   position: "relative",
-  //   flexDirection: "column",
-  // },
-  // leftDoubleHeightBox: {
-  //   width: "50%",
-  //   height: `${(100 / getTemplate({}).patientsPerPage) * 2}%`,
-  //   borderTop: "0.5px solid black",
-  //   borderBottom: "0.5px solid black",
-  //   borderLeft: "0.5px solid black",
-  //   display: "flex",
-  //   position: "relative",
-  //   flexDirection: "column",
-  // },
-  // rightDoubleHeightBox: {
-  //   width: "50%",
-  //   height: `${(100 / getTemplate({}).patientsPerPage) * 2}%`,
-  //   borderTop: "0.5px solid black",
-  //   borderBottom: "0.5px solid black",
-  //   borderLeft: "0.5px solid black",
-  //   borderRight: "0.5px solid black",
-  //   display: "flex",
-  //   position: "relative",
-  //   flexDirection: "column",
-  // },
   bannerBox: {
     flex: 1,
     backgroundColor: "white",
@@ -147,113 +105,53 @@ export const PatientRow: React.FC<PatientRowProps> = ({
   index,
   templateId,
 }) => {
+  const template = getTemplate({
+    template_id: templateId,
+    custom_override_templates: patient.display_template_overrides,
+  });
+
+  const isDoubleSize = template.displaySize === "2x";
+  const heightPercentage = isDoubleSize
+    ? (100 / template.patientsPerPage) * 2
+    : 100 / template.patientsPerPage;
+
   return (
     <>
       <View
         key={`${pageIndex}-${index}-1`}
-        style={
-          getTemplate({
-            template_id: templateId,
-            custom_override_templates: patient.display_template_overrides,
-          }).displaySize === "2x"
-            ? {
-                width: "50%",
-                height: `${
-                  (100 /
-                    getTemplate({
-                      template_id: templateId,
-                      custom_override_templates:
-                        patient.display_template_overrides,
-                    }).patientsPerPage) *
-                  2
-                }%`,
-                borderTop: "0.5px solid black",
-                borderBottom: "0.5px solid black",
-                borderLeft: "0.5px solid black",
-                display: "flex",
-                position: "relative",
-                flexDirection: "column",
-              }
-            : {
-                width: "50%",
-                height: `${
-                  100 /
-                  getTemplate({
-                    template_id: templateId,
-                    custom_override_templates:
-                      patient.display_template_overrides,
-                  }).patientsPerPage
-                }%`,
-                borderTop: "0.5px solid black",
-                borderBottom: "0.5px solid black",
-                borderLeft: "0.5px solid black",
-                display: "flex",
-                position: "relative",
-                flexDirection: "column",
-              }
-        }
+        style={{
+          width: "50%",
+          height: `${heightPercentage}%`,
+          borderTop: "0.5px solid black",
+          borderBottom: "0.5px solid black",
+          borderLeft: "0.5px solid black",
+          display: "flex",
+          position: "relative",
+          flexDirection: "column",
+        }}
       >
         <Banner patient={patient} />
         <HPISection patient={patient} />
         <GridSection
-          vitals={
-            getTemplate({
-              template_id: templateId,
-              custom_override_templates: patient.display_template_overrides,
-            }).vitals.sections
-          }
-          physicalExams={
-            getTemplate({
-              template_id: templateId,
-              custom_override_templates: patient.display_template_overrides,
-            }).physicalExam.sections
-          }
+          patient={patient}
+          templateId={templateId}
+          // vitals={template.vitals.sections}
+          // physicalExams={template.physicalExam.sections}
         />
       </View>
       <View
         key={`${pageIndex}-${index}-2`}
-        style={
-          getTemplate({
-            template_id: templateId,
-            custom_override_templates: patient.display_template_overrides,
-          }).displaySize === "2x"
-            ? {
-                width: "50%",
-                height: `${
-                  (100 /
-                    getTemplate({
-                      template_id: templateId,
-                      custom_override_templates:
-                        patient.display_template_overrides,
-                    }).patientsPerPage) *
-                  2
-                }%`,
-                borderTop: "0.5px solid black",
-                borderBottom: "0.5px solid black",
-                borderLeft: "0.5px solid black",
-                display: "flex",
-                position: "relative",
-                flexDirection: "column",
-              }
-            : {
-                width: "50%",
-                height: `${
-                  100 /
-                  getTemplate({
-                    template_id: templateId,
-                    custom_override_templates:
-                      patient.display_template_overrides,
-                  }).patientsPerPage
-                }%`,
-                borderTop: "0.5px solid black",
-                borderBottom: "0.5px solid black",
-                borderLeft: "0.5px solid black",
-                borderRight: "0.5px solid black",
-                display: "flex",
-                position: "relative",
-                flexDirection: "column",
-              }
-        }
+        style={{
+          width: "50%",
+          height: `${heightPercentage}%`,
+          borderTop: "0.5px solid black",
+          borderBottom: "0.5px solid black",
+          borderLeft: "0.5px solid black",
+          borderRight: "0.5px solid black",
+          display: "flex",
+          position: "relative",
+          flexDirection: "column",
+        }}
       >
         <View style={patientRowStyles.splitBoxContainer}>
           <View

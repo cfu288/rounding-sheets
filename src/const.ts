@@ -3,17 +3,31 @@ import { DisplayTemplate } from "./DisplayTemplate";
 
 export const display_templates: DisplayTemplate[] = [
   {
-    templateName: "Floor Template (3 Patients)",
+    templateName: "Medicine Floor (3 Patients)",
     description:
-      "Scutsheet designed for floors that fits 3 patients on a single page",
+      "Scutsheet designed for residents on floors. Designed to keep track of the most important information for rounds.",
     templateId: "3_pt_floor_template",
     imagePreview: "/images/3person.png",
     displaySize: "1x",
+    hpi: {
+      enabled: true,
+    },
+    events: {
+      enabled: true,
+    },
     physicalExam: {
+      enabled: true,
       sections: ["HEENT", "Skin", "CVS", "Pulm", "GI", "MSK", "Neuro", "Lines"],
     },
     vitals: {
+      enabled: true,
       sections: ["Temp", "Sys", "Dias", "RR", "HR", "SpO2"],
+    },
+    labs: {
+      enabled: true,
+    },
+    meds: {
+      enabled: true,
     },
     dailyTodoList: [
       {
@@ -32,17 +46,31 @@ export const display_templates: DisplayTemplate[] = [
     patientsPerPage: 3,
   },
   {
-    templateName: "Floor Template (2 Patients)",
+    templateName: "Medicine Floor (2 Patients)",
     templateId: "2_pt_floor_template",
     imagePreview: "/images/2person.png",
     description:
       "Scutsheet designed for floors that fits 2 patients on a single page",
     displaySize: "1x",
+    hpi: {
+      enabled: true,
+    },
+    events: {
+      enabled: true,
+    },
     physicalExam: {
+      enabled: true,
       sections: ["HEENT", "Skin", "CVS", "Pulm", "GI", "MSK", "Neuro", "Lines"],
     },
     vitals: {
+      enabled: true,
       sections: ["Temp", "Sys", "Dias", "RR", "HR", "SpO2"],
+    },
+    labs: {
+      enabled: true,
+    },
+    meds: {
+      enabled: true,
     },
     dailyTodoList: [
       {
@@ -60,11 +88,55 @@ export const display_templates: DisplayTemplate[] = [
     ],
     patientsPerPage: 2,
   },
+  {
+    templateName: "Medicine Floor",
+    templateId: "1_pt_floor_template",
+    imagePreview: "/images/2person.png",
+    description:
+      "Scutsheet designed for residents on floors, but with a bit more space. Great for new admissions.",
+    displaySize: "1x",
+    hpi: {
+      enabled: true,
+    },
+    events: {
+      enabled: true,
+    },
+    physicalExam: {
+      enabled: true,
+      sections: ["HEENT", "Skin", "CVS", "Pulm", "GI", "MSK", "Neuro", "Lines"],
+    },
+    vitals: {
+      enabled: true,
+      sections: ["Temp", "Sys", "Dias", "RR", "HR", "SpO2"],
+    },
+    labs: {
+      enabled: true,
+    },
+    meds: {
+      enabled: true,
+    },
+    dailyTodoList: [
+      {
+        description: "Note",
+        status: "OPEN",
+      },
+      {
+        description: "Labs",
+        status: "OPEN",
+      },
+      {
+        description: "Hospital Course",
+        status: "OPEN",
+      },
+    ],
+    patientsPerPage: 1,
+  },
 ];
 
 export const KnownTemplateIds = [
   "3_pt_floor_template",
   "2_pt_floor_template",
+  "1_pt_floor_template",
 ] as const;
 export type KnownTemplateIds = (typeof KnownTemplateIds)[number];
 

@@ -1,3 +1,4 @@
+import { getTemplate } from "../const";
 import { CMPFishbone } from "./Labs/CMPFishbone";
 import { HHFishbone } from "./Labs/HHFishbone";
 import { ReverseYFishbone } from "./Labs/ReverseYFishbone";
@@ -148,74 +149,85 @@ const patientRowStyles = StyleSheet.create({
   },
 });
 
-export const GridSection: React.FC<
-  GridSectionProps & { medications?: string[] }
-> = ({
-  vitals,
-  physicalExams,
-  medications = [
-    // "Amlodipine 10mg PO BID",
-    // "Lisinopril 20mg PO QD",
-    // "Metformin 500mg PO BID",
-    // "Atorvastatin 40mg PO QHS",
-    // "Aspirin 81mg PO QD",
-    // "Tamulosin 0.4mg PO QHS",
-    // "Omeprazole 20mg PO QD",
-    // "Insulin Glargine 10 units SC QHS",
-    // "Insulin Lispro 5 units SC TID with meals",
-    // "Insulin Sensitive Sliding Scale",
-  ],
-}) => (
-  <View style={patientRowStyles.gridContainer}>
-    <View style={patientRowStyles.subObjGridBoxFullWidth}>
-      <Text style={patientRowStyles.eventsText}>Events:</Text>
-    </View>
-    <View style={patientRowStyles.subObjGridBox}>
-      <Text style={patientRowStyles.gridBoxText}>Vitals:</Text>
-      {vitals.map((vital, i) => (
-        <Text key={i} style={patientRowStyles.peText}>
-          {vital}:
-        </Text>
-      ))}
-    </View>
-    <View style={patientRowStyles.subObjGridBox}>
-      <Text style={patientRowStyles.gridBoxText}>PE:</Text>
-      {physicalExams.map((exam, i) => (
-        <Text key={i} style={patientRowStyles.peText}>
-          {exam}:
-        </Text>
-      ))}
-    </View>
-    <View style={patientRowStyles.subObjGridBox}>
-      <Text style={patientRowStyles.gridBoxText}>Labs:</Text>
-      <View style={patientRowStyles.labsGridBox}>
-        <View style={patientRowStyles.fishboneContainer}>
-          <HHFishbone />
-          <CMPFishbone />
-        </View>
-        <View style={patientRowStyles.fishboneContainer}>
-          <XFishbone />
-          <YFishbone />
-          <ReverseYFishbone />
-        </View>
-      </View>
-    </View>
+export const GridSection: React.FC<GridSectionProps> = ({
+  patient,
+  templateId,
+}) => {
+  const template = getTemplate({
+    template_id: templateId,
+    custom_override_templates: patient.display_template_overrides,
+  });
 
-    <View style={patientRowStyles.subObjGridBox}>
-      <Text style={patientRowStyles.gridBoxText}>Meds:</Text>
-      <View style={patientRowStyles.medsContainer}>
-        {medications.length > 0
-          ? medications.sort().map((med, i) => (
-              <Text key={i} style={patientRowStyles.medsText}>
-                {med};
-              </Text>
-            ))
-          : Array.from({ length: 7 }).map((_, i) => (
-              <Text key={i} style={patientRowStyles.medsEmptyPlaceholder}>
-                {" "}
-              </Text>
-            ))}
-      </View>
+  const vitals = template.vitals.sections;
+  const vitalsEnabled = template.vitals.enabled;
+  const physicalExamEnabled = template.physicalExam.enabled;
+  const eventsEnabled = template.events.enabled;
+  const physicalExams = template.physicalExam.sections;
+  const medications: string[] = [];
+  const labsEnabled = template.labs.enabled;
+  const medsEnabled = template.meds.enabled;
+
+  return (
+    <View style={patientRowStyles.gridContainer}>
+      {eventsEnabled && (
+        <View style={patientRowStyles.subObjGridBoxFullWidth}>
+          <Text style={patientRowStyles.eventsText}>Events:</Text>
+        </View>
+      )}
+      {vitalsEnabled && (
+        <View style={patientRowStyles.subObjGridBox}>
+          <Text style={patientRowStyles.gridBoxText}>Vitals:</Text>
+          {vitals.map((vital, i) => (
+            <Text key={i} style={patientRowStyles.peText}>
+              {vital}:
+            </Text>
+          ))}
+        </View>
+      )}
+      {physicalExamEnabled && (
+        <View style={patientRowStyles.subObjGridBox}>
+          <Text style={patientRowStyles.gridBoxText}>PE:</Text>
+          {physicalExams.map((exam, i) => (
+            <Text key={i} style={patientRowStyles.peText}>
+              {exam}:
+            </Text>
+          ))}
+        </View>
+      )}
+      {labsEnabled && (
+        <View style={patientRowStyles.subObjGridBox}>
+          <Text style={patientRowStyles.gridBoxText}>Labs:</Text>
+          <View style={patientRowStyles.labsGridBox}>
+            <View style={patientRowStyles.fishboneContainer}>
+              <HHFishbone />
+              <CMPFishbone />
+            </View>
+            <View style={patientRowStyles.fishboneContainer}>
+              <XFishbone />
+              <YFishbone />
+              <ReverseYFishbone />
+            </View>
+          </View>
+        </View>
+      )}
+      {medsEnabled && (
+        <View style={patientRowStyles.subObjGridBox}>
+          <Text style={patientRowStyles.gridBoxText}>Meds:</Text>
+          <View style={patientRowStyles.medsContainer}>
+            {medications.length > 0
+              ? medications.sort().map((med, i) => (
+                  <Text key={i} style={patientRowStyles.medsText}>
+                    {med};
+                  </Text>
+                ))
+              : Array.from({ length: 7 }).map((_, i) => (
+                  <Text key={i} style={patientRowStyles.medsEmptyPlaceholder}>
+                    {" "}
+                  </Text>
+                ))}
+          </View>
+        </View>
+      )}
     </View>
-  </View>
-);
+  );
+};

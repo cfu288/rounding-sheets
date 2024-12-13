@@ -54,14 +54,14 @@ export const AssessmentAndPlan: React.FC<AssessmentAndPlanProps> = ({
     getTemplate({
       template_id: templateId,
       custom_override_templates: patient.display_template_overrides,
-    }).patientsPerPage === 3
+    }).patientsPerPage >= 3
   ) {
     blankAPSectionsToDisplay = 4;
   } else if (
     getTemplate({
       template_id: templateId,
       custom_override_templates: patient.display_template_overrides,
-    }).patientsPerPage === 2 ||
+    }).patientsPerPage <= 2 ||
     getTemplate({
       template_id: templateId,
       custom_override_templates: patient.display_template_overrides,
@@ -72,6 +72,7 @@ export const AssessmentAndPlan: React.FC<AssessmentAndPlanProps> = ({
     blankAPSectionsToDisplay = 4;
   }
   blankAPSectionsToDisplay -= patient.assessment_and_plan?.length || 0;
+
   return (
     <View style={patientRowStyles.gridContainer}>
       {patient.assessment_and_plan?.map((ap, i) => (

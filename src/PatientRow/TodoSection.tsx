@@ -53,7 +53,15 @@ export const TodoSection: React.FC<TodoSectionProps> = ({
   templateId,
 }) => {
   const todosCount = patient.todos?.length || 0;
-  const blankLinesCount = Math.max(0, 5 - todosCount);
+  const template = getTemplate({
+    template_id: templateId,
+    custom_override_templates: patient.display_template_overrides,
+  });
+  const blankLinesCount = Math.max(
+    0,
+    (template.patientsPerPage === 1 || template.displaySize === "2x" ? 10 : 5) -
+      todosCount
+  );
 
   return (
     <View style={todoStyles.todoContainer}>
@@ -72,15 +80,9 @@ export const TodoSection: React.FC<TodoSectionProps> = ({
           </View>
         ))}
       </View>
-      {getTemplate({
-        template_id: templateId,
-        custom_override_templates: patient.display_template_overrides,
-      }).dailyTodoList && (
+      {template.dailyTodoList && (
         <View style={todoStyles.footer}>
-          {getTemplate({
-            template_id: templateId,
-            custom_override_templates: patient.display_template_overrides,
-          }).dailyTodoList?.map((todo, i) => (
+          {template.dailyTodoList?.map((todo, i) => (
             <View key={i}>
               <Text style={todoStyles.dailyTodoDescription}>
                 [{"  "}] {todo.description}
