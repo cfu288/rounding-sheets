@@ -1,11 +1,11 @@
-import { Patient } from "./Patient";
-import { DisplayTemplate } from "./DisplayTemplate";
+import { Patient } from "./models/Patient";
+import { DisplayTemplate } from "./models/DisplayTemplate";
 
 export const display_templates: DisplayTemplate[] = [
   {
     templateName: "Medicine Floor (3 Patients)",
     description:
-      "Scutsheet designed for residents on floors. Designed to keep track of the most important information for rounds.",
+      "Designed for residents on floors. Keep track of the most important information for rounds.",
     templateId: "3_pt_floor_template",
     imagePreview: "/images/3person.png",
     displaySize: "1x",
@@ -49,8 +49,7 @@ export const display_templates: DisplayTemplate[] = [
     templateName: "Medicine Floor (2 Patients)",
     templateId: "2_pt_floor_template",
     imagePreview: "/images/2person.png",
-    description:
-      "Scutsheet designed for floors that fits 2 patients on a single page",
+    description: "Designed for floors, fits 2 patients on a single page",
     displaySize: "1x",
     hpi: {
       enabled: true,
@@ -89,11 +88,10 @@ export const display_templates: DisplayTemplate[] = [
     patientsPerPage: 2,
   },
   {
-    templateName: "Medicine Floor",
+    templateName: "Medicine Floor (Single Patient)",
     templateId: "1_pt_floor_template",
     imagePreview: "/images/2person.png",
-    description:
-      "Scutsheet designed for residents on floors, but with a bit more space. Great for new admissions.",
+    description: "One full page per patient. Great for new admissions.",
     displaySize: "1x",
     hpi: {
       enabled: true,

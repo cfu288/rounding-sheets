@@ -1,6 +1,6 @@
 import { Text, View, StyleSheet } from "@react-pdf/renderer";
-import { Patient } from "../Patient";
-import { getTemplate, KnownTemplateIds } from "../const";
+import { Patient } from "../../../models/Patient";
+import { getTemplate, KnownTemplateIds } from "../../../const";
 import { GridSection } from "./GridSection";
 import { AssessmentAndPlan } from "./AssessmentAndPlan";
 import { HPISection } from "./HPISection";

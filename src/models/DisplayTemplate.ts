@@ -1,4 +1,4 @@
-import { KnownTemplateIds } from "./const";
+import { KnownTemplateIds } from "../const";
 import { Todo } from "./Todo";
 
 export type DisplayTemplate = {

@@ -1,4 +1,4 @@
-import { getTemplate } from "../const";
+import { getTemplate } from "../../../const";
 import { AssessmentAndPlanProps } from "./PatientRow";
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 

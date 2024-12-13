@@ -1,8 +1,8 @@
 import { Page, View } from "@react-pdf/renderer";
 import { PatientRow } from "./PatientRow/PatientRow";
 import { Document, StyleSheet } from "@react-pdf/renderer";
-import { getTemplate, KnownTemplateIds } from "./const";
-import { Patient } from "./Patient";
+import { getTemplate, KnownTemplateIds } from "../../const";
+import { Patient } from "../../models/Patient";
 import { useMemo } from "react";
 
 const documentStyles = StyleSheet.create({

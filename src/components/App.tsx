@@ -1,19 +1,19 @@
-import { KnownTemplateIds, patient_list } from "./const";
+import { KnownTemplateIds, patient_list } from "../const";
 import { Font } from "@react-pdf/renderer";
-import source1 from "./assets/Atkinson-Hyperlegible-Regular.ttf";
-import source2 from "./assets/Atkinson-Hyperlegible-Italic.ttf";
-import source3 from "./assets/Atkinson-Hyperlegible-BoldItalic.ttf";
-import source4 from "./assets/Atkinson-Hyperlegible-Bold.ttf";
-import { PatientListPrintout } from "./PatientListPrintout";
+import source1 from "../assets/Atkinson-Hyperlegible-Regular.ttf";
+import source2 from "../assets/Atkinson-Hyperlegible-Italic.ttf";
+import source3 from "../assets/Atkinson-Hyperlegible-BoldItalic.ttf";
+import source4 from "../assets/Atkinson-Hyperlegible-Bold.ttf";
+import { PatientListPrintout } from "./PatientListPrintout/PatientListPrintout";
 import { usePDF } from "@react-pdf/renderer";
 import { Route, Routes } from "react-router";
 import { useParams } from "react-router-dom";
-import { Home } from "./Home";
+import { Home } from "../pages/Home";
 
 Font.register({
   family: "Atkinson",
   fonts: [
-    { src: source1, fontWeight: "normal" }, // font-style: normal, font-weight: normal
+    { src: source1, fontWeight: "normal" },
     { src: source2, fontStyle: "italic" },
     { src: source3, fontStyle: "italic", fontWeight: 700 },
     { src: source4, fontWeight: 700 },
@@ -66,7 +66,6 @@ const App = () => {
   return (
     <Routes>
       <Route index element={<Home />} />
-
       <Route path="scutsheet">
         <Route path=":templateId" element={<ShowPDF />} />
       </Route>

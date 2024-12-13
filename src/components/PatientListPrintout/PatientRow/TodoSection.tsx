@@ -1,7 +1,7 @@
 import { View, Text } from "@react-pdf/renderer";
-import { getTemplate, KnownTemplateIds } from "../const";
+import { getTemplate, KnownTemplateIds } from "../../../const";
 import { StyleSheet } from "@react-pdf/renderer";
-import { Patient } from "../Patient";
+import { Patient } from "../../../models/Patient";
 
 const todoStyles = StyleSheet.create({
   todoFlexContainer: {

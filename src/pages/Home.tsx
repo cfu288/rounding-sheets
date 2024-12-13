@@ -1,4 +1,4 @@
-import { display_templates } from "./const";
+import { display_templates } from "../const";
 
 const gradients = [
   // "from-teal-600/40 via-indigo-800/20",
@@ -18,9 +18,9 @@ export const Home = () => {
             ReverbMD
           </h2>
           <p className="mt-2 text-lg/8 text-gray-600">
-            Explore our custom scutsheets built to help you stay organized and a
-            variety of clinical tools to help fill in the missing feature gaps
-            of your EMR.
+            Explore our custom scutsheets built to help you stay organized on
+            rounds and a variety of clinical tools to help fill in the missing
+            feature gaps of your EMR.
           </p>
         </div>
         <div className="my-16">
