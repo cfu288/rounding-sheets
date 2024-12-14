@@ -13,6 +13,7 @@ export interface BannerProps {
 
 export interface HPISectionProps {
   patient: Patient;
+  templateId: KnownTemplateIds;
 }
 
 export interface GridSectionProps {
@@ -131,13 +132,8 @@ export const PatientRow: React.FC<PatientRowProps> = ({
         }}
       >
         <Banner patient={patient} />
-        <HPISection patient={patient} />
-        <GridSection
-          patient={patient}
-          templateId={templateId}
-          // vitals={template.vitals.sections}
-          // physicalExams={template.physicalExam.sections}
-        />
+        <HPISection patient={patient} templateId={templateId} />
+        <GridSection patient={patient} templateId={templateId} />
       </View>
       <View
         key={`${pageIndex}-${index}-2`}

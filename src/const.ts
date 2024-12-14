@@ -10,10 +10,11 @@ export const display_templates: DisplayTemplate[] = [
     imagePreview: "/images/3person.png",
     displaySize: "1x",
     hpi: {
-      enabled: true,
+      enabled: false,
     },
     events: {
       enabled: true,
+      fullWidth: true,
     },
     physicalExam: {
       enabled: true,
@@ -28,6 +29,9 @@ export const display_templates: DisplayTemplate[] = [
     },
     meds: {
       enabled: true,
+    },
+    consults: {
+      enabled: false,
     },
     dailyTodoList: [
       {
@@ -52,10 +56,11 @@ export const display_templates: DisplayTemplate[] = [
     description: "Designed for floors, fits 2 patients on a single page",
     displaySize: "1x",
     hpi: {
-      enabled: true,
+      enabled: false,
     },
     events: {
       enabled: true,
+      fullWidth: true,
     },
     physicalExam: {
       enabled: true,
@@ -70,6 +75,9 @@ export const display_templates: DisplayTemplate[] = [
     },
     meds: {
       enabled: true,
+    },
+    consults: {
+      enabled: false,
     },
     dailyTodoList: [
       {
@@ -98,6 +106,8 @@ export const display_templates: DisplayTemplate[] = [
     },
     events: {
       enabled: true,
+      fullWidth: true,
+      height: "1/12",
     },
     physicalExam: {
       enabled: true,
@@ -111,6 +121,12 @@ export const display_templates: DisplayTemplate[] = [
       enabled: true,
     },
     meds: {
+      enabled: true,
+    },
+    consults: {
+      enabled: true,
+    },
+    imaging: {
       enabled: true,
     },
     dailyTodoList: [
@@ -129,12 +145,100 @@ export const display_templates: DisplayTemplate[] = [
     ],
     patientsPerPage: 1,
   },
+  {
+    templateName: "MICU",
+    templateId: "1_pt_micu_template",
+    imagePreview: "/images/2person.png",
+    description:
+      "Designed for residents in the MICU. One full page per patient.",
+    displaySize: "1x",
+    hpi: {
+      enabled: true,
+    },
+    events: {
+      enabled: true,
+      fullWidth: true,
+      height: "1/12",
+    },
+    physicalExam: {
+      enabled: true,
+      sections: ["HEENT", "Skin", "CVS", "Pulm", "GI", "MSK", "Neuro", "Lines"],
+    },
+    vitals: {
+      enabled: true,
+      sections: [
+        "Temp",
+        "HR",
+        "RR",
+        "BP (MAP)",
+        "Sedatives",
+        "Pressors",
+        "SpO2",
+        "Rate",
+        "TV",
+        "FiO2",
+        "PEEP",
+        "pH/PaCO2/PaO2/HCO3",
+        "I&O",
+      ],
+    },
+    labs: {
+      enabled: true,
+      fullWidth: true,
+    },
+    meds: {
+      enabled: true,
+    },
+    consults: {
+      enabled: true,
+    },
+    imaging: {
+      enabled: true,
+    },
+    ap: {
+      enabled: true,
+      systemsBased: true,
+      systems: [
+        "Neuro",
+        "Cardio",
+        "Pulm",
+        "GI",
+        "Renal/GU",
+        "Heme",
+        "Endo",
+        "ID",
+        "MSK",
+        "Skin",
+        "Other",
+      ],
+    },
+    dailyTodoList: [
+      {
+        description: "Note",
+        status: "OPEN",
+      },
+      {
+        description: "CBC, CMP, Mg, Phos (4am)",
+        status: "OPEN",
+      },
+      {
+        description: "AVG (4am), CXR (1am)",
+        status: "OPEN",
+      },
+      {
+        description: "T&S",
+        status: "OPEN",
+      },
+    ],
+    patientsPerPage: 1,
+  },
 ];
 
 export const KnownTemplateIds = [
   "3_pt_floor_template",
   "2_pt_floor_template",
   "1_pt_floor_template",
+  "1_pt_micu_template",
 ] as const;
 export type KnownTemplateIds = (typeof KnownTemplateIds)[number];
 
@@ -256,8 +360,4 @@ export const patient_list: Patient[] = [
   {},
   {},
   {},
-]; //
-
-// export const CALC_PAGES = Math.ceil(
-//   patient_list.length / ACTUAL_PATIENTS_PER_PAGE.length
-// );
+];

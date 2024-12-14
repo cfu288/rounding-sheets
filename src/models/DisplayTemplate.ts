@@ -7,25 +7,39 @@ export type DisplayTemplate = {
   description: string;
   imagePreview: string;
   displaySize: "1x" | "2x";
-  hpi: {
+  hpi?: {
     enabled: boolean;
   };
-  events: {
+  events?: {
     enabled: boolean;
+    fullWidth?: boolean;
+    height?: "1/12" | "1/6" | "1/4" | "1/3";
   };
-  physicalExam: {
+  physicalExam?: {
     enabled: boolean;
     sections: string[];
   };
-  vitals: {
+  vitals?: {
     enabled: boolean;
     sections: string[];
   };
-  labs: {
+  labs?: {
+    enabled: boolean;
+    fullWidth?: boolean;
+  };
+  meds?: {
     enabled: boolean;
   };
-  meds: {
+  consults?: {
     enabled: boolean;
+  };
+  imaging?: {
+    enabled: boolean;
+  };
+  ap?: {
+    enabled: boolean;
+    systemsBased: boolean;
+    systems: string[];
   };
   dailyTodoList?: Todo[];
   patientsPerPage: number;
