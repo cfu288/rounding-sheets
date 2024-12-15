@@ -98,7 +98,7 @@ export const display_templates: DisplayTemplate[] = [
   {
     templateName: "Medicine Floor (Single Patient)",
     templateId: "1_pt_floor_template",
-    imagePreview: "/images/2person.png",
+    imagePreview: "/images/1person.png",
     description: "One full page per patient. Great for new admissions.",
     displaySize: "1x",
     hpi: {
@@ -148,9 +148,9 @@ export const display_templates: DisplayTemplate[] = [
   {
     templateName: "MICU",
     templateId: "1_pt_micu_template",
-    imagePreview: "/images/2person.png",
+    imagePreview: "/images/micu1person.png",
     description:
-      "Designed for residents in the MICU. One full page per patient.",
+      "Designed for residents in the MICU. One full page per patient, systems based.",
     displaySize: "1x",
     hpi: {
       enabled: true,
@@ -338,20 +338,20 @@ export const patient_list: Patient[] = [
     //       "Blood pressure elevated but at baseline. Continue home medication (amlodipine).",
     //     ],
     //   },
-    // {
-    //   assessment: "Hyperlipidemia",
-    //   plan: ["Continue atorvastatin 20 mg"],
-    // },
-    // {
-    //   assessment: "Musculoskeletal Chest Pain (Possible)",
-    //   plan: [
-    //     "PRN acetaminophen for discomfort if chest wall tenderness develops",
-    //   ],
-    // },
-    // {
-    //   assessment: "GERD/Dyspepsia (Possible)",
-    //   plan: ["Consider trial of omeprazole 20 mg daily"],
-    // },
+    //   {
+    //     assessment: "Hyperlipidemia",
+    //     plan: ["Continue atorvastatin 20 mg"],
+    //   },
+    //   {
+    //     assessment: "Musculoskeletal Chest Pain (Possible)",
+    //     plan: [
+    //       "PRN acetaminophen for discomfort if chest wall tenderness develops",
+    //     ],
+    //   },
+    //   {
+    //     assessment: "GERD/Dyspepsia (Possible)",
+    //     plan: ["Consider trial of omeprazole 20 mg daily"],
+    //   },
     // ],
     // display_size: "2x",
   },

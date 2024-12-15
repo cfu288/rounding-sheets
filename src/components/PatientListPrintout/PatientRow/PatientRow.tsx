@@ -42,11 +42,9 @@ const patientRowStyles = StyleSheet.create({
     flexDirection: "column",
   },
   apText: {
-    padding: "2px",
     fontWeight: 700,
   },
   oneLinerText: {
-    padding: "2px",
     fontStyle: "italic",
     fontWeight: 400,
   },
@@ -155,14 +153,18 @@ export const PatientRow: React.FC<PatientRowProps> = ({
               display: "flex",
             }}
           >
-            <Text style={patientRowStyles.apText}>
-              A/P:{" "}
-              {patient.one_liner && (
+            <View
+              style={{
+                padding: "2px",
+              }}
+            >
+              <Text>
+                <Text style={patientRowStyles.apText}>A/P: </Text>
                 <Text style={patientRowStyles.oneLinerText}>
-                  {patient.one_liner}
+                  {patient.one_liner && <>{patient.one_liner}</>}
                 </Text>
-              )}
-            </Text>
+              </Text>
+            </View>
           </View>
           <AssessmentAndPlan patient={patient} templateId={templateId} />
           <TodoSection patient={patient} templateId={templateId} />

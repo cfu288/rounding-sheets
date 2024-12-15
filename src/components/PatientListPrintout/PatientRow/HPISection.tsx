@@ -7,9 +7,11 @@ const patientRowStyles = StyleSheet.create({
     padding: "2px",
     fontWeight: 700,
   },
-  oneLinerText: {
-    padding: "2px",
-    // fontStyle: "italic",
+  hpiLineText: {
+    padding: "10px",
+    margin: "10px",
+    fontStyle: "italic",
+
     fontWeight: 400,
   },
   gridBox2FullWidth: {
@@ -52,14 +54,18 @@ export const HPISection: React.FC<HPISectionProps> = ({
       {template.hpi?.enabled && (
         <>
           {patient.hpi && patient.hpi.length > 0 ? (
-            <Text style={patientRowStyles.oneLinerText}>
-              <Text style={patientRowStyles.apText}>HPI: </Text>
-              {patient.hpi.map((hpi, i) => (
-                <View key={i}>
-                  <Text>{hpi}</Text>
+            <>
+              <Text style={patientRowStyles.apText}>
+                HPI:{" "}
+                <View>
+                  {patient.hpi.map((hpi, i) => (
+                    <Text style={patientRowStyles.hpiLineText} key={i}>
+                      {hpi}
+                    </Text>
+                  ))}
                 </View>
-              ))}
-            </Text>
+              </Text>
+            </>
           ) : (
             <View style={patientRowStyles.gridBox2FullWidth}>
               <Text style={patientRowStyles.hpiLabelText}>HPI:</Text>
