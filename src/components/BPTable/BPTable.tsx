@@ -21,6 +21,18 @@ import {
 
 import { LineChart } from "@/components/LineChart/LineChart";
 import { markdownTable } from "markdown-table";
+import debounce from "lodash.debounce";
+
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export type BPLog = {
   id: string;
@@ -39,13 +51,11 @@ function calculateMean(data: number[]) {
   return data.reduce((acc, curr) => acc + curr, 0) / data.length;
 }
 
-// Mean Arterial Pressure = 1/3*(SBP) + 2/3*(DBP)
-// function calculateMAP(systolic: number, diastolic: number) {
-//   return (1 / 3) * systolic + (2 / 3) * diastolic;
-// }
-
 const BPLogTable = () => {
-  const [data, setData] = useState<BPLog[]>([]);
+  const [data, setData] = useState<BPLog[]>(() => {
+    const savedData = sessionStorage.getItem("bpData");
+    return savedData ? JSON.parse(savedData) : [];
+  });
 
   const [futureEntry, setFutureEntry] = useState<BPLog>({
     id: "",
@@ -149,6 +159,13 @@ const BPLogTable = () => {
     }
   }, [data]);
 
+  const saveDataToSession = useCallback(
+    debounce((data: BPLog[]) => {
+      sessionStorage.setItem("bpData", JSON.stringify(data));
+    }, 100),
+    []
+  );
+
   const updateData = (rowIndex: number, columnId: string, value: unknown) => {
     setData((old) =>
       old.map((row, index) => {
@@ -162,6 +179,10 @@ const BPLogTable = () => {
       })
     );
   };
+
+  useEffect(() => {
+    saveDataToSession(data);
+  }, [data, saveDataToSession]);
 
   const deleteRow = (rowIndex: number) => {
     setData((old) => old.filter((_, index) => index !== rowIndex));
@@ -356,13 +377,13 @@ const BPLogTable = () => {
         <div className="relative mt-4">
           <div
             className="flex space-x-2"
-            style={{ position: "relative", top: "-1px", left: "0" }}
+            style={{ position: "relative", top: "1px", left: "0" }}
           >
             <button
               className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm ${
                 activeTab === "table"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  ? "bg-black text-white border-t border-l border-r border-black"
+                  : "bg-white text-black hover:bg-gray-50 border-t border-l border-r border-gray-300"
               }`}
               onClick={() => setActiveTab("table")}
             >
@@ -371,8 +392,8 @@ const BPLogTable = () => {
             <button
               className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm ${
                 activeTab === "graph"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  ? "bg-black text-white border-t border-l border-r border-black"
+                  : "bg-white text-black hover:bg-gray-50 border-t border-l border-r border-gray-300"
               }`}
               onClick={() => setActiveTab("graph")}
             >
@@ -381,8 +402,8 @@ const BPLogTable = () => {
             <button
               className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm ${
                 activeTab === "markdown"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  ? "bg-black text-white border-t border-l border-r border-black"
+                  : "bg-white text-black hover:bg-gray-50 border-t border-l border-r border-gray-300"
               }`}
               onClick={() => setActiveTab("markdown")}
             >
@@ -427,14 +448,14 @@ const BPLogTable = () => {
                   </TableBody>
                 </Table>
                 {data.length > 0 && (
-                  <div className="p-2 border-t border-gray-300">
-                    <p className="text-sm">
-                      <strong>Average:</strong> {meanSystolic.toFixed(0)}/
-                      {meanDiastolic.toFixed(0)}
-                    </p>
+                  <div className="p-2 border-t border-gray-300 flex justify-between">
                     <p className="text-sm">
                       <strong>Classification:</strong>{" "}
                       {hypertensionClassification}
+                    </p>
+                    <p className="text-sm">
+                      <strong>Average:</strong> {meanSystolic.toFixed(0)}/
+                      {meanDiastolic.toFixed(0)}
                     </p>
                   </div>
                 )}
@@ -487,6 +508,38 @@ const BPLogTable = () => {
                 </div>
               </div>
             )}
+          </div>
+          <div className="flex justify-end mt-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button>Delete All</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Are you absolutely sure?</DialogTitle>
+                  <DialogDescription>
+                    This action cannot be undone. This will delete the log data.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex justify-end mt-4">
+                  <DialogClose asChild>
+                    <Button
+                      variant="destructive"
+                      onClick={() => {
+                        setData([]);
+                      }}
+                    >
+                      Confirm Delete
+                    </Button>
+                  </DialogClose>
+                  <DialogClose asChild>
+                    <Button type="button" variant="secondary" className="ml-2">
+                      Close
+                    </Button>
+                  </DialogClose>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
@@ -588,12 +641,9 @@ const FutureEntryForm = ({
           onChange={handleDiastolicChange}
           className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-        >
+        <Button type="submit" className="h-auto">
           +
-        </button>
+        </Button>
       </form>
     </div>
   );
