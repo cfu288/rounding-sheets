@@ -96,16 +96,17 @@ export const display_templates: DisplayTemplate[] = [
     patientsPerPage: 2,
   },
   {
-    templateName: "Medicine Floor (Single Patient)",
+    templateName: "Medicine Admission",
     templateId: "1_pt_floor_template",
     imagePreview: "/images/1person.png",
     description: "One full page per patient. Great for new admissions.",
     displaySize: "1x",
     hpi: {
       enabled: true,
+      blankLines: 20,
     },
     events: {
-      enabled: true,
+      enabled: false,
       fullWidth: true,
       height: "1/12",
     },
@@ -116,6 +117,22 @@ export const display_templates: DisplayTemplate[] = [
     vitals: {
       enabled: true,
       sections: ["Temp", "Sys", "Dias", "RR", "HR", "SpO2"],
+    },
+    socialHistory: {
+      enabled: true,
+      height: "1/12",
+    },
+    familyHistory: {
+      enabled: true,
+      height: "1/12",
+    },
+    allergies: {
+      enabled: true,
+      height: "1/12",
+    },
+    surgicalHistory: {
+      enabled: true,
+      height: "1/12",
     },
     labs: {
       enabled: true,
@@ -129,17 +146,19 @@ export const display_templates: DisplayTemplate[] = [
     imaging: {
       enabled: true,
     },
+    ap: {
+      enableMisc: true,
+      enabled: true,
+      systemsBased: false,
+      systems: [],
+    },
     dailyTodoList: [
       {
         description: "Note",
         status: "OPEN",
       },
       {
-        description: "Labs",
-        status: "OPEN",
-      },
-      {
-        description: "Hospital Course",
+        description: "Orders",
         status: "OPEN",
       },
     ],

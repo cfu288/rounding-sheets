@@ -204,36 +204,79 @@ export const GridSection: React.FC<GridSectionProps> = ({
   const medsEnabled = template.meds?.enabled || false;
   const consultsEnabled = template.consults?.enabled || false;
   const imagingEnabled = template.imaging?.enabled || false;
-  const getEventStyle = () => {
-    switch (eventsHeight) {
-      case "1/12":
-        return eventsFullWidth
-          ? patientRowStyles.gridBox1FullWidth
-          : patientRowStyles.gridBox1HalfWidth;
-      case "1/6":
-        return eventsFullWidth
-          ? patientRowStyles.gridBox2FullWidth
-          : patientRowStyles.gridBox2HalfWidth;
-      case "1/4":
-        return eventsFullWidth
-          ? patientRowStyles.gridBox3FullWidth
-          : patientRowStyles.gridBox3HalfWidth;
-      case "1/3":
-        return eventsFullWidth
-          ? patientRowStyles.gridBox4FullWidth
-          : patientRowStyles.gridBox4HalfWidth;
-      default:
-        return eventsFullWidth
-          ? patientRowStyles.gridBox2FullWidth
-          : patientRowStyles.gridBox2HalfWidth;
-    }
+  const socialHistoryEnabled = template.socialHistory?.enabled || false;
+  const socialHistoryHeight = template.socialHistory?.height || "1/6";
+
+  const familyHistoryEnabled = template.familyHistory?.enabled || false;
+  const familyHistoryHeight = template.familyHistory?.height || "1/6";
+
+  const allergiesEnabled = template.allergies?.enabled || false;
+  const allergiesHeight = template.allergies?.height || "1/6";
+
+  const surgicalHistoryEnabled = template.surgicalHistory?.enabled || false;
+  const surgicalHistoryHeight = template.surgicalHistory?.height || "1/6";
+
+  const getStyle = (height: string, fullWidth: boolean) => {
+    const styleMap: { [key: string]: any } = {
+      "1/12": fullWidth
+        ? patientRowStyles.gridBox1FullWidth
+        : patientRowStyles.gridBox1HalfWidth,
+      "1/6": fullWidth
+        ? patientRowStyles.gridBox2FullWidth
+        : patientRowStyles.gridBox2HalfWidth,
+      "1/4": fullWidth
+        ? patientRowStyles.gridBox3FullWidth
+        : patientRowStyles.gridBox3HalfWidth,
+      "1/3": fullWidth
+        ? patientRowStyles.gridBox4FullWidth
+        : patientRowStyles.gridBox4HalfWidth,
+    };
+
+    return (
+      styleMap[height] ||
+      (fullWidth
+        ? patientRowStyles.gridBox2FullWidth
+        : patientRowStyles.gridBox2HalfWidth)
+    );
   };
+
+  const getEventStyle = () => getStyle(eventsHeight, eventsFullWidth);
 
   return (
     <View style={patientRowStyles.gridContainer}>
       {eventsEnabled && (
         <View style={getEventStyle()}>
           <Text style={patientRowStyles.eventsText}>Events:</Text>
+        </View>
+      )}
+      {surgicalHistoryEnabled && (
+        <View style={getStyle(surgicalHistoryHeight, false)}>
+          <Text style={patientRowStyles.gridBoxText}>SurgHx:</Text>
+          <Text style={patientRowStyles.gridBoxText}></Text>
+        </View>
+      )}
+      {socialHistoryEnabled && (
+        <View style={getStyle(socialHistoryHeight, false)}>
+          <Text style={patientRowStyles.gridBoxText}>SHx:</Text>
+          <Text style={patientRowStyles.peText}>Tobacco (pack years):</Text>
+          <Text style={patientRowStyles.peText}>Alcohol:</Text>
+          <Text style={patientRowStyles.peText}>Rec Drugs:</Text>
+          <Text style={patientRowStyles.peText}>Home/Occupation:</Text>
+          <Text style={patientRowStyles.peText}>Sexual Activity:</Text>
+        </View>
+      )}
+      {familyHistoryEnabled && (
+        <View style={getStyle(familyHistoryHeight, false)}>
+          <Text style={patientRowStyles.gridBoxText}>FHx:</Text>
+          <Text style={patientRowStyles.gridBoxText}></Text>
+        </View>
+      )}
+      {allergiesEnabled && (
+        <View style={getStyle(allergiesHeight, false)}>
+          <Text style={patientRowStyles.gridBoxText}>Allergies:</Text>
+          <Text style={patientRowStyles.peText}>Drugs:</Text>
+          <Text style={patientRowStyles.peText}>Food:</Text>
+          <Text style={patientRowStyles.peText}>Env:</Text>
         </View>
       )}
       {vitalsEnabled && (

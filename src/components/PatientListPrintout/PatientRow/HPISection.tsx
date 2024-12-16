@@ -49,6 +49,8 @@ export const HPISection: React.FC<HPISectionProps> = ({
     custom_override_templates: patient.display_template_overrides,
   });
 
+  const blankLines = template.hpi?.blankLines || 10;
+
   return (
     <>
       {template.hpi?.enabled && (
@@ -69,7 +71,7 @@ export const HPISection: React.FC<HPISectionProps> = ({
           ) : (
             <View style={patientRowStyles.gridBox2FullWidth}>
               <Text style={patientRowStyles.hpiLabelText}>HPI:</Text>
-              {Array.from({ length: 10 }).map((_, i) => (
+              {Array.from({ length: blankLines }).map((_, i) => (
                 <View
                   key={`blank-${i}`}
                   style={patientRowStyles.blankUnderline}

@@ -1,5 +1,5 @@
 import { display_templates } from "../const";
-import { useEffect, useState } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 
 const gradients = [
   // "from-teal-600/40 via-indigo-800/20",
@@ -10,7 +10,7 @@ const gradients = [
   // "from-amber-200/40 to-yellow-500/20",
 ];
 
-const useScrollDirection = () => {
+const useHomeNavExpandState = () => {
   const [isScrollingDown, setIsScrollingDown] = useState(false);
 
   useEffect(() => {
@@ -22,10 +22,20 @@ const useScrollDirection = () => {
       const now = Date.now();
       if (now - lastExecutionTime >= throttleDelay) {
         const scrollTop = window.scrollY;
-        const isScrollingDownNow = scrollTop > lastScrollTop;
-        if (isScrollingDownNow !== isScrollingDown) {
-          setIsScrollingDown(isScrollingDownNow);
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+
+        if (scrollTop < 50) {
+          setIsScrollingDown(false);
+        } else if (scrollTop + windowHeight >= documentHeight - 50) {
+          setIsScrollingDown(true);
+        } else {
+          const isScrollingDownNow = scrollTop > lastScrollTop;
+          if (isScrollingDownNow !== isScrollingDown) {
+            setIsScrollingDown(isScrollingDownNow);
+          }
         }
+
         lastScrollTop = scrollTop;
         lastExecutionTime = now;
       }
@@ -38,8 +48,32 @@ const useScrollDirection = () => {
   return isScrollingDown;
 };
 
+export const Navbar = (props: PropsWithChildren<{}>) => {
+  return (
+    <nav
+      className={`fixed top-0 w-full transition-all duration-300 backdrop-blur-md ${"bg-white/70 shadow-md py-2"} z-50`}
+    >
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 flex justify-between items-center">
+        <h2
+          className={`text-4xl font-semibold tracking-tight text-gray-900 transition-all duration-300 ${"text-xl"}`}
+        >
+          Reverb
+        </h2>
+        <div className="space-x-4">
+          <a href="#scutsheets" className="text-gray-900 hover:text-gray-600">
+            Scutsheets
+          </a>
+          <a href="#tools" className="text-gray-900 hover:text-gray-600">
+            Tools
+          </a>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
 export const Home = () => {
-  const isScrollingDown = useScrollDirection();
+  const isScrollingDown = useHomeNavExpandState();
 
   return (
     <div className="bg-white">
@@ -119,7 +153,7 @@ export const Home = () => {
               ))}
             </div>
           </div>
-          <div id="tools" className="mt-12">
+          <div id="tools" className="mt-12 mb-16">
             <div className="border-b border-gray-200 pb-5">
               <h3 className="text-base font-semibold text-gray-900">Tools</h3>
               <p className="mt-2 max-w-4xl text-sm text-gray-500">

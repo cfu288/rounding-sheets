@@ -76,6 +76,7 @@ export const AssessmentAndPlan: React.FC<AssessmentAndPlanProps> = ({
 
   const systemBasedAP = template.ap?.systemsBased;
   const systems = template.ap?.systems || [];
+  const enableMisc = template.ap?.enableMisc;
 
   return (
     <View style={patientRowStyles.gridContainer}>
@@ -111,7 +112,11 @@ export const AssessmentAndPlan: React.FC<AssessmentAndPlanProps> = ({
             </View>
           ))}
       {!systemBasedAP &&
-        Array.from({ length: blankAPSectionsToDisplay }).map((_, i) => (
+        Array.from({
+          length: enableMisc
+            ? blankAPSectionsToDisplay - 1
+            : blankAPSectionsToDisplay,
+        }).map((_, i) => (
           <View key={`blank-${i}`} style={patientRowStyles.apGridBox}>
             <View style={patientRowStyles.assessmentBlankUnderline}>
               <Text style={patientRowStyles.gridBoxText}>#</Text>
@@ -121,6 +126,15 @@ export const AssessmentAndPlan: React.FC<AssessmentAndPlanProps> = ({
             <View style={patientRowStyles.leftBulletTextUnderline}></View>
           </View>
         ))}
+      {enableMisc && (
+        <View style={patientRowStyles.apGridBox}>
+          <Text style={patientRowStyles.gridBoxText}># Misc</Text>
+          <Text style={patientRowStyles.leftBulletText}>• GI PPx:</Text>
+          <Text style={patientRowStyles.leftBulletText}>• DVT PPx:</Text>
+          <Text style={patientRowStyles.leftBulletText}>• Code Status:</Text>
+          <Text style={patientRowStyles.leftBulletText}>• HCP: </Text>
+        </View>
+      )}
     </View>
   );
 };

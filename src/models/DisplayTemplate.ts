@@ -9,10 +9,27 @@ export type DisplayTemplate = {
   displaySize: "1x" | "2x";
   hpi?: {
     enabled: boolean;
+    blankLines?: number;
   };
   events?: {
     enabled: boolean;
     fullWidth?: boolean;
+    height?: "1/12" | "1/6" | "1/4" | "1/3";
+  };
+  socialHistory?: {
+    enabled: boolean;
+    height?: "1/12" | "1/6" | "1/4" | "1/3";
+  };
+  familyHistory?: {
+    enabled: boolean;
+    height?: "1/12" | "1/6" | "1/4" | "1/3";
+  };
+  allergies?: {
+    enabled: boolean;
+    height?: "1/12" | "1/6" | "1/4" | "1/3";
+  };
+  surgicalHistory?: {
+    enabled: boolean;
     height?: "1/12" | "1/6" | "1/4" | "1/3";
   };
   physicalExam?: {
@@ -40,6 +57,7 @@ export type DisplayTemplate = {
     enabled: boolean;
     systemsBased: boolean;
     systems: string[];
+    enableMisc: boolean;
   };
   dailyTodoList?: Todo[];
   patientsPerPage: number;
