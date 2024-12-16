@@ -549,7 +549,7 @@ const FutureEntryForm = ({
         Add New Entry
       </label>
       <form
-        className="flex space-x-4"
+        className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4"
         onSubmit={(e) => {
           e.preventDefault();
           addRow();
