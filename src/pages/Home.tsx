@@ -107,8 +107,10 @@ export const Home = () => {
           }`}
         >
           <p className={`text-lg/8 text-gray-600`}>
-            Clinical tools to help fill in the missing feature gaps of your EMR
-            and custom scutsheets built to help you stay organized on rounds
+            Clinical tools built by clinicians for clinicians to help fill in
+            the missing feature gaps of your existing tools. Focused on
+            efficiency to help you get things done faster and stay organized.
+          </p>
           </p>
         </div>
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
