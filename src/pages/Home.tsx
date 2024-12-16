@@ -111,7 +111,6 @@ export const Home = () => {
             the missing feature gaps of your existing tools. Focused on
             efficiency to help you get things done faster and stay organized.
           </p>
-          </p>
         </div>
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div id="scutsheets" className="my-8">
