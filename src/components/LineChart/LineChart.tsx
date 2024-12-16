@@ -12,6 +12,7 @@ import {
   Line,
   Legend as RechartsLegend,
   LineChart as RechartsLineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -743,7 +744,6 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
                 ) : null;
               }}
             />
-
             {showLegend ? (
               <RechartsLegend
                 verticalAlign="top"
@@ -765,6 +765,36 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
                 }
               />
             ) : null}
+            <ReferenceLine
+              y={120}
+              label="Elevated (SYS)"
+              stroke="lightorange"
+              strokeDasharray="3 3"
+            />
+            <ReferenceLine
+              y={130}
+              label="Stage 1 (SYS)"
+              stroke="orange"
+              strokeDasharray="3 3"
+            />
+            <ReferenceLine
+              y={140}
+              label="Stage 2 (SYS)"
+              stroke="red"
+              strokeDasharray="3 3"
+            />
+            <ReferenceLine
+              y={80}
+              label="Stage 1 (DIAS)"
+              stroke="orange"
+              strokeDasharray="3 3"
+            />
+            <ReferenceLine
+              y={90}
+              label="Stage 2 (DIAS)"
+              stroke="red"
+              strokeDasharray="3 3"
+            />
             {categories.map((category) => (
               <Line
                 className={cx(

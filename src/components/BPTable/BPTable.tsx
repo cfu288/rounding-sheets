@@ -31,6 +31,7 @@ import {
   RowData,
   useReactTable,
 } from "@tanstack/react-table";
+import { ReferenceLine } from "recharts";
 
 export type BPLog = {
   id: string;
@@ -57,6 +58,11 @@ function generateDefaultDatetime() {
   return now.toISOString();
 }
 
+// Mean Arterial Pressure = 1/3*(SBP) + 2/3*(DBP)
+function calculateMAP(systolic: number, diastolic: number) {
+  return ((systolic + 2 * diastolic) / 3).toFixed(0);
+}
+
 const BPLogTable = () => {
   const [data, setData] = useState<BPLog[]>(() => {
     const savedData = sessionStorage.getItem(sessionStorageKey);
@@ -77,6 +83,7 @@ const BPLogTable = () => {
   const [hypertensionClassification, setHypertensionClassification] =
     useState<string>("");
 
+  // https://www.heart.org/-/media/files/health-topics/high-blood-pressure/hypertension-guideline-highlights-flyer.pdf
   const classifyHypertension = (systolic: number, diastolic: number) => {
     if (systolic > 180 || diastolic > 120) {
       return "Hypertensive Urgency|Emergency";
@@ -483,11 +490,15 @@ const BPLogTable = () => {
                 className="h-80 mt-8"
                 data={data.map((entry) => ({
                   date: entry.dateTime,
-                  Systolic: parseInt(entry.systolic, 10),
-                  Diastolic: parseInt(entry.diastolic, 10),
+                  Systolic: parseInt(entry.systolic, 0),
+                  Diastolic: parseInt(entry.diastolic, 0),
+                  MAP: calculateMAP(
+                    parseInt(entry.systolic),
+                    parseInt(entry.diastolic)
+                  ),
                 }))}
                 index="date"
-                categories={["Systolic", "Diastolic"]}
+                categories={["Systolic", "Diastolic", "MAP"]}
                 valueFormatter={(number: number) => `${number} mmHg`}
                 onValueChange={(v) => console.log(v)}
               />
