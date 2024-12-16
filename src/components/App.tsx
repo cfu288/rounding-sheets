@@ -1,24 +1,8 @@
-import { KnownTemplateIds, patient_list } from "../const";
-import { Font } from "@react-pdf/renderer";
-import source1 from "../assets/Atkinson-Hyperlegible-Regular.ttf";
-import source2 from "../assets/Atkinson-Hyperlegible-Italic.ttf";
-import source3 from "../assets/Atkinson-Hyperlegible-BoldItalic.ttf";
-import source4 from "../assets/Atkinson-Hyperlegible-Bold.ttf";
-import { PatientListPrintout } from "./PatientListPrintout/PatientListPrintout";
-import { usePDF } from "@react-pdf/renderer";
 import { Route, Routes } from "react-router";
-import { useParams } from "react-router-dom";
-import { Home } from "../pages/Home";
 
-Font.register({
-  family: "Atkinson",
-  fonts: [
-    { src: source1, fontWeight: "normal" },
-    { src: source2, fontStyle: "italic" },
-    { src: source3, fontStyle: "italic", fontWeight: 700 },
-    { src: source4, fontWeight: 700 },
-  ],
-});
+import { Home } from "@/pages/Home";
+import { ShowPDF } from "@/pages/ShowPDF";
+import BPLogTable from "./BPTable/BPTable";
 
 // const usePatientList = () => {
 //   const [patientList, setPatientList] = useState<Patient[]>(() => {
@@ -36,38 +20,15 @@ Font.register({
 //   return [patientList, setPatientList] as const;
 // };
 
-const ShowPDF = () => {
-  const { templateId } = useParams<{ templateId: KnownTemplateIds }>();
-  const [instance, _] = usePDF({
-    document: (
-      <PatientListPrintout
-        patients={patient_list}
-        templateId={templateId || "3_pt_floor_template"}
-      />
-    ),
-  });
-
-  return (
-    <div className="w-full h-screen min-h-full">
-      <iframe
-        src={instance.url || ""}
-        style={{
-          width: "100%",
-          height: "100%",
-          margin: 0,
-          border: "none",
-        }}
-      />
-    </div>
-  );
-};
-
 const App = () => {
   return (
     <Routes>
       <Route index element={<Home />} />
       <Route path="scutsheet">
         <Route path=":templateId" element={<ShowPDF />} />
+      </Route>
+      <Route path="tool">
+        <Route path="blood-pressure-log" element={<BPLogTable />} />
       </Route>
     </Routes>
   );

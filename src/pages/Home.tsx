@@ -92,7 +92,7 @@ export const Home = () => {
               {display_templates.map((template, index) => (
                 <article
                   key={template.templateId}
-                  className="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-80 sm:pt-48 lg:pt-80"
+                  className="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-40 sm:pt-24 lg:pt-40"
                 >
                   <img
                     alt={template.templateName}
@@ -127,7 +127,7 @@ export const Home = () => {
               </p>
             </div>
             <div className="mx-auto grid max-w-2xl auto-rows-fr grid-cols-1 gap-8 sm:mt-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-              <article className="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-80 sm:pt-48 lg:pt-80">
+              <article className="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-20 sm:pt-12 lg:pt-20">
                 <div
                   className={`absolute inset-0 -z-10 bg-gradient-to-t ${
                     gradients[Math.floor(Math.random() * gradients.length)]
@@ -135,12 +135,15 @@ export const Home = () => {
                 />
                 <div className="absolute inset-0 -z-10 rounded-2xl ring-1 ring-inset ring-gray-900/10" />
                 <h3 className="mt-3 text-lg/6 font-semibold text-white">
-                  {/* <a href="/tools/some_tool"> */}
-                  <span className="absolute inset-0" />
-                  Tools are coming soon!
-                  {/* </a> */}
+                  <a href="/tool/blood-pressure-log">
+                    <span className="absolute inset-0" />
+                    Blood Pressure Log
+                  </a>
                 </h3>
-                <p className="mt-5 line-clamp-3 text-sm/6 text-gray-300"></p>
+                <p className="mt-5 line-clamp-3 text-sm/6 text-gray-300">
+                  Make data entry easy with automatic formatting for
+                  copy/pasteable outputs. See graphs, trends, averages.
+                </p>
               </article>
             </div>
           </div>
