@@ -359,7 +359,7 @@ const BPLogTable = () => {
             style={{ position: "relative", top: "-1px", left: "0" }}
           >
             <button
-              className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 ${
+              className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm ${
                 activeTab === "table"
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -369,7 +369,7 @@ const BPLogTable = () => {
               Table
             </button>
             <button
-              className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 ${
+              className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm ${
                 activeTab === "graph"
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -379,7 +379,7 @@ const BPLogTable = () => {
               Graph
             </button>
             <button
-              className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 ${
+              className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm ${
                 activeTab === "markdown"
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
