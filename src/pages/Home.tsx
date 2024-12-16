@@ -78,7 +78,7 @@ export const Home = () => {
           </p>
         </div>
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div id="scutsheets" className="my-16">
+          <div id="scutsheets" className="my-8">
             <div className="border-b border-gray-200 pb-5">
               <h3 className="text-base font-semibold text-gray-900">
                 Scutsheets
@@ -99,7 +99,7 @@ export const Home = () => {
                     src={template.imagePreview}
                     className="absolute inset-0 -z-10 size-full object-cover"
                   />
-                  <div className="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900 via-gray-900/40" />
+                  <div className="absolute inset-0 -z-10 bg-gradient-to-t from-gray-900 via-gray-900/60 to-gray-900/40" />
                   <div
                     className={`absolute inset-0 -z-10 bg-gradient-to-br ${
                       gradients[index % gradients.length]
@@ -119,7 +119,7 @@ export const Home = () => {
               ))}
             </div>
           </div>
-          <div id="tools" className="my-16">
+          <div id="tools" className="mt-12">
             <div className="border-b border-gray-200 pb-5">
               <h3 className="text-base font-semibold text-gray-900">Tools</h3>
               <p className="mt-2 max-w-4xl text-sm text-gray-500">
@@ -128,11 +128,11 @@ export const Home = () => {
             </div>
             <div className="mx-auto grid max-w-2xl auto-rows-fr grid-cols-1 gap-8 sm:mt-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
               <article className="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-gray-900 px-8 pb-8 pt-20 sm:pt-12 lg:pt-20">
-                <div
+                {/* <div
                   className={`absolute inset-0 -z-10 bg-gradient-to-t ${
                     gradients[Math.floor(Math.random() * gradients.length)]
                   }`}
-                />
+                /> */}
                 <div className="absolute inset-0 -z-10 rounded-2xl ring-1 ring-inset ring-gray-900/10" />
                 <h3 className="mt-3 text-lg/6 font-semibold text-white">
                   <a href="/tool/blood-pressure-log">
