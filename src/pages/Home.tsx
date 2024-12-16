@@ -107,8 +107,7 @@ export const Home = () => {
           }`}
         >
           <p className={`text-lg/8 text-gray-600`}>
-            Clinical tools built by clinicians for clinicians to help fill in
-            the missing feature gaps of your existing tools. Focused on
+            Clinical tools built by clinicians for clinicians. Focused on
             efficiency to help you get things done faster and stay organized.
           </p>
         </div>
