@@ -1,4 +1,26 @@
-import React, { useState, useCallback, useEffect } from "react";
+import debounce from "lodash.debounce";
+import { markdownTable } from "markdown-table";
+import React, { useCallback, useEffect, useState } from "react";
+
+import { LineChart } from "@/components/LineChart/LineChart";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Cell,
   CellContext,
@@ -9,30 +31,6 @@ import {
   RowData,
   useReactTable,
 } from "@tanstack/react-table";
-
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-import { LineChart } from "@/components/LineChart/LineChart";
-import { markdownTable } from "markdown-table";
-import debounce from "lodash.debounce";
-
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
 export type BPLog = {
   id: string;
@@ -53,6 +51,12 @@ function calculateMean(data: number[]) {
 
 const sessionStorageKey = "reverb_bp-log-data";
 
+function generateDefaultDatetime() {
+  const now = new Date();
+  now.setHours(9, 0, 0, 0);
+  return now.toISOString();
+}
+
 const BPLogTable = () => {
   const [data, setData] = useState<BPLog[]>(() => {
     const savedData = sessionStorage.getItem(sessionStorageKey);
@@ -61,7 +65,7 @@ const BPLogTable = () => {
 
   const [futureEntry, setFutureEntry] = useState<BPLog>({
     id: "",
-    dateTime: new Date(new Date().setUTCHours(9, 0, 0, 0)).toISOString(),
+    dateTime: generateDefaultDatetime(),
     systolic: "",
     diastolic: "",
   });
@@ -115,12 +119,14 @@ const BPLogTable = () => {
       const groupedData: { [key: string]: string[] } = {};
 
       data.forEach((entry) => {
-        if (!groupedData[entry.dateTime]) {
-          groupedData[entry.dateTime] = [];
+        console.log(entry.dateTime);
+        const localDateTime = new Date(entry.dateTime).toLocaleString("en-US", {
+          hour12: true,
+        });
+        if (!groupedData[localDateTime]) {
+          groupedData[localDateTime] = [];
         }
-        groupedData[entry.dateTime].push(
-          `${entry.systolic}/${entry.diastolic}`
-        );
+        groupedData[localDateTime].push(`${entry.systolic}/${entry.diastolic}`);
       });
 
       const markdownData = Object.entries(groupedData).map(([date, bps]) => [
@@ -151,12 +157,12 @@ const BPLogTable = () => {
       newDate.setDate(newDate.getDate() + 1);
       setFutureEntry((prevEntry) => ({
         ...prevEntry,
-        dateTime: newDate.toLocaleString(),
+        dateTime: newDate.toLocaleString("en-US", { hour12: true }),
       }));
     } else {
       setFutureEntry((prevEntry) => ({
         ...prevEntry,
-        dateTime: new Date(new Date().setUTCHours(9, 0, 0, 0)).toISOString(),
+        dateTime: generateDefaultDatetime(),
       }));
     }
   }, [data]);
@@ -200,7 +206,7 @@ const BPLogTable = () => {
     ]);
     setFutureEntry({
       id: "",
-      dateTime: new Date().toLocaleString(),
+      dateTime: generateDefaultDatetime(),
       systolic: "",
       diastolic: "",
     });
@@ -221,21 +227,25 @@ const BPLogTable = () => {
   }: CellContext<BPLog, string>) => {
     const initialValue = getValue();
     const [dateValue, setDateValue] = useState(
-      new Date(initialValue).toISOString().split("T")[0]
+      new Date(initialValue).toLocaleDateString("en-CA")
     );
     const [timeValue, setTimeValue] = useState(
-      new Date(initialValue).toISOString().split("T")[1].slice(0, 5)
+      new Date(initialValue)
+        .toLocaleTimeString("en-US", { hour12: false })
+        .slice(0, 5)
     );
 
     const onBlur = () => {
-      const combinedDateTime = `${dateValue}T${timeValue}:00.000Z`;
+      const combinedDateTime = `${dateValue}T${timeValue}:00`;
       table.options.meta?.updateData(row.index, column.id, combinedDateTime);
     };
 
     useEffect(() => {
-      setDateValue(new Date(initialValue).toISOString().split("T")[0]);
+      setDateValue(new Date(initialValue).toLocaleDateString("en-CA"));
       setTimeValue(
-        new Date(initialValue).toISOString().split("T")[1].slice(0, 5)
+        new Date(initialValue)
+          .toLocaleTimeString("en-US", { hour12: false })
+          .slice(0, 5)
       );
     }, [initialValue]);
 
@@ -589,18 +599,21 @@ const FutureEntryForm = ({
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const date = e.target.value;
-    const time = new Date(futureEntry.dateTime)
-      .toISOString()
-      .split("T")[1]
-      .slice(0, 5);
-    updateFutureEntry("dateTime", `${date}T${time}:00.000Z`);
+    const date = new Date(e.target.value);
+    const currentDateTime = new Date(futureEntry.dateTime);
+    currentDateTime.setFullYear(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+    updateFutureEntry("dateTime", currentDateTime.toISOString());
   };
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const time = e.target.value;
-    const date = new Date(futureEntry.dateTime).toISOString().split("T")[0];
-    updateFutureEntry("dateTime", `${date}T${time}:00.000Z`);
+    const [hours, minutes] = e.target.value.split(":").map(Number);
+    const currentDateTime = new Date(futureEntry.dateTime);
+    currentDateTime.setHours(hours, minutes, 0, 0);
+    updateFutureEntry("dateTime", currentDateTime.toISOString());
   };
 
   return (
@@ -620,15 +633,20 @@ const FutureEntryForm = ({
       >
         <input
           type="date"
-          value={new Date(futureEntry.dateTime).toISOString().split("T")[0]}
+          value={
+            new Date(futureEntry.dateTime)
+              .toLocaleString("sv", {
+                timeZoneName: "short",
+              })
+              .split(" ")[0]
+          }
           onChange={handleDateChange}
           className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="time"
           value={new Date(futureEntry.dateTime)
-            .toISOString()
-            .split("T")[1]
+            .toLocaleTimeString("en-US", { hour12: false })
             .slice(0, 5)}
           onChange={handleTimeChange}
           className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
