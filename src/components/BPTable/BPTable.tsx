@@ -51,9 +51,11 @@ function calculateMean(data: number[]) {
   return data.reduce((acc, curr) => acc + curr, 0) / data.length;
 }
 
+const sessionStorageKey = "reverb_bp-log-data";
+
 const BPLogTable = () => {
   const [data, setData] = useState<BPLog[]>(() => {
-    const savedData = sessionStorage.getItem("bpData");
+    const savedData = sessionStorage.getItem(sessionStorageKey);
     return savedData ? JSON.parse(savedData) : [];
   });
 
@@ -161,7 +163,10 @@ const BPLogTable = () => {
 
   const saveDataToSession = useCallback(
     debounce((data: BPLog[]) => {
-      sessionStorage.setItem("bpData", JSON.stringify(data));
+      if (data.length !== 0) {
+        console.log("Saving data to session storage");
+        sessionStorage.setItem(sessionStorageKey, JSON.stringify(data));
+      }
     }, 100),
     []
   );
@@ -441,7 +446,7 @@ const BPLogTable = () => {
                           colSpan={columns.length}
                           className="h-12 text-center"
                         >
-                          Start entering blood pressures below to see data here.
+                          Start entering blood pressure logs to see data here.
                         </TableCell>
                       </TableRow>
                     )}
@@ -501,7 +506,7 @@ const BPLogTable = () => {
                       <code>
                         {data.length > 0
                           ? markdownRepresentation
-                          : "Start entering blood pressures below to see data here."}
+                          : "Start entering blood pressure logs to see data here."}
                       </code>
                     </pre>
                   </div>
@@ -527,6 +532,7 @@ const BPLogTable = () => {
                       variant="destructive"
                       onClick={() => {
                         setData([]);
+                        sessionStorage.removeItem(sessionStorageKey);
                       }}
                     >
                       Confirm Delete
