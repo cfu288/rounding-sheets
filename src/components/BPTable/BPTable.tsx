@@ -446,7 +446,8 @@ const BPLogTable = () => {
                           colSpan={columns.length}
                           className="h-12 text-center"
                         >
-                          Start entering blood pressure logs to see data here.
+                          Start entering blood pressure entries to see data
+                          here.
                         </TableCell>
                       </TableRow>
                     )}
@@ -506,7 +507,7 @@ const BPLogTable = () => {
                       <code>
                         {data.length > 0
                           ? markdownRepresentation
-                          : "Start entering blood pressure logs to see data here."}
+                          : "Start entering blood pressure entries to see data here."}
                       </code>
                     </pre>
                   </div>
