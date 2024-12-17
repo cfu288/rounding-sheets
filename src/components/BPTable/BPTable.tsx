@@ -22,12 +22,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Cell,
   CellContext,
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  Row,
   RowData,
   useReactTable,
 } from "@tanstack/react-table";
@@ -242,23 +240,6 @@ const useSaveDataToSession = (
   useEffect(() => {
     saveDataToSession(data);
   }, [data, saveDataToSession]);
-};
-
-const useCopiedState = (
-  copied: boolean,
-  setCopied: React.Dispatch<React.SetStateAction<boolean>>
-) => {
-  useEffect(() => {
-    if (copied) {
-      const timeout = setTimeout(() => {
-        setCopied(false);
-      }, 3000);
-      return () => {
-        clearTimeout(timeout);
-      };
-    }
-    return undefined;
-  }, [copied, setCopied]);
 };
 
 const BPLogTable = () => {
@@ -605,6 +586,18 @@ const MarkdownView = ({ data }: { data: BPLog[] }) => {
   useEffect(() => {
     storeMarkdownRepresentation(data);
   }, [data, storeMarkdownRepresentation]);
+
+  useEffect(() => {
+    if (copied) {
+      const timeout = setTimeout(() => {
+        setCopied(false);
+      }, 3000);
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+    return undefined;
+  }, [copied, setCopied]);
 
   return (
     <div className="relative m-2">
