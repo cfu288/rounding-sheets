@@ -48,7 +48,7 @@ const useHomeNavExpandState = () => {
   return isScrollingDown;
 };
 
-export const Navbar = (props: PropsWithChildren<{}>) => {
+export const Navbar = ({ children }: PropsWithChildren<{}>) => {
   return (
     <nav
       className={`fixed top-0 w-full transition-all duration-300 backdrop-blur-md ${"bg-white/70 shadow-md py-2"} z-50`}
@@ -60,12 +60,13 @@ export const Navbar = (props: PropsWithChildren<{}>) => {
           Reverb
         </h2>
         <div className="space-x-4">
-          <a href="#scutsheets" className="text-gray-900 hover:text-gray-600">
+          {/* <a href="#scutsheets" className="text-gray-900 hover:text-gray-600">
             Scutsheets
           </a>
           <a href="#tools" className="text-gray-900 hover:text-gray-600">
             Tools
-          </a>
+          </a> */}
+          {children}
         </div>
       </div>
     </nav>

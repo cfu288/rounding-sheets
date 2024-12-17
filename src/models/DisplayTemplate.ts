@@ -57,7 +57,7 @@ export type DisplayTemplate = {
     enabled: boolean;
     systemsBased: boolean;
     systems: string[];
-    enableMisc: boolean;
+    enableMisc?: boolean;
   };
   dailyTodoList?: Todo[];
   patientsPerPage: number;
