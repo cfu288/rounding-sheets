@@ -6,6 +6,7 @@ import source1 from "../assets/Atkinson-Hyperlegible-Regular.ttf";
 import source2 from "../assets/Atkinson-Hyperlegible-Italic.ttf";
 import source3 from "../assets/Atkinson-Hyperlegible-BoldItalic.ttf";
 import source4 from "../assets/Atkinson-Hyperlegible-Bold.ttf";
+import { AppLayout } from "@/components/AppLayout";
 
 Font.register({
   family: "Atkinson",
@@ -29,16 +30,18 @@ export const ShowPDF = () => {
   });
 
   return (
-    <div className="w-full h-screen min-h-full">
-      <iframe
-        src={instance.url || ""}
-        style={{
-          width: "100%",
-          height: "100%",
-          margin: 0,
-          border: "none",
-        }}
-      />
-    </div>
+    <AppLayout fixedNavbar>
+      <div className="w-full flex-grow">
+        <iframe
+          src={instance.url || ""}
+          style={{
+            width: "100%",
+            height: "100%",
+            margin: 0,
+            border: "none",
+          }}
+        />
+      </div>
+    </AppLayout>
   );
 };

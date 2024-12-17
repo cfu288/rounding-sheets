@@ -1,5 +1,5 @@
 import { display_templates } from "../const";
-import { PropsWithChildren, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const gradients = [
   // "from-teal-600/40 via-indigo-800/20",
@@ -46,31 +46,6 @@ const useHomeNavExpandState = () => {
   }, [isScrollingDown]);
 
   return isScrollingDown;
-};
-
-export const Navbar = ({ children }: PropsWithChildren<{}>) => {
-  return (
-    <nav
-      className={`fixed top-0 w-full transition-all duration-300 backdrop-blur-md ${"bg-white/70 shadow-md py-2"} z-50`}
-    >
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 flex justify-between items-center">
-        <h2
-          className={`text-4xl font-semibold tracking-tight text-gray-900 transition-all duration-300 ${"text-xl"}`}
-        >
-          Reverb
-        </h2>
-        <div className="space-x-4">
-          {/* <a href="#scutsheets" className="text-gray-900 hover:text-gray-600">
-            Scutsheets
-          </a>
-          <a href="#tools" className="text-gray-900 hover:text-gray-600">
-            Tools
-          </a> */}
-          {children}
-        </div>
-      </div>
-    </nav>
-  );
 };
 
 export const Home = () => {

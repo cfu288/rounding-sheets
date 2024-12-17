@@ -31,6 +31,7 @@ import {
   RowData,
   useReactTable,
 } from "@tanstack/react-table";
+import { AppLayout } from "../AppLayout";
 
 export type BPLog = {
   id: string;
@@ -385,192 +386,201 @@ const BPLogTable = () => {
   const [activeTab, setActiveTab] = useState("table");
 
   return (
-    <div className="container mx-auto py-10">
-      <FutureEntryForm
-        futureEntry={futureEntry}
-        updateFutureEntry={updateFutureEntry}
-        addRow={addRow}
-      />
-      <div className="p-4 border-gray-300 border rounded mt-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Review Entries
-        </label>
-        <div className="relative mt-4">
-          <div
-            className="flex space-x-2"
-            style={{ position: "relative", top: "1px", left: "0" }}
-          >
-            <button
-              className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm ${
-                activeTab === "table"
-                  ? "bg-black text-white border-t border-l border-r border-black"
-                  : "bg-white text-black hover:bg-gray-50 border-t border-l border-r border-gray-300"
-              }`}
-              onClick={() => setActiveTab("table")}
+    <AppLayout>
+      <div className="container mx-auto py-10">
+        <FutureEntryForm
+          futureEntry={futureEntry}
+          updateFutureEntry={updateFutureEntry}
+          addRow={addRow}
+        />
+        <div className="p-4 border-gray-300 border rounded mt-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Review Entries
+          </label>
+          <div className="relative mt-4">
+            <div
+              className="flex space-x-2"
+              style={{ position: "relative", top: "1px", left: "0" }}
             >
-              Table
-            </button>
-            <button
-              className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm ${
-                activeTab === "graph"
-                  ? "bg-black text-white border-t border-l border-r border-black"
-                  : "bg-white text-black hover:bg-gray-50 border-t border-l border-r border-gray-300"
-              }`}
-              onClick={() => setActiveTab("graph")}
-            >
-              Graph
-            </button>
-            <button
-              className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm ${
-                activeTab === "markdown"
-                  ? "bg-black text-white border-t border-l border-r border-black"
-                  : "bg-white text-black hover:bg-gray-50 border-t border-l border-r border-gray-300"
-              }`}
-              onClick={() => setActiveTab("markdown")}
-            >
-              Copy Table Results
-            </button>
-          </div>
-          <div className="border rounded-b-md border-gray-300">
-            {activeTab === "table" && (
-              <div className="">
-                <Table>
-                  <TableHeader>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <TableRow key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => (
-                          <TableHead key={header.id}>
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
-                          </TableHead>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableHeader>
-                  <TableBody>
-                    {table.getRowModel().rows?.length ? (
-                      table
-                        .getRowModel()
-                        .rows.map((row) => <BPLogRow key={row.id} row={row} />)
-                    ) : (
-                      <TableRow>
-                        <TableCell
-                          colSpan={columns.length}
-                          className="h-12 text-center"
-                        >
-                          Start entering blood pressure entries to see data
-                          here.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-                {data.length > 0 && (
-                  <div className="p-2 border-t border-gray-300 flex justify-between">
-                    <p className="text-sm">
-                      <strong>Classification:</strong>{" "}
-                      {hypertensionClassification}
-                    </p>
-                    <p className="text-sm">
-                      <strong>Average:</strong> {meanSystolic.toFixed(0)}/
-                      {meanDiastolic.toFixed(0)}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
+              <button
+                className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm ${
+                  activeTab === "table"
+                    ? "bg-black text-white border-t border-l border-r border-black"
+                    : "bg-white text-black hover:bg-gray-50 border-t border-l border-r border-gray-300"
+                }`}
+                onClick={() => setActiveTab("table")}
+              >
+                Table
+              </button>
+              <button
+                className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm ${
+                  activeTab === "graph"
+                    ? "bg-black text-white border-t border-l border-r border-black"
+                    : "bg-white text-black hover:bg-gray-50 border-t border-l border-r border-gray-300"
+                }`}
+                onClick={() => setActiveTab("graph")}
+              >
+                Graph
+              </button>
+              <button
+                className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm ${
+                  activeTab === "markdown"
+                    ? "bg-black text-white border-t border-l border-r border-black"
+                    : "bg-white text-black hover:bg-gray-50 border-t border-l border-r border-gray-300"
+                }`}
+                onClick={() => setActiveTab("markdown")}
+              >
+                Copy Table Results
+              </button>
+            </div>
+            <div className="border rounded-b-md border-gray-300">
+              {activeTab === "table" && (
+                <div className="">
+                  <Table>
+                    <TableHeader>
+                      {table.getHeaderGroups().map((headerGroup) => (
+                        <TableRow key={headerGroup.id}>
+                          {headerGroup.headers.map((header) => (
+                            <TableHead key={header.id}>
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext()
+                                  )}
+                            </TableHead>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableHeader>
+                    <TableBody>
+                      {table.getRowModel().rows?.length ? (
+                        table
+                          .getRowModel()
+                          .rows.map((row) => (
+                            <BPLogRow key={row.id} row={row} />
+                          ))
+                      ) : (
+                        <TableRow>
+                          <TableCell
+                            colSpan={columns.length}
+                            className="h-12 text-center"
+                          >
+                            Start entering blood pressure entries to see data
+                            here.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                  {data.length > 0 && (
+                    <div className="p-2 border-t border-gray-300 flex justify-between">
+                      <p className="text-sm">
+                        <strong>Classification:</strong>{" "}
+                        {hypertensionClassification}
+                      </p>
+                      <p className="text-sm">
+                        <strong>Average:</strong> {meanSystolic.toFixed(0)}/
+                        {meanDiastolic.toFixed(0)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
-            {activeTab === "graph" && (
-              <LineChart
-                className="h-80 mt-8"
-                data={data.map((entry) => ({
-                  date: entry.dateTime,
-                  Systolic: parseInt(entry.systolic, 0),
-                  Diastolic: parseInt(entry.diastolic, 0),
-                  MAP: calculateMAP(
-                    parseInt(entry.systolic),
-                    parseInt(entry.diastolic)
-                  ),
-                }))}
-                index="date"
-                categories={["Systolic", "Diastolic", "MAP"]}
-                valueFormatter={(number: number) => `${number} mmHg`}
-                onValueChange={(v) => console.log(v)}
-              />
-            )}
+              {activeTab === "graph" && (
+                <LineChart
+                  className="h-80 mt-8"
+                  data={data.map((entry) => ({
+                    date: entry.dateTime,
+                    Systolic: parseInt(entry.systolic, 0),
+                    Diastolic: parseInt(entry.diastolic, 0),
+                    MAP: calculateMAP(
+                      parseInt(entry.systolic),
+                      parseInt(entry.diastolic)
+                    ),
+                  }))}
+                  index="date"
+                  categories={["Systolic", "Diastolic", "MAP"]}
+                  valueFormatter={(number: number) => `${number} mmHg`}
+                  onValueChange={(v) => console.log(v)}
+                />
+              )}
 
-            {activeTab === "markdown" && (
-              <div className="relative m-2">
-                <div className="text-center text-black">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-gray-600"> </span>
-                    <button
-                      className={`bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md ${
-                        copied
-                          ? "cursor-not-allowed bg-green-700 hover:bg-green-600 text-white"
-                          : "cursor-pointer"
-                      }`}
-                      onClick={() => {
-                        navigator.clipboard.writeText(markdownRepresentation);
-                        setCopied(true);
-                      }}
-                    >
-                      {copied ? "Copied!" : "Copy"}
-                    </button>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <pre id="markdown-code" className="text-black">
-                      <code>
-                        {data.length > 0
-                          ? markdownRepresentation
-                          : "Start entering blood pressure entries to see data here."}
-                      </code>
-                    </pre>
+              {activeTab === "markdown" && (
+                <div className="relative m-2">
+                  <div className="text-center text-black">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-gray-600"> </span>
+                      <button
+                        className={`bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md ${
+                          copied
+                            ? "cursor-not-allowed bg-green-700 hover:bg-green-600 text-white"
+                            : "cursor-pointer"
+                        }`}
+                        onClick={() => {
+                          navigator.clipboard.writeText(markdownRepresentation);
+                          setCopied(true);
+                        }}
+                      >
+                        {copied ? "Copied!" : "Copy"}
+                      </button>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <pre id="markdown-code" className="text-black">
+                        <code>
+                          {data.length > 0
+                            ? markdownRepresentation
+                            : "Start entering blood pressure entries to see data here."}
+                        </code>
+                      </pre>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-          <div className="flex justify-end mt-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button>Delete All</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Are you absolutely sure?</DialogTitle>
-                  <DialogDescription>
-                    This action cannot be undone. This will delete the log data.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="flex justify-end mt-4">
-                  <DialogClose asChild>
-                    <Button
-                      variant="destructive"
-                      onClick={() => {
-                        setData([]);
-                        sessionStorage.removeItem(sessionStorageKey);
-                      }}
-                    >
-                      Confirm Delete
-                    </Button>
-                  </DialogClose>
-                  <DialogClose asChild>
-                    <Button type="button" variant="secondary" className="ml-2">
-                      Close
-                    </Button>
-                  </DialogClose>
-                </div>
-              </DialogContent>
-            </Dialog>
+              )}
+            </div>
+            <div className="flex justify-end mt-2">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button>Delete All</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Are you absolutely sure?</DialogTitle>
+                    <DialogDescription>
+                      This will delete the log data. This action cannot be
+                      undone.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="flex justify-end mt-4">
+                    <DialogClose asChild>
+                      <Button
+                        variant="destructive"
+                        onClick={() => {
+                          setData([]);
+                          sessionStorage.removeItem(sessionStorageKey);
+                        }}
+                      >
+                        Confirm Delete
+                      </Button>
+                    </DialogClose>
+                    <DialogClose asChild>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className="ml-2"
+                      >
+                        Close
+                      </Button>
+                    </DialogClose>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 
@@ -599,13 +609,38 @@ const FutureEntryForm = ({
   addRow: () => void;
 }) => {
   const systolicInputRef = React.useRef<HTMLInputElement>(null);
+  const diastolicInputRef = React.useRef<HTMLInputElement>(null);
+  const [errors, setErrors] = React.useState<{
+    systolic: boolean;
+    diastolic: boolean;
+  }>({
+    systolic: false,
+    diastolic: false,
+  });
+
+  const validateRange = (value: string) => {
+    const num = Number(value);
+    return num >= 0 && num <= 999;
+  };
 
   const handleSystolicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateFutureEntry("systolic", e.target.value);
+    const value = e.target.value;
+    updateFutureEntry("systolic", value);
+    if (value && validateRange(value)) {
+      setErrors((prev) => ({ ...prev, systolic: false }));
+    } else {
+      setErrors((prev) => ({ ...prev, systolic: true }));
+    }
   };
 
   const handleDiastolicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateFutureEntry("diastolic", e.target.value);
+    const value = e.target.value;
+    updateFutureEntry("diastolic", value);
+    if (value && validateRange(value)) {
+      setErrors((prev) => ({ ...prev, diastolic: false }));
+    } else {
+      setErrors((prev) => ({ ...prev, diastolic: true }));
+    }
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -626,6 +661,33 @@ const FutureEntryForm = ({
     updateFutureEntry("dateTime", currentDateTime.toISOString());
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const hasErrors =
+      !futureEntry.systolic ||
+      !futureEntry.diastolic ||
+      !validateRange(futureEntry.systolic) ||
+      !validateRange(futureEntry.diastolic);
+    setErrors({
+      systolic: !futureEntry.systolic || !validateRange(futureEntry.systolic),
+      diastolic:
+        !futureEntry.diastolic || !validateRange(futureEntry.diastolic),
+    });
+    if (!hasErrors) {
+      addRow();
+      if (systolicInputRef.current) {
+        systolicInputRef.current.focus();
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "/") {
+      e.preventDefault();
+      diastolicInputRef.current?.focus();
+    }
+  };
+
   return (
     <div className="p-4 border-gray-300 border rounded">
       <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -633,13 +695,7 @@ const FutureEntryForm = ({
       </label>
       <form
         className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          addRow();
-          if (systolicInputRef.current) {
-            systolicInputRef.current.focus();
-          }
-        }}
+        onSubmit={handleSubmit}
       >
         <input
           type="date"
@@ -667,15 +723,31 @@ const FutureEntryForm = ({
           placeholder="Systolic"
           value={futureEntry.systolic}
           onChange={handleSystolicChange}
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onKeyDown={handleKeyDown}
+          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+            errors.systolic ? "border-red-500" : "focus:ring-blue-500"
+          }`}
         />
+        {errors.systolic && (
+          <span className="text-red-500 text-sm">
+            Systolic value is required and must be between 0 and 999.
+          </span>
+        )}
         <input
+          ref={diastolicInputRef}
           type="number"
           placeholder="Diastolic"
           value={futureEntry.diastolic}
           onChange={handleDiastolicChange}
-          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+            errors.diastolic ? "border-red-500" : "focus:ring-blue-500"
+          }`}
         />
+        {errors.diastolic && (
+          <span className="text-red-500 text-sm">
+            Diastolic value is required and must be between 0 and 999.
+          </span>
+        )}
         <Button type="submit" className="h-auto">
           +
         </Button>
