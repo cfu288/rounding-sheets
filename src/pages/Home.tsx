@@ -25,9 +25,9 @@ const useHomeNavExpandState = () => {
         const windowHeight = window.innerHeight;
         const documentHeight = document.documentElement.scrollHeight;
 
-        if (scrollTop > 50) {
+        if (scrollTop < 100) {
           setIsScrollingDown(false);
-        } else if (scrollTop + windowHeight <= documentHeight - 50) {
+        } else if (scrollTop + windowHeight >= documentHeight - 100) {
           setIsScrollingDown(true);
         } else {
           const isScrollingDownNow = scrollTop > lastScrollTop;
