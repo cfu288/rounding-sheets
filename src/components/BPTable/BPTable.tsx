@@ -388,6 +388,20 @@ const BPLogTable = () => {
   return (
     <AppLayout>
       <div className="container mx-auto py-10">
+        <h1 className="text-3xl font-semibold text-gray-900 mb-4">
+          Blood Pressure Log
+        </h1>
+        <p className="text-gray-700 text-base mb-4">
+          This tool enables fast data entry of blood pressure logs, with tools
+          to help you analyze trends. Handles formatting for easy copy and paste
+          into your EMR of choice.
+        </p>
+        <p className="text-gray-700 text-base mb-4 italic">
+          Tip: Hit <kbd className="bg-gray-200 px-1 rounded">Tab</kbd> to move
+          between fields. Press{" "}
+          <kbd className="bg-gray-200 px-1 rounded">Enter</kbd> to add entry to
+          the log.
+        </p>
         <FutureEntryForm
           futureEntry={futureEntry}
           updateFutureEntry={updateFutureEntry}
@@ -420,7 +434,7 @@ const BPLogTable = () => {
                 }`}
                 onClick={() => setActiveTab("graph")}
               >
-                Graph
+                View Graph
               </button>
               <button
                 className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm ${
@@ -617,6 +631,12 @@ const FutureEntryForm = ({
     systolic: false,
     diastolic: false,
   });
+
+  React.useEffect(() => {
+    if (systolicInputRef.current) {
+      systolicInputRef.current.focus();
+    }
+  }, []);
 
   const validateRange = (value: string) => {
     const num = Number(value);
