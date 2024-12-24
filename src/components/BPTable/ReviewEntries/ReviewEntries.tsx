@@ -30,12 +30,12 @@ export const ReviewEntries = ({
   setData: React.Dispatch<React.SetStateAction<BPLog[]>>;
 }) => {
   return (
-    <div className="p-4 border-gray-300 border rounded mt-4">
+    <div className="p-4 border-gray-400 border rounded mt-4 mx-2">
       <label className="block text-md font-medium text-gray-700 mb-2">
         Review Entries
       </label>
       <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
-      <div className="border rounded-b-md border-gray-300">
+      <div className="border rounded-b-md border-gray-400">
         {activeTab === "table" && (
           <TableView
             table={table}

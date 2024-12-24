@@ -1,100 +1,291 @@
-import React, { useState } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  ChangeEvent,
+  KeyboardEvent,
+  useMemo,
+} from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { useForm, UseFormReturn } from "react-hook-form";
+import { z } from "zod";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { BPLog } from "../BPLog";
+import { BatchEntryForm } from "./BatchEntryForm";
 
-export const NewSingleEntryForm = ({
-  futureEntry,
+const FormSchema = z.object({
+  dateTime: z.date({
+    required_error: "A date is required.",
+  }),
+  systolic: z.string().refine(
+    (value) => {
+      const num = Number(value);
+      return num >= 0 && num <= 400;
+    },
+    {
+      message: "Systolic value must be between 0 and 400.",
+    }
+  ),
+  diastolic: z.string().refine(
+    (value) => {
+      const num = Number(value);
+      return num >= 0 && num <= 400;
+    },
+    {
+      message: "Diastolic value must be between 0 and 400.",
+    }
+  ),
+});
+
+type TabButtonsProps = {
+  activeTab: "single" | "batch";
+  setActiveTab: React.Dispatch<React.SetStateAction<"single" | "batch">>;
+};
+
+const TabButtons: React.FC<TabButtonsProps> = ({ activeTab, setActiveTab }) => (
+  <div
+    className="flex space-x-2"
+    style={{ position: "relative", top: "1px", left: "0" }}
+  >
+    <button
+      className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm active:scale-[99%] ${
+        activeTab === "single"
+          ? "bg-white text-black hover:bg-gray-50 border-t border-l border-r border-gray-400"
+          : "bg-gray-50 text-black hover:bg-gray-50 border-t border-l border-r border-b border-gray-400"
+      }`}
+      onClick={() => setActiveTab("single")}
+    >
+      Add Single Entry
+    </button>
+    <button
+      className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm active:scale-[99%] ${
+        activeTab === "batch"
+          ? "bg-white text-black hover:bg-gray-50 border-t border-l border-r border-gray-400"
+          : "bg-gray-50 text-black hover:bg-gray-50 border-t border-l border-r border-b border-gray-400"
+      }`}
+      onClick={() => setActiveTab("batch")}
+    >
+      Add Batch Entry
+    </button>
+  </div>
+);
+
+type SingleEntryFormProps = {
+  form: UseFormReturn<z.infer<typeof FormSchema>>;
+  systolicInputRef: React.RefObject<HTMLInputElement>;
+  diastolicInputRef: React.RefObject<HTMLInputElement>;
+  handleSystolicChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleDiastolicChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleTimeChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleKeyDown: (e: KeyboardEvent<HTMLInputElement>) => void;
+  updateFutureEntry: (
+    field: "systolic" | "diastolic" | "dateTime",
+    value: string
+  ) => void;
+  addRow: () => void;
+  futureEntry: BPLog;
+};
+
+const SingleEntryForm: React.FC<SingleEntryFormProps> = ({
+  form,
+  systolicInputRef,
+  diastolicInputRef,
+  handleSystolicChange,
+  handleDiastolicChange,
+  handleTimeChange,
+  handleKeyDown,
   updateFutureEntry,
   addRow,
-}: {
+  futureEntry,
+}) => {
+  return (
+    <Form {...form}>
+      <form
+        className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 p-2"
+        onSubmit={form.handleSubmit(() => {
+          addRow();
+          form.reset({
+            systolic: "",
+            diastolic: "",
+            dateTime: new Date(futureEntry.dateTime),
+          });
+          if (systolicInputRef.current) {
+            systolicInputRef.current.focus();
+          }
+        })}
+      >
+        <FormField
+          control={form.control}
+          name="dateTime"
+          render={({ field }) => {
+            return (
+              <FormItem className="flex flex-col w-full border border-gray-400 rounded-md">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"ghost"}
+                        className={cn(
+                          "w-full h-full text-left text-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value
+                          ? format(field.value, "PPP")
+                          : format(new Date(futureEntry.dateTime), "PPP")}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value || new Date(futureEntry.dateTime)}
+                      onSelect={(date) => {
+                        if (date) {
+                          field.onChange(date);
+                          updateFutureEntry("dateTime", date.toISOString());
+                        }
+                      }}
+                      disabled={(date) =>
+                        date > new Date() || date < new Date("1900-01-01")
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+        <input
+          type="time"
+          value={new Date(futureEntry.dateTime)
+            .toLocaleTimeString("en-US", { hour12: false })
+            .slice(0, 5)}
+          onChange={handleTimeChange}
+          className="w-full px-3 py-1 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        />
+        <FormField
+          control={form.control}
+          name="systolic"
+          render={({ field }) => (
+            <FormItem className="flex flex-col w-full h-full">
+              <input
+                type="number"
+                placeholder="Systolic"
+                {...field}
+                ref={systolicInputRef}
+                onChange={(e) => {
+                  field.onChange(e);
+                  handleSystolicChange(e);
+                }}
+                onKeyDown={handleKeyDown}
+                className={`w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                  form.formState.errors.systolic
+                    ? "border-red-500"
+                    : "focus:ring-blue-500"
+                }`}
+              />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="diastolic"
+          render={({ field }) => (
+            <FormItem className="flex flex-col w-full">
+              <input
+                type="number"
+                placeholder="Diastolic"
+                {...field}
+                ref={diastolicInputRef}
+                onChange={(e) => {
+                  field.onChange(e);
+                  handleDiastolicChange(e);
+                }}
+                className={`w-full px-3 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                  form.formState.errors.diastolic
+                    ? "border-red-500"
+                    : "focus:ring-blue-500"
+                }`}
+              />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" className="h-auto">
+          +
+        </Button>
+      </form>
+    </Form>
+  );
+};
+
+type NewSingleEntryFormProps = {
   futureEntry: BPLog;
   updateFutureEntry: (
     field: "systolic" | "diastolic" | "dateTime",
     value: string
   ) => void;
   addRow: () => void;
-}) => {
-  const systolicInputRef = React.useRef<HTMLInputElement>(null);
-  const diastolicInputRef = React.useRef<HTMLInputElement>(null);
-  const [errors, setErrors] = React.useState<{
-    systolic: boolean;
-    diastolic: boolean;
-  }>({
-    systolic: false,
-    diastolic: false,
-  });
+};
 
-  React.useEffect(() => {
-    if (systolicInputRef.current) {
-      systolicInputRef.current.focus();
-    }
+export const NewSingleEntryForm: React.FC<NewSingleEntryFormProps> = ({
+  futureEntry,
+  updateFutureEntry,
+  addRow,
+}) => {
+  const systolicInputRef = useRef<HTMLInputElement>(null);
+  const diastolicInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (systolicInputRef.current) {
+        systolicInputRef.current.focus();
+      }
+    }, 300);
+    return () => clearTimeout(timer);
   }, []);
 
-  const validateRange = (value: string) => {
-    const num = Number(value);
-    return num >= 0 && num <= 999;
-  };
-
-  const handleSystolicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSystolicChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     updateFutureEntry("systolic", value);
-    if (value && validateRange(value)) {
-      setErrors((prev) => ({ ...prev, systolic: false }));
-    } else {
-      setErrors((prev) => ({ ...prev, systolic: true }));
-    }
   };
 
-  const handleDiastolicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDiastolicChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     updateFutureEntry("diastolic", value);
-    if (value && validateRange(value)) {
-      setErrors((prev) => ({ ...prev, diastolic: false }));
-    } else {
-      setErrors((prev) => ({ ...prev, diastolic: true }));
-    }
   };
 
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const date = new Date(e.target.value);
-    const currentDateTime = new Date(futureEntry.dateTime);
-    currentDateTime.setFullYear(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate()
-    );
-    updateFutureEntry("dateTime", currentDateTime.toISOString());
-  };
-
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const [hours, minutes] = e.target.value.split(":").map(Number);
+  const handleTimeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const [hours, minutes] = value.split(":").map(Number);
     const currentDateTime = new Date(futureEntry.dateTime);
     currentDateTime.setHours(hours, minutes, 0, 0);
     updateFutureEntry("dateTime", currentDateTime.toISOString());
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const hasErrors =
-      !futureEntry.systolic ||
-      !futureEntry.diastolic ||
-      !validateRange(futureEntry.systolic) ||
-      !validateRange(futureEntry.diastolic);
-    setErrors({
-      systolic: !futureEntry.systolic || !validateRange(futureEntry.systolic),
-      diastolic:
-        !futureEntry.diastolic || !validateRange(futureEntry.diastolic),
-    });
-    if (!hasErrors) {
-      addRow();
-      if (systolicInputRef.current) {
-        systolicInputRef.current.focus();
-      }
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "/") {
       e.preventDefault();
       diastolicInputRef.current?.focus();
@@ -104,14 +295,33 @@ export const NewSingleEntryForm = ({
   const [activeTab, setActiveTab] = useState<"single" | "batch">("single");
   const [uploadedPhoto, setUploadedPhoto] = useState<File | null>(null);
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setUploadedPhoto(e.target.files[0]);
     }
   };
 
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: useMemo(() => {
+      return {
+        dateTime: new Date(futureEntry.dateTime),
+        systolic: futureEntry.systolic,
+        diastolic: futureEntry.diastolic,
+      };
+    }, [futureEntry]),
+  });
+
+  useEffect(() => {
+    form.reset({
+      dateTime: new Date(futureEntry.dateTime),
+      systolic: futureEntry.systolic,
+      diastolic: futureEntry.diastolic,
+    });
+  }, [futureEntry, form]);
+
   return (
-    <div className="p-4 border-gray-300 border rounded">
+    <div className="p-4 border-gray-400 border rounded mx-2">
       <label className="block text-md font-medium text-gray-700 mb-2">
         Add New Entry
       </label>
@@ -127,243 +337,31 @@ export const NewSingleEntryForm = ({
         to add the new entry to the log.
       </p>
       <div className="relative mt-4">
-        <div
-          className="flex space-x-2"
-          style={{ position: "relative", top: "1px", left: "0" }}
-        >
-          <button
-            className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm active:scale-[99%] ${
-              activeTab === "single"
-                ? "bg-white text-black hover:bg-gray-50 border-t border-l border-r border-gray-300"
-                : "bg-gray-50 text-black hover:bg-gray-50 border-t border-l border-r border-b border-gray-300"
-            }`}
-            onClick={() => setActiveTab("single")}
-          >
-            Add Single Entry
-          </button>
-          <button
-            className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm active:scale-[99%] ${
-              activeTab === "batch"
-                ? "bg-white text-black hover:bg-gray-50 border-t border-l border-r border-gray-300"
-                : "bg-gray-50 text-black hover:bg-gray-50 border-t border-l border-r border-b border-gray-300"
-            }`}
-            onClick={() => setActiveTab("batch")}
-          >
-            Add Batch Entry
-          </button>
-        </div>
-        <div className="border rounded-b-md border-gray-300 bg-white">
+        <TabButtons activeTab={activeTab} setActiveTab={setActiveTab} />
+        <div className="border rounded-b-md border-gray-400 bg-white">
           {activeTab === "single" && (
-            <form
-              className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 p-2"
-              onSubmit={handleSubmit}
-            >
-              <input
-                type="date"
-                value={
-                  new Date(futureEntry.dateTime)
-                    .toLocaleString("sv", {
-                      timeZoneName: "short",
-                    })
-                    .split(" ")[0]
-                }
-                onChange={handleDateChange}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                type="time"
-                value={new Date(futureEntry.dateTime)
-                  .toLocaleTimeString("en-US", { hour12: false })
-                  .slice(0, 5)}
-                onChange={handleTimeChange}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                ref={systolicInputRef}
-                type="number"
-                placeholder="Systolic"
-                value={futureEntry.systolic}
-                onChange={handleSystolicChange}
-                onKeyDown={handleKeyDown}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                  errors.systolic ? "border-red-500" : "focus:ring-blue-500"
-                }`}
-              />
-              {errors.systolic && (
-                <span className="text-red-500 text-sm">
-                  Systolic value is required and must be between 0 and 999.
-                </span>
-              )}
-              <input
-                ref={diastolicInputRef}
-                type="number"
-                placeholder="Diastolic"
-                value={futureEntry.diastolic}
-                onChange={handleDiastolicChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                  errors.diastolic ? "border-red-500" : "focus:ring-blue-500"
-                }`}
-              />
-              {errors.diastolic && (
-                <span className="text-red-500 text-sm">
-                  Diastolic value is required and must be between 0 and 999.
-                </span>
-              )}
-              <Button type="submit" className="h-auto">
-                +
-              </Button>
-            </form>
+            <SingleEntryForm
+              form={form}
+              systolicInputRef={systolicInputRef}
+              diastolicInputRef={diastolicInputRef}
+              handleSystolicChange={handleSystolicChange}
+              handleDiastolicChange={handleDiastolicChange}
+              handleTimeChange={handleTimeChange}
+              handleKeyDown={handleKeyDown}
+              updateFutureEntry={updateFutureEntry}
+              addRow={addRow}
+              futureEntry={futureEntry}
+            />
           )}
           {activeTab === "batch" && (
-            <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 p-2">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                className="hidden"
-                id="photo-upload"
-              />
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold">
-                  Automatically fill log from photo{" "}
-                  <span className="text-indigo-600 italic">Experimental</span>
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Upload a photo of a blood pressure log, and AI will extract
-                  data from the photo automatically. Please verify the data
-                  manually, as it may not be accurate.
-                </p>
-                <label htmlFor="photo-upload" className="block">
-                  {uploadedPhoto ? (
-                    <Button
-                      className="h-auto"
-                      onClick={async () => {
-                        try {
-                          const data = await sendPhotoToOpenAIToOCR(
-                            uploadedPhoto
-                          );
-                          console.log(data);
-                        } catch (error) {
-                          console.error(error);
-                        }
-                      }}
-                    >
-                      Extract data from photo
-                    </Button>
-                  ) : (
-                    <Button asChild className="h-auto">
-                      <span className="cursor-pointer">Upload photo</span>
-                    </Button>
-                  )}
-                </label>
-                <p>
-                  {uploadedPhoto ? (
-                    <div className="flex items-center space-x-2">
-                      <span>{uploadedPhoto.name}</span>
-                      <Button
-                        variant={"destructive"}
-                        onClick={() => setUploadedPhoto(null)}
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  ) : (
-                    <span className="text-gray-500">No file uploaded</span>
-                  )}
-                </p>
-              </div>
-            </div>
+            <BatchEntryForm
+              uploadedPhoto={uploadedPhoto}
+              handlePhotoUpload={handlePhotoUpload}
+              setUploadedPhoto={setUploadedPhoto}
+            />
           )}
         </div>
       </div>
     </div>
   );
 };
-
-type BPLogResponse = {
-  logs: {
-    id: string;
-    dateTime: string;
-    systolic: string;
-    diastolic: string;
-  }[];
-};
-
-async function sendPhotoToOpenAIToOCR(photo: File): Promise<BPLogResponse> {
-  const base64Image = await convertFileToBase64(photo);
-  const imageType = photo.type || "image/jpeg"; // Default to jpeg if type is not available
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer `, // Replace with your actual API key
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: "Please transcribe this image of a blood pressure log.",
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: `data:${imageType};base64,${base64Image}`,
-              },
-            },
-          ],
-        },
-      ],
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "bp_log_response",
-          strict: true,
-          schema: {
-            type: "object",
-            properties: {
-              logs: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    id: { type: "string" },
-                    dateTime: { type: "string" },
-                    systolic: { type: "string" },
-                    diastolic: { type: "string" },
-                  },
-                  required: ["id", "dateTime", "systolic", "diastolic"],
-                  additionalProperties: false,
-                },
-              },
-            },
-            required: ["logs"],
-            additionalProperties: false,
-          },
-        },
-      },
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to send photo to OpenAI");
-  }
-
-  const data: BPLogResponse = await response.json();
-  return data;
-}
-
-function convertFileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = (reader.result as string).split(",")[1];
-      resolve(base64String);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}

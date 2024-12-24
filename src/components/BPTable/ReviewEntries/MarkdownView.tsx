@@ -16,7 +16,6 @@ export const MarkdownView = ({ data }: { data: BPLog[] }) => {
       const groupedData: { [key: string]: string[] } = {};
 
       data.forEach((entry) => {
-        console.log(entry.dateTime);
         const localDateTime = new Date(entry.dateTime).toLocaleString("en-US", {
           hour12: true,
         });

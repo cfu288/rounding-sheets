@@ -1,5 +1,5 @@
 import debounce from "lodash.debounce";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 
 import {
   CellContext,
@@ -30,7 +30,8 @@ declare module "@tanstack/react-table" {
 
 export const sessionStorageKey = "reverb_bp-log-data";
 
-const BPLogTable = () => {
+const BPLogApp = () => {
+  // Variable declarations
   const [data, setData] = useState<BPLog[]>(() => {
     const savedData = sessionStorage.getItem(sessionStorageKey);
     return savedData ? JSON.parse(savedData) : [];
@@ -48,8 +49,7 @@ const BPLogTable = () => {
   const { meanSystolic, meanDiastolic, hypertensionClassification } =
     useMeanAndClassification(data);
 
-  useFutureEntryDate(data, setFutureEntry);
-
+  // Function declarations
   const saveDataToSession = useCallback(
     debounce((data: BPLog[]) => {
       if (data.length !== 0) {
@@ -60,25 +60,26 @@ const BPLogTable = () => {
     []
   );
 
-  const updateData = (rowIndex: number, columnId: string, value: unknown) => {
-    setData((old) =>
-      old.map((row, index) => {
-        if (index === rowIndex) {
-          return {
-            ...old[rowIndex]!,
-            [columnId]: value,
-          };
-        }
-        return row;
-      })
-    );
-  };
+  const updateData = useCallback(
+    (rowIndex: number, columnId: string, value: unknown) => {
+      setData((old) =>
+        old.map((row, index) => {
+          if (index === rowIndex) {
+            return {
+              ...old[rowIndex]!,
+              [columnId]: value,
+            };
+          }
+          return row;
+        })
+      );
+    },
+    []
+  );
 
-  useSaveDataToSession(data, saveDataToSession);
-
-  const deleteRow = (rowIndex: number) => {
+  const deleteRow = useCallback((rowIndex: number) => {
     setData((old) => old.filter((_, index) => index !== rowIndex));
-  };
+  }, []);
 
   const addRow = useCallback(() => {
     setData((prevData) => [
@@ -93,44 +94,49 @@ const BPLogTable = () => {
     });
   }, [futureEntry]);
 
-  const updateFutureEntry = (
-    field: "systolic" | "diastolic" | "dateTime",
-    value: string
-  ) => {
-    setFutureEntry((prevEntry) => ({ ...prevEntry, [field]: value }));
-  };
+  const updateFutureEntry = useCallback(
+    (field: "systolic" | "diastolic" | "dateTime", value: string) => {
+      setFutureEntry((prevEntry) => ({ ...prevEntry, [field]: value }));
+    },
+    []
+  );
 
-  const columns: ColumnDef<BPLog>[] = [
-    {
-      accessorKey: "dateTime",
-      header: "Date",
-      cell: (props: CellContext<BPLog, unknown>) =>
-        DateCell(props as CellContext<BPLog, string>),
-    },
-    {
-      accessorKey: "systolic",
-      header: "Systolic",
-      cell: (props: CellContext<BPLog, unknown>) =>
-        SystolicCell(props as CellContext<BPLog, string>),
-    },
-    {
-      accessorKey: "diastolic",
-      header: "Diastolic",
-      cell: (props: CellContext<BPLog, unknown>) =>
-        DiastolicCell(props as CellContext<BPLog, string>),
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }: CellContext<BPLog, unknown>) => (
-        <button onClick={() => deleteRow(row.index)}>
-          <span role="img" aria-label="delete">
-            🗑️
-          </span>
-        </button>
-      ),
-    },
-  ];
+  const columns: ColumnDef<BPLog>[] = useMemo(
+    () => [
+      {
+        accessorKey: "dateTime",
+        header: "Date",
+        cell: (props: CellContext<BPLog, unknown>) =>
+          DateCell(props as CellContext<BPLog, string>),
+      },
+      {
+        accessorKey: "systolic",
+        header: "Systolic",
+        cell: (props: CellContext<BPLog, unknown>) =>
+          SystolicCell(props as CellContext<BPLog, string>),
+      },
+      {
+        accessorKey: "diastolic",
+        header: "Diastolic",
+        cell: (props: CellContext<BPLog, unknown>) =>
+          DiastolicCell(props as CellContext<BPLog, string>),
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }: CellContext<BPLog, unknown>) => (
+          <button onClick={() => deleteRow(row.index)}>
+            <span role="img" aria-label="delete">
+              🗑️
+            </span>
+          </button>
+        ),
+      },
+    ],
+    [deleteRow]
+  );
+
+  // Hook calls
 
   const table: TanstackTable<BPLog> = useReactTable({
     data,
@@ -140,6 +146,8 @@ const BPLogTable = () => {
       updateData,
     },
   });
+  useFutureEntryDate(data, setFutureEntry);
+  useSaveDataToSession(data, saveDataToSession);
 
   return (
     <AppLayout>
@@ -166,4 +174,4 @@ const BPLogTable = () => {
   );
 };
 
-export default BPLogTable;
+export default BPLogApp;

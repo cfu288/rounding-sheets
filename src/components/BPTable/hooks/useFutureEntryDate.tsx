@@ -11,15 +11,21 @@ export const useFutureEntryDate = (
       const lastDate = new Date(data[data.length - 1].dateTime);
       const newDate = new Date(lastDate);
       newDate.setDate(newDate.getDate() + 1);
-      setFutureEntry((prevEntry) => ({
-        ...prevEntry,
-        dateTime: newDate.toLocaleString("en-US", { hour12: true }),
-      }));
+      setFutureEntry((prevEntry) => {
+        const updatedEntry = {
+          ...prevEntry,
+          dateTime: newDate.toLocaleString("en-US", { hour12: true }),
+        };
+        return updatedEntry;
+      });
     } else {
-      setFutureEntry((prevEntry) => ({
-        ...prevEntry,
-        dateTime: generateDefaultDatetime(),
-      }));
+      setFutureEntry((prevEntry) => {
+        const updatedEntry = {
+          ...prevEntry,
+          dateTime: generateDefaultDatetime(),
+        };
+        return updatedEntry;
+      });
     }
   }, [data, setFutureEntry]);
 };

@@ -24,8 +24,8 @@ export const TabNavigation = ({
             key={key}
             className={`tab px-4 py-1 rounded-t-md transition-colors duration-150 text-sm active:scale-[99%] ${
               activeTab === key
-                ? "bg-white text-black hover:bg-gray-50 border-t border-l border-r border-gray-300"
-                : "bg-gray-50 text-black hover:bg-gray-50 border-t border-l border-r border-b border-gray-300"
+                ? "bg-white text-black hover:bg-gray-50 border-t border-l border-r border-gray-400"
+                : "bg-gray-50 text-black hover:bg-gray-50 border-t border-l border-r border-b border-gray-400"
             }`}
             onClick={() => setActiveTab(key)}
           >

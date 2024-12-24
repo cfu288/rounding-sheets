@@ -59,7 +59,7 @@ export const TableView = ({
       </TableBody>
     </Table>
     {data.length > 0 && (
-      <div className="p-2 border-t border-gray-300 flex justify-between">
+      <div className="p-2 border-t border-gray-400 flex justify-between">
         <p className="text-sm">
           <strong>Classification:</strong> {hypertensionClassification}
         </p>

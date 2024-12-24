@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router";
 
 import { Home } from "@/pages/Home";
 import { ShowPDF } from "@/pages/ShowPDF";
-import BPLogTable from "./BPTable/BPTable";
+import BPLogApp from "./BPTable/BPLogApp";
 
 // const usePatientList = () => {
 //   const [patientList, setPatientList] = useState<Patient[]>(() => {
@@ -28,7 +28,7 @@ const App = () => {
         <Route path=":templateId" element={<ShowPDF />} />
       </Route>
       <Route path="tool">
-        <Route path="blood-pressure-log" element={<BPLogTable />} />
+        <Route path="blood-pressure-log" element={<BPLogApp />} />
       </Route>
     </Routes>
   );
