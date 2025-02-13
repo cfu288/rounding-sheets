@@ -53,11 +53,17 @@ export type DisplayTemplate = {
   imaging?: {
     enabled: boolean;
   };
+  micro?: {
+    enabled: boolean;
+  };
   ap?: {
     enabled: boolean;
     systemsBased: boolean;
     systems: string[];
     enableMisc?: boolean;
+  };
+  todo?: {
+    enabled: boolean;
   };
   dailyTodoList?: Todo[];
   patientsPerPage: number;

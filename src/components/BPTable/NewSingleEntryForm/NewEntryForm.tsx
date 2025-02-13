@@ -241,19 +241,21 @@ const SingleEntryForm: React.FC<SingleEntryFormProps> = ({
   );
 };
 
-type NewSingleEntryFormProps = {
+type NewEntryFormProps = {
   futureEntry: BPLog;
   updateFutureEntry: (
     field: "systolic" | "diastolic" | "dateTime",
     value: string
   ) => void;
   addRow: () => void;
+  setData: (data: BPLog[]) => void;
 };
 
-export const NewSingleEntryForm: React.FC<NewSingleEntryFormProps> = ({
+export const NewEntryForm: React.FC<NewEntryFormProps> = ({
   futureEntry,
   updateFutureEntry,
   addRow,
+  setData,
 }) => {
   const systolicInputRef = useRef<HTMLInputElement>(null);
   const diastolicInputRef = useRef<HTMLInputElement>(null);
@@ -358,6 +360,7 @@ export const NewSingleEntryForm: React.FC<NewSingleEntryFormProps> = ({
               uploadedPhoto={uploadedPhoto}
               handlePhotoUpload={handlePhotoUpload}
               setUploadedPhoto={setUploadedPhoto}
+              setData={setData}
             />
           )}
         </div>

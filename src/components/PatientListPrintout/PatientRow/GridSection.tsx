@@ -216,6 +216,8 @@ export const GridSection: React.FC<GridSectionProps> = ({
   const surgicalHistoryEnabled = template.surgicalHistory?.enabled || false;
   const surgicalHistoryHeight = template.surgicalHistory?.height || "1/6";
 
+  const microEnabled = template.micro?.enabled || false;
+
   const getStyle = (height: string, fullWidth: boolean) => {
     const styleMap: { [key: string]: any } = {
       "1/12": fullWidth
@@ -330,6 +332,12 @@ export const GridSection: React.FC<GridSectionProps> = ({
       {consultsEnabled && (
         <View style={patientRowStyles.gridBox3HalfWidth}>
           <Text style={patientRowStyles.gridBoxText}>Consults:</Text>
+          <Text style={patientRowStyles.gridBoxText}></Text>
+        </View>
+      )}
+      {microEnabled && (
+        <View style={patientRowStyles.gridBox3HalfWidth}>
+          <Text style={patientRowStyles.gridBoxText}>Micro:</Text>
           <Text style={patientRowStyles.gridBoxText}></Text>
         </View>
       )}

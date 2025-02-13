@@ -2,7 +2,11 @@ import { Route, Routes } from "react-router";
 
 import { Home } from "@/pages/Home";
 import { ShowPDF } from "@/pages/ShowPDF";
+import { GeneratePDF } from "@/pages/GeneratePDF";
 import BPLogApp from "./BPTable/BPLogApp";
+import { LocalAppSettingsProvider } from "../providers/LocalAppSettingsProvider/LocalAppSettingsProvider";
+import { PatientListProvider } from "@/providers/PatientListProvider";
+import { Button } from "./ui/button";
 
 // const usePatientList = () => {
 //   const [patientList, setPatientList] = useState<Patient[]>(() => {
@@ -22,15 +26,43 @@ import BPLogApp from "./BPTable/BPLogApp";
 
 const App = () => {
   return (
-    <Routes>
-      <Route index element={<Home />} />
-      <Route path="scutsheet">
-        <Route path=":templateId" element={<ShowPDF />} />
-      </Route>
-      <Route path="tool">
-        <Route path="blood-pressure-log" element={<BPLogApp />} />
-      </Route>
-    </Routes>
+    <LocalAppSettingsProvider>
+      <PatientListProvider>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/scutsheet/generate-pdf" element={<GeneratePDF />} />
+          <Route path="/scutsheet/:templateId" element={<ShowPDF />} />
+          <Route path="/bp-log" element={<BPLogApp />} />
+          <Route
+            path="*"
+            element={
+              <section className="bg-white dark:bg-gray-900">
+                <div className="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
+                  <div className="mx-auto max-w-screen-sm text-center">
+                    <h1 className="mb-4 text-7xl tracking-tight font-extrabold lg:text-9xl text-primary-600 dark:text-primary-500">
+                      404
+                    </h1>
+                    <p className="mb-4 text-3xl tracking-tight font-bold text-gray-900 md:text-4xl dark:text-white">
+                      Something's missing.
+                    </p>
+                    <p className="mb-4 text-lg font-light text-gray-500 dark:text-gray-400">
+                      Sorry, we can't find that page. You'll find lots to
+                      explore on the home page.{" "}
+                    </p>
+                    <a
+                      href="/"
+                      className="inline-flex text-white bg-primary-600 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:focus:ring-primary-900 my-4"
+                    >
+                      <Button>Back to Homepage</Button>
+                    </a>
+                  </div>
+                </div>
+              </section>
+            }
+          />
+        </Routes>
+      </PatientListProvider>
+    </LocalAppSettingsProvider>
   );
 };
 

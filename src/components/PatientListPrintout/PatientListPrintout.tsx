@@ -1,4 +1,4 @@
-import { Page, View } from "@react-pdf/renderer";
+import { Page, View, Text } from "@react-pdf/renderer";
 import { PatientRow } from "./PatientRow/PatientRow";
 import { Document, StyleSheet } from "@react-pdf/renderer";
 import { getTemplate, KnownTemplateIds } from "../../const";
@@ -11,7 +11,7 @@ const documentStyles = StyleSheet.create({
     width: "8in",
     height: "11.5in",
     fontSize: "8px",
-    padding: "0.125in",
+    padding: "0.13in",
     fontFamily: "Atkinson",
     fontWeight: "normal",
     display: "flex",
@@ -61,12 +61,12 @@ export const PatientListPrintout = ({
 
     return result;
   }, [templateId]);
-  // const totalPatients = patients.length;
-  // const patientsPerPage =
-  //   ACTUAL_PATIENTS_PER_PAGE.length > 0
-  //     ? ACTUAL_PATIENTS_PER_PAGE[0].length
-  //     : 0;
-  // const totalPages = Math.ceil(totalPatients / patientsPerPage);
+  const totalPatients = patients.length;
+  const patientsPerPage =
+    ACTUAL_PATIENTS_PER_PAGE.length > 0
+      ? ACTUAL_PATIENTS_PER_PAGE[0].length
+      : 0;
+  const totalPages = Math.ceil(totalPatients / patientsPerPage);
 
   return (
     <Document
@@ -95,7 +95,7 @@ export const PatientListPrintout = ({
               />
             ))}
           </View>
-          {/* <View
+          <View
             style={{
               flex: 1,
               minHeight: "12px",
@@ -103,14 +103,14 @@ export const PatientListPrintout = ({
               flexDirection: "row",
             }}
           >
-            <Text style={{ textAlign: "left", flex: 1 }}>List Name:</Text>
+            <Text style={{ textAlign: "left", flex: 1 }}></Text>
             <Text style={{ textAlign: "center", flex: 1 }}>
               Page {pageIndex + 1}/{totalPages}
             </Text>
             <Text style={{ textAlign: "right", flex: 1 }}>
               {new Date().toLocaleString()}
             </Text>
-          </View> */}
+          </View>
         </Page>
       ))}
     </Document>

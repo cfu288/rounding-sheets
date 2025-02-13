@@ -60,11 +60,11 @@ export const HPISection: React.FC<HPISectionProps> = ({
               <Text style={patientRowStyles.apText}>
                 HPI:{" "}
                 <View>
-                  {patient.hpi.map((hpi, i) => (
-                    <Text style={patientRowStyles.hpiLineText} key={i}>
-                      {hpi}
+                  {patient.hpi && (
+                    <Text style={patientRowStyles.hpiLineText}>
+                      {patient.hpi}
                     </Text>
-                  ))}
+                  )}
                 </View>
               </Text>
             </>

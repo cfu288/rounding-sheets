@@ -39,7 +39,14 @@ const todoStyles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     flexWrap: "wrap",
-    height: "50%",
+    height: "40%",
+  },
+  smallTodoContainer: {
+    display: "flex",
+    flexDirection: "column",
+    flexWrap: "wrap",
+    maxHeight: "50%",
+    minHeight: "20%",
   },
 });
 
@@ -57,29 +64,39 @@ export const TodoSection: React.FC<TodoSectionProps> = ({
     template_id: templateId,
     custom_override_templates: patient.display_template_overrides,
   });
+  const todoEnabled = template.todo?.enabled;
+  const patientsPerPage = template.patientsPerPage;
+  const displaySize = template.displaySize;
   const blankLinesCount = Math.max(
     0,
-    (template.patientsPerPage === 1 || template.displaySize === "2x" ? 10 : 5) -
-      todosCount
+    (patientsPerPage === 1 || displaySize === "2x" ? 10 : 5) - todosCount
   );
 
   return (
-    <View style={todoStyles.todoContainer}>
-      <View style={todoStyles.todoFlexContainer}>
-        <Text style={todoStyles.todoText}>Todo:</Text>
-        {patient.todos?.map((todo, i) => (
-          <View key={i}>
-            <Text style={todoStyles.todoDescription}>
-              [{"  "}] {todo.description}
-            </Text>
-          </View>
-        ))}
-        {Array.from({ length: blankLinesCount }).map((_, i) => (
-          <View key={i}>
-            <Text style={todoStyles.todoBlank}>[{"  "}]</Text>
-          </View>
-        ))}
-      </View>
+    <View
+      style={
+        patientsPerPage === 1
+          ? todoStyles.smallTodoContainer
+          : todoStyles.todoContainer
+      }
+    >
+      {todoEnabled && (
+        <View style={todoStyles.todoFlexContainer}>
+          <Text style={todoStyles.todoText}>Todo:</Text>
+          {patient.todos?.map((todo, i) => (
+            <View key={i}>
+              <Text style={todoStyles.todoDescription}>
+                [{"  "}] {todo.description}
+              </Text>
+            </View>
+          ))}
+          {Array.from({ length: blankLinesCount }).map((_, i) => (
+            <View key={i}>
+              <Text style={todoStyles.todoBlank}>[{"  "}]</Text>
+            </View>
+          ))}
+        </View>
+      )}
       {template.dailyTodoList && (
         <View style={todoStyles.footer}>
           {template.dailyTodoList?.map((todo, i) => (

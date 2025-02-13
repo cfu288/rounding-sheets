@@ -1,21 +1,39 @@
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
 export const Modal = ({
   isOpen,
   onClose,
   children,
+  title,
+  footerItems,
 }: {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  title: string;
+  footerItems?: React.ReactNode;
 }) => {
-  if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-4 rounded shadow-lg w-1/2">
-        <button onClick={onClose} className="text-red-500 float-right">
-          Close
-        </button>
-        {children}
-      </div>
-    </div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        <div className="py-4">{children}</div>
+        <DialogFooter>
+          {footerItems}
+          <Button onClick={onClose} variant="outline">
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };

@@ -1,4 +1,3 @@
-import { Patient } from "./models/Patient";
 import { DisplayTemplate } from "./models/DisplayTemplate";
 
 export const display_templates: DisplayTemplate[] = [
@@ -47,6 +46,9 @@ export const display_templates: DisplayTemplate[] = [
         status: "OPEN",
       },
     ],
+    todo: {
+      enabled: true,
+    },
     patientsPerPage: 3,
   },
   {
@@ -56,7 +58,7 @@ export const display_templates: DisplayTemplate[] = [
     description: "Designed for floors, fits 2 patients on a single page",
     displaySize: "1x",
     hpi: {
-      enabled: false,
+      enabled: true,
     },
     events: {
       enabled: true,
@@ -78,6 +80,14 @@ export const display_templates: DisplayTemplate[] = [
     },
     consults: {
       enabled: false,
+    },
+    ap: {
+      enabled: true,
+      systemsBased: false,
+      systems: [],
+    },
+    todo: {
+      enabled: true,
     },
     dailyTodoList: [
       {
@@ -152,6 +162,9 @@ export const display_templates: DisplayTemplate[] = [
       systemsBased: false,
       systems: [],
     },
+    todo: {
+      enabled: true,
+    },
     dailyTodoList: [
       {
         description: "Note",
@@ -214,6 +227,9 @@ export const display_templates: DisplayTemplate[] = [
     imaging: {
       enabled: true,
     },
+    micro: {
+      enabled: true,
+    },
     ap: {
       enabled: true,
       systemsBased: true,
@@ -230,6 +246,9 @@ export const display_templates: DisplayTemplate[] = [
         "Skin",
         "Other",
       ],
+    },
+    todo: {
+      enabled: true,
     },
     dailyTodoList: [
       {
@@ -290,93 +309,3 @@ export function getTemplate({
 
   return baseTemplate;
 }
-
-export const patient_list: Patient[] = [
-  {
-    // last_name: "Doe",
-    // first_name: "Jane",
-    // dob: "",
-    // location: "",
-    // mrn: "1234567",
-    // one_liner:
-    //   "54-year-old female with atypical chest pain and a history of hypertension and hyperlipidemia.",
-    // hpi: [
-    //   "Jane Doe is a 54-year-old female with a past medical history of hypertension and hyperlipidemia presenting with a 4-hour history of intermittent chest discomfort.",
-    //   "The pain is described as a mild, dull ache located in the left anterior chest. The discomfort does not radiate and is not associated with exertion.",
-    //   "She denies any associated shortness of breath, diaphoresis, palpitations, nausea, or syncope. She notes that the pain sometimes improves with position changes and resolves spontaneously within 5–10 minutes.",
-    //   "She denies recent fevers, chills, upper respiratory symptoms, or cough. No history of prior similar episodes.",
-    //   "She does not recall any specific activities precipitating today's episode. She denies recent travel, immobilization, or a history of deep vein thrombosis/pulmonary embolism (DVT/PE).",
-    //   "Social history reveals she is a nonsmoker, has no alcohol intake, and has no recreational drug use. Family history is significant for her father's myocardial infarction at age 58.",
-    // ],
-    // todos: [
-    //   {
-    //     description: "Serial troponins q6 hours x 2 to rule out NSTEMI",
-    //     due_date: null,
-    //     status: "OPEN",
-    //   },
-    //   {
-    //     description: "Continuous telemetry monitoring",
-    //     due_date: null,
-    //     status: "OPEN",
-    //   },
-    //   {
-    //     description: "Repeat EKG in 4-6 hours or sooner if symptoms worsen",
-    //     due_date: null,
-    //     status: "OPEN",
-    //   },
-    //   {
-    //     description: "Continue ASA 81 mg daily",
-    //     due_date: null,
-    //     status: "OPEN",
-    //   },
-    //   {
-    //     description: "PRN acetaminophen for musculoskeletal chest pain",
-    //     due_date: null,
-    //     status: "OPEN",
-    //   },
-    //   {
-    //     description:
-    //       "Consider trial of omeprazole 20 mg daily for possible GERD",
-    //     due_date: null,
-    //     status: "OPEN",
-    //   },
-    // ],
-    // assessment_and_plan: [
-    //   {
-    //     assessment: "Acute Coronary Syndrome (ACS)",
-    //     plan: [
-    //       "Serial troponins q6 hours x 2",
-    //       "Continuous telemetry monitoring",
-    //       "Repeat EKG in 4-6 hours or sooner if symptoms worsen",
-    //       "Continue ASA 81 mg daily",
-    //     ],
-    //   },
-    //   {
-    //     assessment: "Hypertension",
-    //     plan: [
-    //       "Blood pressure elevated but at baseline. Continue home medication (amlodipine).",
-    //     ],
-    //   },
-    //   {
-    //     assessment: "Hyperlipidemia",
-    //     plan: ["Continue atorvastatin 20 mg"],
-    //   },
-    //   {
-    //     assessment: "Musculoskeletal Chest Pain (Possible)",
-    //     plan: [
-    //       "PRN acetaminophen for discomfort if chest wall tenderness develops",
-    //     ],
-    //   },
-    //   {
-    //     assessment: "GERD/Dyspepsia (Possible)",
-    //     plan: ["Consider trial of omeprazole 20 mg daily"],
-    //   },
-    // ],
-    // display_size: "2x",
-  },
-  {},
-  {},
-  {},
-  {},
-  {},
-];

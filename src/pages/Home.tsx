@@ -83,8 +83,8 @@ export const Home = () => {
           }`}
         >
           <p className={`text-lg/8 text-gray-600`}>
-            Clinical tools to fill in the gaps of your digital toolbox. Built by
-            clinicians for clinicians.
+            Clinical tools to fill in the gaps of your digital toolbox. Amplify
+            your workflows with tools built by clinicians, for clinicians.
           </p>
         </div>
         <div className="mx-auto max-w-7xl px-6 lg:px-8">

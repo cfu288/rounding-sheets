@@ -4,15 +4,15 @@ import { View, Text, StyleSheet } from "@react-pdf/renderer";
 
 const patientRowStyles = StyleSheet.create({
   gridContainer: {
-    flex: 1,
+    flexGrow: 1,
     display: "flex",
     flexDirection: "row",
     flexWrap: "wrap",
+    overflow: "hidden",
   },
   apGridBox: {
     width: "50%",
-    // minHeight: "33%",
-    maxHeight: "50%",
+    lineHeight: 1,
   },
   gridBoxText: {
     padding: "2px",
@@ -63,9 +63,9 @@ export const AssessmentAndPlan: React.FC<AssessmentAndPlanProps> = ({
   });
 
   let blankAPSectionsToDisplay;
-  if (template.patientsPerPage >= 3) {
+  if (template.patientsPerPage >= 2) {
     blankAPSectionsToDisplay = 4;
-  } else if (template.patientsPerPage === 2 || template.displaySize === "2x") {
+  } else if (template.displaySize === "2x") {
     blankAPSectionsToDisplay = 6;
   } else if (template.patientsPerPage === 1) {
     blankAPSectionsToDisplay = 10;
@@ -81,16 +81,43 @@ export const AssessmentAndPlan: React.FC<AssessmentAndPlanProps> = ({
   return (
     <View style={patientRowStyles.gridContainer}>
       {systemBasedAP
-        ? systems.map((system, i) => (
-            <View key={i} style={patientRowStyles.apGridBox}>
-              <Text style={patientRowStyles.gridBoxTextUnderline}>
-                # {system}:
-              </Text>
-              <View style={patientRowStyles.leftBulletTextUnderline}></View>
-              <View style={patientRowStyles.leftBulletTextUnderline}></View>
-              <View style={patientRowStyles.leftBulletTextUnderline}></View>
-            </View>
-          ))
+        ? systems.map((system, i) => {
+            const matchingAP = patient.assessment_and_plan?.find(
+              (ap) => ap.assessment.toLowerCase() === system.toLowerCase()
+            );
+            return (
+              <View key={i} style={patientRowStyles.apGridBox}>
+                <Text style={patientRowStyles.gridBoxTextUnderline}>
+                  # {system}:
+                </Text>
+                {matchingAP ? (
+                  matchingAP.plan.map((plan, j) => (
+                    <Text style={patientRowStyles.leftBulletText} key={j}>
+                      • {plan}
+                    </Text>
+                  ))
+                ) : (
+                  <>
+                    <View
+                      style={patientRowStyles.leftBulletTextUnderline}
+                    ></View>
+                    <View
+                      style={patientRowStyles.leftBulletTextUnderline}
+                    ></View>
+                    <View
+                      style={patientRowStyles.leftBulletTextUnderline}
+                    ></View>
+                    <View
+                      style={patientRowStyles.leftBulletTextUnderline}
+                    ></View>
+                    <View
+                      style={patientRowStyles.leftBulletTextUnderline}
+                    ></View>
+                  </>
+                )}
+              </View>
+            );
+          })
         : patient.assessment_and_plan?.map((ap, i) => (
             <View key={i} style={patientRowStyles.apGridBox}>
               <Text style={patientRowStyles.gridBoxText}>
