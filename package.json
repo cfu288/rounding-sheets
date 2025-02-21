@@ -27,6 +27,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
+    "json-joy": "^17.29.0",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.468.0",
     "markdown-table": "^3.0.4",

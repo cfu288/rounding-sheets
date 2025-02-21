@@ -82,19 +82,36 @@ export const AssessmentAndPlan: React.FC<AssessmentAndPlanProps> = ({
     <View style={patientRowStyles.gridContainer}>
       {systemBasedAP
         ? systems.map((system, i) => {
-            const matchingAP = patient.assessment_and_plan?.find(
-              (ap) => ap.assessment.toLowerCase() === system.toLowerCase()
-            );
+            const matchingAPs =
+              patient.assessment_and_plan?.filter(
+                (ap) =>
+                  ap.category?.toLowerCase() === system.toLowerCase() ||
+                  ap.assessment.toLowerCase() === system.toLowerCase()
+              ) || [];
             return (
               <View key={i} style={patientRowStyles.apGridBox}>
                 <Text style={patientRowStyles.gridBoxTextUnderline}>
                   # {system}:
                 </Text>
-                {matchingAP ? (
-                  matchingAP.plan.map((plan, j) => (
-                    <Text style={patientRowStyles.leftBulletText} key={j}>
-                      • {plan}
-                    </Text>
+                {matchingAPs.length > 0 ? (
+                  matchingAPs.flatMap((ap, apIndex) => (
+                    <View key={apIndex}>
+                      {ap.assessment !== system && (
+                        <Text style={patientRowStyles.leftBulletText}>
+                          <Text style={{ fontWeight: "bold" }}>
+                            {ap.assessment}
+                          </Text>
+                        </Text>
+                      )}
+                      {ap.plan.map((plan, j) => (
+                        <Text
+                          style={patientRowStyles.leftBulletText}
+                          key={`${apIndex}-${j}`}
+                        >
+                          • {plan}
+                        </Text>
+                      ))}
+                    </View>
                   ))
                 ) : (
                   <>

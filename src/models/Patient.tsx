@@ -4,6 +4,7 @@ import { Todo } from "./Todo";
 export interface AssessmentAndPlanItem {
   assessment: string;
   plan: string[];
+  category?: string;
 }
 
 export interface Patient {

@@ -3,7 +3,7 @@ import { PatientRow } from "./PatientRow/PatientRow";
 import { Document, StyleSheet } from "@react-pdf/renderer";
 import { getTemplate, KnownTemplateIds } from "../../const";
 import { Patient } from "../../models/Patient";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 const documentStyles = StyleSheet.create({
   page: {
@@ -60,7 +60,8 @@ export const PatientListPrintout = ({
     }
 
     return result;
-  }, [templateId]);
+  }, [templateId, patients]);
+
   const totalPatients = patients.length;
   const patientsPerPage =
     ACTUAL_PATIENTS_PER_PAGE.length > 0
@@ -68,51 +69,56 @@ export const PatientListPrintout = ({
       : 0;
   const totalPages = Math.ceil(totalPatients / patientsPerPage);
 
-  return (
-    <Document
-      title={
-        getTemplate({
-          template_id: templateId,
-        }).templateName || "ScutSheet"
-      }
-    >
-      {ACTUAL_PATIENTS_PER_PAGE.map((patients, pageIndex) => (
-        <Page key={pageIndex} size={"LETTER"} style={documentStyles.page}>
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              flexWrap: "wrap",
-            }}
-          >
-            {patients.map((patient, index) => (
-              <PatientRow
-                key={`${pageIndex}-${index}`}
-                patient={patient}
-                pageIndex={pageIndex}
-                index={index}
-                templateId={templateId}
-              />
-            ))}
-          </View>
-          <View
-            style={{
-              flex: 1,
-              minHeight: "12px",
-              display: "flex",
-              flexDirection: "row",
-            }}
-          >
-            <Text style={{ textAlign: "left", flex: 1 }}></Text>
-            <Text style={{ textAlign: "center", flex: 1 }}>
-              Page {pageIndex + 1}/{totalPages}
-            </Text>
-            <Text style={{ textAlign: "right", flex: 1 }}>
-              {new Date().toLocaleString()}
-            </Text>
-          </View>
-        </Page>
-      ))}
-    </Document>
+  const instanceToReturn = useMemo(
+    () => (
+      <Document
+        title={
+          getTemplate({
+            template_id: templateId,
+          }).templateName || "ScutSheet"
+        }
+      >
+        {ACTUAL_PATIENTS_PER_PAGE.map((patients, pageIndex) => (
+          <Page key={pageIndex} size={"LETTER"} style={documentStyles.page}>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap",
+              }}
+            >
+              {patients.map((patient, index) => (
+                <PatientRow
+                  key={`${pageIndex}-${index}`}
+                  patient={patient}
+                  pageIndex={pageIndex}
+                  index={index}
+                  templateId={templateId}
+                />
+              ))}
+            </View>
+            <View
+              style={{
+                flex: 1,
+                minHeight: "12px",
+                display: "flex",
+                flexDirection: "row",
+              }}
+            >
+              <Text style={{ textAlign: "left", flex: 1 }}></Text>
+              <Text style={{ textAlign: "center", flex: 1 }}>
+                Page {pageIndex + 1}/{totalPages}
+              </Text>
+              <Text style={{ textAlign: "right", flex: 1 }}>
+                {new Date().toLocaleString()}
+              </Text>
+            </View>
+          </Page>
+        ))}
+      </Document>
+    ),
+    [templateId, ACTUAL_PATIENTS_PER_PAGE, totalPages]
   );
+
+  return instanceToReturn;
 };

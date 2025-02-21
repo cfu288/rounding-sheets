@@ -6,7 +6,7 @@ import source1 from "../assets/Atkinson-Hyperlegible-Regular.ttf";
 import source2 from "../assets/Atkinson-Hyperlegible-Italic.ttf";
 import source3 from "../assets/Atkinson-Hyperlegible-BoldItalic.ttf";
 import source4 from "../assets/Atkinson-Hyperlegible-Bold.ttf";
-import { usePatientList } from "./usePatientList";
+import { usePatientList } from "@/providers/usePatientList";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -19,6 +19,7 @@ import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@radix-ui/react-separator";
+import { useEffect, useMemo } from "react";
 
 Font.register({
   family: "Atkinson",
@@ -35,15 +36,46 @@ export const ShowPDF = () => {
   const template = getTemplate({
     template_id: templateId || "3_pt_floor_template",
   });
-  const [patients] = usePatientList();
-  const [instance] = usePDF({
-    document: (
-      <PatientListPrintout
-        patients={patients}
-        templateId={templateId || "3_pt_floor_template"}
-      />
-    ),
+  const { state, patients, error } = usePatientList();
+  const document = useMemo(
+    () =>
+      state === "SUCCESS" ? (
+        <PatientListPrintout
+          patients={patients || []}
+          templateId={templateId || "3_pt_floor_template"}
+        />
+      ) : (
+        <></>
+      ),
+    [patients, state, templateId]
+  );
+  const [instance, update] = usePDF({
+    document,
   });
+
+  // Update PDF when template changes
+  useEffect(() => {
+    if (update && document) {
+      update(document);
+    }
+  }, [templateId, update, document]);
+
+  // Handle loading and error states
+  if (state === "LOADING") {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900" />
+      </div>
+    );
+  }
+
+  if (state === "ERROR") {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-red-500">Error loading patient list: {error}</div>
+      </div>
+    );
+  }
 
   return (
     // <AppLayout fixedNavbar>

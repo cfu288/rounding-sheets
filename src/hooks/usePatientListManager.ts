@@ -1,75 +1,128 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { Patient, createEmptyPatient, generateUUID } from "@/models/Patient";
+import { example_patients } from "@/data/example_patients";
+import { getStorage } from "@/storage/StorageAPI";
 
 interface PatientListMap {
   [key: string]: Patient[];
 }
 
+type LoadingState = "LOADING" | "SUCCESS" | "ERROR";
+
 interface PatientListState {
   lists: PatientListMap;
   listNames: string[];
   currentListName: string;
+  state: LoadingState;
+  error?: string;
 }
 
-const STORAGE_KEY = {
-  LISTS: "patient_lists",
-  META: "patient_lists_meta",
-};
+// Store everything in a single file
+const STORAGE_KEY = "patient-lists-state";
 
 export function usePatientListManager() {
-  // Initialize state from localStorage
+  // Initialize state
   const [state, setState] = useState<PatientListState>(() => {
     const defaultListName = "New List " + new Date().toLocaleDateString();
-    const savedLists = localStorage.getItem(STORAGE_KEY.LISTS);
-    const savedMeta = localStorage.getItem(STORAGE_KEY.META);
-
-    const lists: PatientListMap = savedLists
-      ? JSON.parse(savedLists)
-      : {
-          [defaultListName]: Array(6)
-            .fill(null)
-            .map(() => createEmptyPatient()),
-        };
-
-    // Ensure all existing patients have UUIDs
-    const listsWithUUIDs = Object.entries(lists).reduce(
-      (acc, [listName, patients]) => {
-        acc[listName] = patients.map((patient) =>
-          patient.id ? patient : { ...patient, id: generateUUID() }
-        );
-        return acc;
-      },
-      {} as PatientListMap
-    );
-
-    const listNames = savedMeta ? JSON.parse(savedMeta) : [defaultListName];
-
     return {
-      lists: listsWithUUIDs,
-      listNames,
+      lists: {
+        [defaultListName]: example_patients.map((patient: Patient) => ({
+          ...patient,
+          id: patient.id || generateUUID(),
+        })),
+      },
+      listNames: [defaultListName],
       currentListName: defaultListName,
+      state: "LOADING" as const,
     };
   });
 
   const [isNewListModalOpen, setIsNewListModalOpen] = useState<boolean>(false);
   const [newListName, setNewListName] = useState<string>("");
 
+  // Load initial data from storage
+  useEffect(() => {
+    async function loadFromStorage() {
+      try {
+        const storage = await getStorage();
+        const savedState = await storage.read<PatientListState>(STORAGE_KEY);
+
+        if (savedState) {
+          // Ensure all existing patients have UUIDs
+          const listsWithUUIDs = Object.entries(savedState.lists).reduce(
+            (acc, [listName, patients]) => {
+              acc[listName] = (patients as Patient[]).map((patient) =>
+                patient.id ? patient : { ...patient, id: generateUUID() }
+              );
+              return acc;
+            },
+            {} as PatientListMap
+          );
+
+          setState({
+            ...savedState,
+            lists: listsWithUUIDs,
+            state: "SUCCESS",
+          });
+        } else {
+          // If no saved data, keep the initial state but mark as success
+          setState((prev) => ({ ...prev, state: "SUCCESS" }));
+        }
+      } catch (error) {
+        console.error("Failed to load patient lists:", error);
+        setState((prev) => ({
+          ...prev,
+          state: "ERROR",
+          error: "Failed to load patient lists",
+        }));
+      }
+    }
+
+    loadFromStorage();
+  }, []);
+
   // Memoize the current list's patients
   const patients = useMemo(
-    () => state.lists[state.currentListName],
+    () => state.lists[state.currentListName] || [],
     [state.lists, state.currentListName]
   );
 
-  // Sync state to localStorage whenever it changes
+  // Sync state to storage whenever it changes
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY.LISTS, JSON.stringify(state.lists));
-    localStorage.setItem(STORAGE_KEY.META, JSON.stringify(state.listNames));
-  }, [state]);
+    async function saveToStorage() {
+      try {
+        const storage = await getStorage();
+        // Save the entire state object, excluding the 'state' and 'error' properties
+        const stateToSave = {
+          lists: state.lists,
+          listNames: state.listNames,
+          currentListName: state.currentListName,
+        };
+        await storage.write(STORAGE_KEY, stateToSave);
+
+        if (state.state === "ERROR") {
+          setState((prev) => ({ ...prev, state: "SUCCESS", error: undefined }));
+        }
+      } catch (error) {
+        console.error("Failed to save patient lists:", error);
+        setState((prev) => ({
+          ...prev,
+          state: "ERROR",
+          error: "Failed to save patient lists",
+        }));
+      }
+    }
+
+    if (state.state !== "LOADING") {
+      saveToStorage();
+    }
+  }, [state.lists, state.listNames, state.currentListName]);
 
   const setCurrentListName = useCallback((name: string) => {
     setState((prev) => ({
       ...prev,
       currentListName: name,
+      state: prev.state,
     }));
   }, []);
 
@@ -118,6 +171,8 @@ export function usePatientListManager() {
         },
         listNames: [...prev.listNames, newListName],
         currentListName: newListName,
+        state: prev.state,
+        error: prev.error,
       }));
       setNewListName("");
       setIsNewListModalOpen(false);
@@ -155,5 +210,7 @@ export function usePatientListManager() {
     handleNewListSubmit,
     findPatientById,
     updatePatientById,
+    state: state.state,
+    error: state.error,
   };
 }

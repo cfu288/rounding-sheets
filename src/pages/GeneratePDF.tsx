@@ -26,7 +26,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@radix-ui/react-separator";
-import { usePatientList } from "@/providers/PatientListProvider";
+import { usePatientList } from "@/providers/usePatientList";
 
 type PatientValue =
   | string
@@ -42,6 +42,8 @@ export const GeneratePDF = () => {
     setPatients,
     findPatientById,
     updatePatientById,
+    state,
+    error,
   } = usePatientList();
   const [modalContent, setModalContent] = useState<ModalContent>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -51,6 +53,23 @@ export const GeneratePDF = () => {
   const [selectedTemplateId, setSelectedTemplateId] =
     useState<KnownTemplateIds>("3_pt_floor_template");
   const navigator = useNavigate();
+
+  // Handle loading and error states
+  if (state === "LOADING") {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900" />
+      </div>
+    );
+  }
+
+  if (state === "ERROR") {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-red-500">Error loading patient list: {error}</div>
+      </div>
+    );
+  }
 
   const openModal = (id: string, content: ModalContent) => {
     setCurrentPatientId(id);
@@ -78,6 +97,13 @@ export const GeneratePDF = () => {
       let updatedValue: string[] | AssessmentAndPlanItem[];
 
       if (key === "assessment_and_plan") {
+        const template = getTemplate({
+          template_id: selectedTemplateId,
+          custom_override_templates: currentPatient.display_template_overrides,
+        });
+        if (template.ap?.systemsBased) {
+          return;
+        }
         newItem = { assessment: "", plan: [""] } as AssessmentAndPlanItem;
         updatedValue = [
           ...((currentPatient[key] as AssessmentAndPlanItem[]) || []),
@@ -222,6 +248,7 @@ export const GeneratePDF = () => {
             }
             addItem={addItem}
             removeItem={removeItem}
+            selectedTemplateId={selectedTemplateId}
           />
         </Modal>
         <Modal
@@ -388,6 +415,7 @@ const ModalContentComponent = ({
   updatePatient,
   addItem,
   removeItem,
+  selectedTemplateId,
 }: {
   modalContent: ModalContent;
   patients: Patient[];
@@ -395,8 +423,15 @@ const ModalContentComponent = ({
   updatePatient: (key: keyof Patient, value: PatientValue) => void;
   addItem: (key: keyof Patient) => void;
   removeItem: (key: keyof Patient, itemIndex: number) => void;
+  selectedTemplateId: KnownTemplateIds;
 }) => {
   const currentPatient = patients.find((p) => p.id === currentPatientId);
+  const template = getTemplate({
+    template_id: selectedTemplateId,
+    custom_override_templates: currentPatient?.display_template_overrides,
+  });
+  const isSystemsBased = template.ap?.systemsBased || false;
+  const systems = template.ap?.systems || [];
 
   if (!currentPatient) return null;
 
@@ -448,114 +483,281 @@ const ModalContentComponent = ({
     case "assessment_and_plan":
       return (
         <div>
-          <ul>
-            {(
-              currentPatient.assessment_and_plan || [
-                { assessment: "", plan: [""] },
-              ]
-            ).map((ap: { assessment: string; plan: string[] }, i: number) => (
-              <li
-                key={`assessment-and-plan-${i}`}
-                className={`flex flex-col mb-2 ${i !== 0 ? "mt-6" : ""}`}
-              >
-                <div className="flex items-center">
-                  <span className="mr-2 font-bold">{i + 1}</span>
-                  <Input
-                    type="text"
-                    value={ap.assessment}
-                    onChange={(e) =>
-                      updatePatient(
-                        "assessment_and_plan",
-                        (currentPatient.assessment_and_plan?.map((item, j) =>
-                          j === i
-                            ? { ...item, assessment: e.target.value }
-                            : item
-                        ) as AssessmentAndPlanItem[]) || []
-                      )
-                    }
-                    className="w-full mr-2"
-                  />
-                  <Button onClick={() => removeItem("assessment_and_plan", i)}>
-                    🗑️
-                  </Button>
-                </div>
-                <ul className="flex flex-col mt-2">
-                  {ap.plan.map((planItem: string, j: number) => (
-                    <li
-                      key={`plan-${i}-${j}`}
-                      className="flex items-center mb-2"
-                    >
-                      <span className="mx-2">•</span>
-                      <Input
-                        type="text"
-                        value={planItem}
-                        onChange={(e) =>
-                          updatePatient(
-                            "assessment_and_plan",
-                            (currentPatient.assessment_and_plan?.map(
-                              (item, k) =>
-                                k === i
-                                  ? {
-                                      ...item,
-                                      plan: item.plan.map((p, l) =>
-                                        l === j ? e.target.value : p
-                                      ),
-                                    }
-                                  : item
-                            ) as AssessmentAndPlanItem[]) || []
-                          )
-                        }
-                        className="w-full mr-2"
-                      />
+          {isSystemsBased ? (
+            <div>
+              {systems.map((system) => {
+                const systemItems = (
+                  currentPatient.assessment_and_plan || []
+                ).filter((ap) => ap.category === system);
+
+                return (
+                  <div key={system} className="mb-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-semibold">{system}</h3>
                       <Button
-                        variant="outline"
                         onClick={() => {
-                          const newPlan = ap.plan.filter(
-                            (_: string, l: number) => l !== j
-                          );
-                          updatePatient(
-                            "assessment_and_plan",
-                            (currentPatient.assessment_and_plan?.map(
-                              (item, k) =>
-                                k === i ? { ...item, plan: newPlan } : item
-                            ) as AssessmentAndPlanItem[]) || []
-                          );
+                          const newItem: AssessmentAndPlanItem = {
+                            assessment: "",
+                            plan: [""],
+                            category: system,
+                          };
+                          const existingAP =
+                            currentPatient.assessment_and_plan || [];
+                          updatePatient("assessment_and_plan", [
+                            ...existingAP,
+                            newItem,
+                          ]);
                         }}
                       >
-                        🗑️
+                        Add {system} Item
                       </Button>
-                    </li>
-                  ))}
-                  <li key={`new-bullet-${i}`} className="flex items-center">
-                    <span className="mx-2">•</span>
-                    <Button
-                      className="flex-grow"
-                      variant="outline"
-                      onClick={() => {
-                        const newPlan = [...ap.plan, ""];
-                        updatePatient(
-                          "assessment_and_plan",
-                          (currentPatient.assessment_and_plan?.map((item, k) =>
-                            k === i
-                              ? {
-                                  ...item,
-                                  plan: newPlan,
-                                }
-                              : item
-                          ) as AssessmentAndPlanItem[]) || []
-                        );
-                      }}
+                    </div>
+                    <ul>
+                      {systemItems.map((ap, i) => (
+                        <li
+                          key={`${system}-${i}`}
+                          className="flex flex-col mb-4"
+                        >
+                          <div className="flex items-center">
+                            <Input
+                              type="text"
+                              value={ap.assessment}
+                              onChange={(e) => {
+                                const updatedAP =
+                                  currentPatient.assessment_and_plan?.map(
+                                    (item) =>
+                                      item === ap
+                                        ? {
+                                            ...item,
+                                            assessment: e.target.value,
+                                          }
+                                        : item
+                                  ) || [];
+                                updatePatient("assessment_and_plan", updatedAP);
+                              }}
+                              className="w-full mr-2"
+                              placeholder={`${system} Assessment`}
+                            />
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                const updatedAP = (
+                                  currentPatient.assessment_and_plan || []
+                                ).filter((item) => item !== ap);
+                                updatePatient("assessment_and_plan", updatedAP);
+                              }}
+                            >
+                              🗑️
+                            </Button>
+                          </div>
+                          <ul className="ml-4 mt-2">
+                            {ap.plan.map((planItem, j) => (
+                              <li
+                                key={`plan-${i}-${j}`}
+                                className="flex items-center mb-2"
+                              >
+                                <span className="mx-2">•</span>
+                                <Input
+                                  type="text"
+                                  value={planItem}
+                                  onChange={(e) => {
+                                    const updatedAP =
+                                      currentPatient.assessment_and_plan?.map(
+                                        (item) =>
+                                          item === ap
+                                            ? {
+                                                ...item,
+                                                plan: item.plan.map((p, idx) =>
+                                                  idx === j ? e.target.value : p
+                                                ),
+                                              }
+                                            : item
+                                      ) || [];
+                                    updatePatient(
+                                      "assessment_and_plan",
+                                      updatedAP
+                                    );
+                                  }}
+                                  className="w-full mr-2"
+                                  placeholder="Plan item"
+                                />
+                                <Button
+                                  variant="outline"
+                                  onClick={() => {
+                                    const updatedAP =
+                                      currentPatient.assessment_and_plan?.map(
+                                        (item) =>
+                                          item === ap
+                                            ? {
+                                                ...item,
+                                                plan: item.plan.filter(
+                                                  (_, idx) => idx !== j
+                                                ),
+                                              }
+                                            : item
+                                      ) || [];
+                                    updatePatient(
+                                      "assessment_and_plan",
+                                      updatedAP
+                                    );
+                                  }}
+                                >
+                                  🗑️
+                                </Button>
+                              </li>
+                            ))}
+                            <li className="flex items-center">
+                              <span className="mx-2">•</span>
+                              <Button
+                                className="flex-grow"
+                                variant="outline"
+                                onClick={() => {
+                                  const updatedAP =
+                                    currentPatient.assessment_and_plan?.map(
+                                      (item) =>
+                                        item === ap
+                                          ? {
+                                              ...item,
+                                              plan: [...item.plan, ""],
+                                            }
+                                          : item
+                                    ) || [];
+                                  updatePatient(
+                                    "assessment_and_plan",
+                                    updatedAP
+                                  );
+                                }}
+                              >
+                                Add Plan Item
+                              </Button>
+                            </li>
+                          </ul>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div>
+              <ul>
+                {(currentPatient.assessment_and_plan || []).map(
+                  (ap: { assessment: string; plan: string[] }, i: number) => (
+                    <li
+                      key={`assessment-and-plan-${i}`}
+                      className={`flex flex-col mb-2 ${i !== 0 ? "mt-6" : ""}`}
                     >
-                      Add Plan Item
-                    </Button>
-                  </li>
-                </ul>
-              </li>
-            ))}
-          </ul>
-          <Button onClick={() => addItem("assessment_and_plan")}>
-            Add Assessment
-          </Button>
+                      <div className="flex items-center">
+                        <span className="mr-2 font-bold">{i + 1}</span>
+                        <Input
+                          type="text"
+                          value={ap.assessment}
+                          onChange={(e) =>
+                            updatePatient(
+                              "assessment_and_plan",
+                              (currentPatient.assessment_and_plan?.map(
+                                (item, j) =>
+                                  j === i
+                                    ? { ...item, assessment: e.target.value }
+                                    : item
+                              ) as AssessmentAndPlanItem[]) || []
+                            )
+                          }
+                          className="w-full mr-2"
+                        />
+                        <Button
+                          onClick={() => removeItem("assessment_and_plan", i)}
+                        >
+                          🗑️
+                        </Button>
+                      </div>
+                      <ul className="flex flex-col mt-2">
+                        {ap.plan.map((planItem: string, j: number) => (
+                          <li
+                            key={`plan-${i}-${j}`}
+                            className="flex items-center mb-2"
+                          >
+                            <span className="mx-2">•</span>
+                            <Input
+                              type="text"
+                              value={planItem}
+                              onChange={(e) =>
+                                updatePatient(
+                                  "assessment_and_plan",
+                                  (currentPatient.assessment_and_plan?.map(
+                                    (item, k) =>
+                                      k === i
+                                        ? {
+                                            ...item,
+                                            plan: item.plan.map((p, l) =>
+                                              l === j ? e.target.value : p
+                                            ),
+                                          }
+                                        : item
+                                  ) as AssessmentAndPlanItem[]) || []
+                                )
+                              }
+                              className="w-full mr-2"
+                            />
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                const newPlan = ap.plan.filter(
+                                  (_: string, l: number) => l !== j
+                                );
+                                updatePatient(
+                                  "assessment_and_plan",
+                                  (currentPatient.assessment_and_plan?.map(
+                                    (item, k) =>
+                                      k === i
+                                        ? { ...item, plan: newPlan }
+                                        : item
+                                  ) as AssessmentAndPlanItem[]) || []
+                                );
+                              }}
+                            >
+                              🗑️
+                            </Button>
+                          </li>
+                        ))}
+                        <li
+                          key={`new-bullet-${i}`}
+                          className="flex items-center"
+                        >
+                          <span className="mx-2">•</span>
+                          <Button
+                            className="flex-grow"
+                            variant="outline"
+                            onClick={() => {
+                              const newPlan = [...ap.plan, ""];
+                              updatePatient(
+                                "assessment_and_plan",
+                                (currentPatient.assessment_and_plan?.map(
+                                  (item, k) =>
+                                    k === i
+                                      ? {
+                                          ...item,
+                                          plan: newPlan,
+                                        }
+                                      : item
+                                ) as AssessmentAndPlanItem[]) || []
+                              );
+                            }}
+                          >
+                            Add Plan Item
+                          </Button>
+                        </li>
+                      </ul>
+                    </li>
+                  )
+                )}
+              </ul>
+              <Button onClick={() => addItem("assessment_and_plan")}>
+                Add Assessment
+              </Button>
+            </div>
+          )}
         </div>
       );
     default:

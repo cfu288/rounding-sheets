@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getTemplate, KnownTemplateIds } from "@/const";
 import { useParams, useLocation, Link } from "react-router-dom";
-import { usePatientList } from "@/providers/PatientListProvider";
+import { usePatientList } from "@/providers/usePatientList";
 
 // This is sample data.
 const data = {
@@ -173,12 +173,40 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     newListName,
     setNewListName,
     handleNewListSubmit,
+    state,
+    error,
   } = usePatientList();
 
   // get all templates
   const templates = KnownTemplateIds.map((id) =>
     getTemplate({ template_id: id })
   );
+
+  if (state === "LOADING") {
+    return (
+      <Sidebar variant="floating" {...props}>
+        <SidebarHeader>
+          <div className="flex items-center justify-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+          </div>
+        </SidebarHeader>
+      </Sidebar>
+    );
+  }
+
+  if (state === "ERROR") {
+    return (
+      <Sidebar variant="floating" {...props}>
+        <SidebarHeader>
+          <div className="flex items-center justify-center h-32">
+            <div className="text-red-500 text-sm">
+              Error loading lists: {error}
+            </div>
+          </div>
+        </SidebarHeader>
+      </Sidebar>
+    );
+  }
 
   return (
     <Sidebar variant="floating" {...props}>
@@ -204,14 +232,17 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenu className="gap-2">
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <a href="/">Home</a>
+                <Link to="/">Home</Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <a href="#" className="font-medium">
+                <Link
+                  to={`/scutsheet/${templates[0].templateId}`}
+                  className="font-medium"
+                >
                   Scutsheet
-                </a>
+                </Link>
               </SidebarMenuButton>
               <SidebarMenuSub className="ml-0 border-l-0 px-1.5">
                 {templates.map((template) => (
@@ -220,12 +251,12 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                       asChild
                       isActive={template.templateId === templateId}
                     >
-                      <a
-                        href={`/scutsheet/${template.templateId}`}
+                      <Link
+                        to={`/scutsheet/${template.templateId}`}
                         className="font-medium"
                       >
                         {template.templateName}
-                      </a>
+                      </Link>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                 ))}
@@ -233,7 +264,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <Link to="#" className="font-medium">
+                <Link to="/scutsheet/generate-pdf" className="font-medium">
                   Patient Lists
                 </Link>
               </SidebarMenuButton>
