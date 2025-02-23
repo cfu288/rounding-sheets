@@ -12,30 +12,15 @@ import { PatientListProvider } from "@/providers/PatientListProvider";
 import { TemplatesProvider } from "@/providers/TemplatesProvider";
 import { AppLayout } from "@/components/AppLayout";
 
-// const usePatientList = () => {
-//   const [patientList, setPatientList] = useState<Patient[]>(() => {
-//     return patient_list.sort((a, b) => {
-//       if (!a?.location) return 1;
-//       if (!b?.location) return -1;
-//       return a.location.localeCompare(b.location);
-//     });
-//   });
-
-//   useEffect(() => {
-//     localStorage.setItem("patientList", JSON.stringify(patientList));
-//   }, [patientList]);
-
-//   return [patientList, setPatientList] as const;
-// };
-
 const App = () => {
   return (
     <LocalAppSettingsProvider>
       <PatientListProvider>
         <TemplatesProvider>
           <Routes>
+            {/* Home should always be excluded from app layout */}
+            <Route path="/" element={<Home />} />
             <Route element={<AppLayout />}>
-              <Route path="/" element={<Home />} />
               <Route path="/scutsheet/generate-pdf" element={<GeneratePDF />} />
               <Route path="/scutsheet/:templateId" element={<ShowPDF />} />
               <Route path="/bp-log" element={<BPLogApp />} />
