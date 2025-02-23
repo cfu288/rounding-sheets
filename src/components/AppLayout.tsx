@@ -1,8 +1,13 @@
+import { ReactNode } from "react";
 import { Outlet } from "react-router-dom";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
-export function AppLayout() {
+interface AppLayoutProps {
+  children?: ReactNode;
+}
+
+export function AppLayout({ children }: AppLayoutProps) {
   return (
     <SidebarProvider
       style={
@@ -12,9 +17,7 @@ export function AppLayout() {
       }
     >
       <AppSidebar />
-      <SidebarInset>
-        <Outlet />
-      </SidebarInset>
+      <SidebarInset>{children || <Outlet />}</SidebarInset>
     </SidebarProvider>
   );
 }
