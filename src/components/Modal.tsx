@@ -22,12 +22,12 @@ export const Modal = ({
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-full sm:max-w-[425px] md:max-w-[600px] lg:max-w-[800px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <div className="py-4">{children}</div>
-        <DialogFooter>
+        <div className="my-2 overflow-y-auto flex-1">{children}</div>
+        <DialogFooter className="flex-shrink-0">
           {footerItems}
           <Button onClick={onClose} variant="outline">
             Close

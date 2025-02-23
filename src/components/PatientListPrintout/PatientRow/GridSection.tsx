@@ -1,4 +1,3 @@
-import { getTemplate } from "../../../const";
 import { CMPFishbone } from "./Labs/CMPFishbone";
 import { HHFishbone } from "./Labs/HHFishbone";
 import { ReverseYFishbone } from "./Labs/ReverseYFishbone";
@@ -6,6 +5,7 @@ import { XFishbone } from "./Labs/XFishbone";
 import { YFishbone } from "./Labs/YFishbone";
 import { GridSectionProps } from "./PatientRow";
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
+import { useTemplates } from "@/providers/TemplatesProvider";
 
 const patientRowStyles = StyleSheet.create({
   bannerContainer: {
@@ -182,15 +182,16 @@ export const GridSection: React.FC<GridSectionProps> = ({
   patient,
   templateId,
 }) => {
-  const template = getTemplate({
-    template_id: templateId,
-    custom_override_templates: patient.display_template_overrides,
-  });
+  const { getTemplate } = useTemplates();
+  const template =
+    getTemplate(templateId) || getTemplate("3_pt_floor_template");
+  if (!template) return null;
 
   const vitals = template.vitals?.sections || [];
   const vitalsEnabled = template.vitals?.enabled || false;
   const physicalExamEnabled = template.physicalExam?.enabled || false;
   const eventsEnabled = template.events?.enabled || false;
+  const medsEnabled = template.meds?.enabled || false;
   const eventsFullWidth =
     template.events?.fullWidth === undefined
       ? false
@@ -198,10 +199,8 @@ export const GridSection: React.FC<GridSectionProps> = ({
   // 1/6 is gridBox2, 1/4 is gridBox3, 1/3 is gridBox4
   const eventsHeight = template.events?.height || "1/6";
   const physicalExams = template.physicalExam?.sections || [];
-  const medications: string[] = [];
   const labsEnabled = template.labs?.enabled || false;
   const labsFullWidth = template.labs?.fullWidth || false;
-  const medsEnabled = template.meds?.enabled || false;
   const consultsEnabled = template.consults?.enabled || false;
   const imagingEnabled = template.imaging?.enabled || false;
   const socialHistoryEnabled = template.socialHistory?.enabled || false;
@@ -329,26 +328,17 @@ export const GridSection: React.FC<GridSectionProps> = ({
           <Text style={patientRowStyles.gridBoxText}></Text>
         </View>
       )}
-      {consultsEnabled && (
-        <View style={patientRowStyles.gridBox3HalfWidth}>
-          <Text style={patientRowStyles.gridBoxText}>Consults:</Text>
-          <Text style={patientRowStyles.gridBoxText}></Text>
-        </View>
-      )}
-      {microEnabled && (
-        <View style={patientRowStyles.gridBox3HalfWidth}>
-          <Text style={patientRowStyles.gridBoxText}>Micro:</Text>
-          <Text style={patientRowStyles.gridBoxText}></Text>
-        </View>
-      )}
       {medsEnabled && (
         <View style={patientRowStyles.gridBox3HalfWidth}>
           <Text style={patientRowStyles.gridBoxText}>Meds:</Text>
           <View style={patientRowStyles.medsContainer}>
-            {medications.length > 0
-              ? medications.sort().map((med, i) => (
+            {patient.meds && patient.meds.length > 0
+              ? patient.meds.sort().map((med, i) => (
                   <Text key={i} style={patientRowStyles.medsText}>
-                    {med};
+                    {[med.name, med.dose, med.unit, med.route, med.frequency]
+                      .filter(Boolean)
+                      .join(" ") || ""}
+                    ;
                   </Text>
                 ))
               : Array.from({ length: 10 }).map((_, i) => (
@@ -357,6 +347,18 @@ export const GridSection: React.FC<GridSectionProps> = ({
                   </Text>
                 ))}
           </View>
+        </View>
+      )}
+      {consultsEnabled && (
+        <View style={patientRowStyles.gridBox2HalfWidth}>
+          <Text style={patientRowStyles.gridBoxText}>Consults:</Text>
+          <Text style={patientRowStyles.gridBoxText}></Text>
+        </View>
+      )}
+      {microEnabled && (
+        <View style={patientRowStyles.gridBox2HalfWidth}>
+          <Text style={patientRowStyles.gridBoxText}>Micro:</Text>
+          <Text style={patientRowStyles.gridBoxText}></Text>
         </View>
       )}
     </View>

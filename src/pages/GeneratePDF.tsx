@@ -7,26 +7,13 @@ import { Todo } from "@/models/Todo";
 import { ModalContent } from "./ShowPDF";
 import { DisplayTemplate } from "@/models/DisplayTemplate";
 import { useNavigate } from "react-router-dom";
-import { getTemplate, KnownTemplateIds } from "@/const";
+import { useTemplates } from "@/providers/TemplatesProvider";
 import { useForm } from "react-hook-form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { AppSidebar } from "@/components/app-sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
-import {
-  SidebarProvider,
-  SidebarInset,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { Separator } from "@radix-ui/react-separator";
+import { BreadcrumbItem, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { usePatientList } from "@/providers/usePatientList";
+import { AppHeader } from "@/components/AppHeader";
 
 type PatientValue =
   | string
@@ -42,31 +29,40 @@ export const GeneratePDF = () => {
     setPatients,
     findPatientById,
     updatePatientById,
-    state,
-    error,
+    state: patientListState,
+    error: patientListError,
   } = usePatientList();
+
+  const {
+    allTemplates,
+    state: templateState,
+    error: templateError,
+  } = useTemplates();
+
   const [modalContent, setModalContent] = useState<ModalContent>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isAddPatientModalOpen, setIsAddPatientModalOpen] =
     useState<boolean>(false);
   const [currentPatientId, setCurrentPatientId] = useState<string>("");
-  const [selectedTemplateId, setSelectedTemplateId] =
-    useState<KnownTemplateIds>("3_pt_floor_template");
-  const navigator = useNavigate();
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>(
+    allTemplates[0]?.templateId || ""
+  );
+  const navigate = useNavigate();
 
-  // Handle loading and error states
-  if (state === "LOADING") {
+  if (templateState === "LOADING" || patientListState === "LOADING") {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
       </div>
     );
   }
 
-  if (state === "ERROR") {
+  if (templateState === "ERROR" || patientListState === "ERROR") {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-red-500">Error loading patient list: {error}</div>
+        <div className="text-red-500 text-sm">
+          Error loading: {templateError || patientListError}
+        </div>
       </div>
     );
   }
@@ -83,11 +79,11 @@ export const GeneratePDF = () => {
   };
 
   const handleGeneratePDFClick = () => {
-    if (!KnownTemplateIds.includes(selectedTemplateId)) {
+    if (!selectedTemplateId) {
       console.error("Invalid template selected");
       return;
     }
-    navigator(`/scutsheet/${selectedTemplateId}`);
+    navigate(`/scutsheet/${selectedTemplateId}`);
   };
 
   const addItem = (key: keyof Patient) => {
@@ -97,11 +93,10 @@ export const GeneratePDF = () => {
       let updatedValue: string[] | AssessmentAndPlanItem[];
 
       if (key === "assessment_and_plan") {
-        const template = getTemplate({
-          template_id: selectedTemplateId,
-          custom_override_templates: currentPatient.display_template_overrides,
-        });
-        if (template.ap?.systemsBased) {
+        const template = allTemplates.find(
+          (t) => t.templateId === selectedTemplateId
+        );
+        if (template?.ap?.systemsBased) {
           return;
         }
         newItem = { assessment: "", plan: [""] } as AssessmentAndPlanItem;
@@ -147,119 +142,122 @@ export const GeneratePDF = () => {
   };
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "19rem",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">Scutsheet</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{currentListName}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </header>
-        <div className="p-4 border-gray-400 border rounded mt-4 mx-2">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-medium">Patient List</h2>
+    <>
+      <AppHeader>
+        <BreadcrumbItem>
+          <BreadcrumbPage>Patient Lists</BreadcrumbPage>
+        </BreadcrumbItem>
+      </AppHeader>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold">
+              Patient List: {currentListName}
+            </h1>
             <select
-              className="border rounded px-2 py-1"
-              onChange={(e) =>
-                setSelectedTemplateId(e.target.value as KnownTemplateIds)
-              }
               value={selectedTemplateId}
+              onChange={(e) => setSelectedTemplateId(e.target.value)}
+              className="border rounded p-2"
             >
-              {KnownTemplateIds.map((templateId) => (
-                <option key={templateId} value={templateId}>
-                  {getTemplate({ template_id: templateId }).templateName}
-                </option>
-              ))}
+              <optgroup label="Default Templates">
+                {allTemplates
+                  .filter(
+                    (t: DisplayTemplate) => !t.templateId.startsWith("custom_")
+                  )
+                  .map((template) => (
+                    <option
+                      key={template.templateId}
+                      value={template.templateId}
+                    >
+                      {template.templateName}
+                    </option>
+                  ))}
+              </optgroup>
+              <optgroup label="Custom Templates">
+                {allTemplates
+                  .filter((t: DisplayTemplate) =>
+                    t.templateId.startsWith("custom_")
+                  )
+                  .map((template) => (
+                    <option
+                      key={template.templateId}
+                      value={template.templateId}
+                    >
+                      {template.templateName}
+                    </option>
+                  ))}
+              </optgroup>
             </select>
             <Button onClick={handleGeneratePDFClick}>Generate PDF</Button>
-            <Button onClick={openAddPatientModal}>Add Patient</Button>
           </div>
-          <div className="border rounded-b-md border-gray-400">
-            <table className="min-w-full">
-              <thead>
-                <tr>
-                  {[
-                    "Patient Identifiers",
-                    "Location",
-                    "One Liner",
-                    "HPI",
-                    "Todos",
-                    "Assessment and Plan",
-                  ].map((header, index) => (
-                    <th key={`header-${index}`} className="px-4 py-2">
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {patients.map((patient: Patient) => (
-                  <PatientRow
-                    key={patient.id}
-                    patient={patient}
-                    openModal={openModal}
-                    updatePatient={(
-                      key: keyof Patient,
-                      value: PatientValue
-                    ) => {
-                      updatePatientById(patient.id, { [key]: value });
-                    }}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Button onClick={openAddPatientModal}>Add Patient</Button>
         </div>
-        <Modal
-          isOpen={isModalOpen}
-          onClose={closeModal}
-          title={
-            modalContent === "todos"
-              ? "Edit Todos"
-              : modalContent === "assessment_and_plan"
-              ? "Edit Assessment and Plan"
-              : modalContent === "hpi"
-              ? "Edit HPI"
-              : "Edit Details"
+        <div className="border rounded-b-md border-gray-400">
+          <table className="min-w-full">
+            <thead>
+              <tr>
+                {[
+                  "Patient Identifiers",
+                  "Location",
+                  "One Liner",
+                  "HPI",
+                  "Todos",
+                  "Assessment and Plan",
+                ].map((header, index) => (
+                  <th key={`header-${index}`} className="px-4 py-2">
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {patients.map((patient: Patient) => (
+                <PatientRow
+                  key={patient.id}
+                  patient={patient}
+                  openModal={openModal}
+                  updatePatient={(key: keyof Patient, value: PatientValue) => {
+                    updatePatientById(patient.id, { [key]: value });
+                  }}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title={
+          modalContent === "todos"
+            ? "Edit Todos"
+            : modalContent === "assessment_and_plan"
+            ? "Edit Assessment and Plan"
+            : modalContent === "hpi"
+            ? "Edit HPI"
+            : "Edit Details"
+        }
+      >
+        <ModalContentComponent
+          modalContent={modalContent}
+          patients={patients}
+          currentPatientId={currentPatientId}
+          updatePatient={(key, value) =>
+            updatePatientById(currentPatientId, { [key]: value })
           }
-        >
-          <ModalContentComponent
-            modalContent={modalContent}
-            patients={patients}
-            currentPatientId={currentPatientId}
-            updatePatient={(key, value) =>
-              updatePatientById(currentPatientId, { [key]: value })
-            }
-            addItem={addItem}
-            removeItem={removeItem}
-            selectedTemplateId={selectedTemplateId}
-          />
-        </Modal>
-        <Modal
-          isOpen={isAddPatientModalOpen}
-          onClose={closeAddPatientModal}
-          title="Add New Patient"
-        >
-          <AddPatientForm onSubmit={handleAddPatient} />
-        </Modal>
-      </SidebarInset>
-    </SidebarProvider>
+          addItem={addItem}
+          removeItem={removeItem}
+          selectedTemplateId={selectedTemplateId}
+        />
+      </Modal>
+      <Modal
+        isOpen={isAddPatientModalOpen}
+        onClose={closeAddPatientModal}
+        title="Add New Patient"
+      >
+        <AddPatientForm onSubmit={handleAddPatient} />
+      </Modal>
+    </>
   );
 };
 
@@ -423,15 +421,15 @@ const ModalContentComponent = ({
   updatePatient: (key: keyof Patient, value: PatientValue) => void;
   addItem: (key: keyof Patient) => void;
   removeItem: (key: keyof Patient, itemIndex: number) => void;
-  selectedTemplateId: KnownTemplateIds;
+  selectedTemplateId: string;
 }) => {
+  const { allTemplates } = useTemplates();
   const currentPatient = patients.find((p) => p.id === currentPatientId);
-  const template = getTemplate({
-    template_id: selectedTemplateId,
-    custom_override_templates: currentPatient?.display_template_overrides,
-  });
-  const isSystemsBased = template.ap?.systemsBased || false;
-  const systems = template.ap?.systems || [];
+  const template = allTemplates.find(
+    (t: DisplayTemplate) => t.templateId === selectedTemplateId
+  );
+  const isSystemsBased = template?.ap?.systemsBased || false;
+  const systems = template?.ap?.systems || [];
 
   if (!currentPatient) return null;
 

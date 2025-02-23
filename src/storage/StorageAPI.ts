@@ -114,7 +114,22 @@ class IndexedDBStorage implements StorageAPI {
 
 async function isOPFSSupported(): Promise<boolean> {
   try {
-    return !!navigator.storage?.getDirectory;
+    // Check if basic OPFS API is available
+    if (!navigator.storage?.getDirectory) {
+      return false;
+    }
+
+    // Test if createWritable is supported by creating a test file
+    const root = await navigator.storage.getDirectory();
+    const testFileHandle = await root.getFileHandle("__test__", {
+      create: true,
+    });
+    const hasCreateWritable = "createWritable" in testFileHandle;
+
+    // Clean up test file
+    await root.removeEntry("__test__");
+
+    return hasCreateWritable;
   } catch {
     return false;
   }

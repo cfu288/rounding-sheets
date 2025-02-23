@@ -1,7 +1,7 @@
 import { View, Text } from "@react-pdf/renderer";
-import { getTemplate, KnownTemplateIds } from "../../../const";
 import { StyleSheet } from "@react-pdf/renderer";
 import { Patient } from "../../../models/Patient";
+import { useTemplates } from "@/providers/TemplatesProvider";
 
 const todoStyles = StyleSheet.create({
   todoFlexContainer: {
@@ -52,18 +52,19 @@ const todoStyles = StyleSheet.create({
 
 interface TodoSectionProps {
   patient: Patient;
-  templateId: KnownTemplateIds;
+  templateId: string;
 }
 
 export const TodoSection: React.FC<TodoSectionProps> = ({
   patient,
   templateId,
 }) => {
+  const { getTemplate } = useTemplates();
+  const template =
+    getTemplate(templateId) || getTemplate("3_pt_floor_template");
+  if (!template) return null;
+
   const todosCount = patient.todos?.length || 0;
-  const template = getTemplate({
-    template_id: templateId,
-    custom_override_templates: patient.display_template_overrides,
-  });
   const todoEnabled = template.todo?.enabled;
   const patientsPerPage = template.patientsPerPage;
   const displaySize = template.displaySize;

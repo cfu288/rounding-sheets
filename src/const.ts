@@ -272,40 +272,20 @@ export const display_templates: DisplayTemplate[] = [
   },
 ];
 
-export const KnownTemplateIds = [
-  "3_pt_floor_template",
-  "2_pt_floor_template",
-  "1_pt_floor_template",
-  "1_pt_micu_template",
-] as const;
-export type KnownTemplateIds = (typeof KnownTemplateIds)[number];
+export const KnownTemplateIds = display_templates.map((t) => t.templateId);
 
-export function getTemplate({
+export function getDefaultTemplate({
   template_id = "3_pt_floor_template",
   custom_override_templates = display_templates,
 }: {
-  template_id?: KnownTemplateIds;
+  template_id?: string;
   custom_override_templates?: Partial<DisplayTemplate>[];
 } = {}): DisplayTemplate {
-  const baseTemplate = display_templates.find(
-    (template) => template.templateId === template_id
+  const template = custom_override_templates.find(
+    (t) => t.templateId === template_id
   );
-
-  if (!baseTemplate) {
-    throw new Error(
-      `Template with id ${template_id} not found in display templates`
-    );
+  if (!template) {
+    return display_templates[0];
   }
-
-  if (custom_override_templates) {
-    const overrideTemplate = custom_override_templates.find(
-      (template) => template.templateId === template_id
-    );
-
-    if (overrideTemplate) {
-      return { ...baseTemplate, ...overrideTemplate };
-    }
-  }
-
-  return baseTemplate;
+  return template as DisplayTemplate;
 }

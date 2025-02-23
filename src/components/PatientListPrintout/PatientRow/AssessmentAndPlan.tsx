@@ -1,6 +1,6 @@
-import { getTemplate } from "../../../const";
 import { AssessmentAndPlanProps } from "./PatientRow";
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
+import { useTemplates } from "@/providers/TemplatesProvider";
 
 const patientRowStyles = StyleSheet.create({
   gridContainer: {
@@ -57,10 +57,10 @@ export const AssessmentAndPlan: React.FC<AssessmentAndPlanProps> = ({
   patient,
   templateId,
 }) => {
-  const template = getTemplate({
-    template_id: templateId,
-    custom_override_templates: patient.display_template_overrides,
-  });
+  const { getTemplate } = useTemplates();
+  const template =
+    getTemplate(templateId) || getTemplate("3_pt_floor_template");
+  if (!template) return null;
 
   let blankAPSectionsToDisplay;
   if (template.patientsPerPage >= 2) {

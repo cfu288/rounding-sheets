@@ -1,9 +1,9 @@
 import { Page, View, Text } from "@react-pdf/renderer";
 import { PatientRow } from "./PatientRow/PatientRow";
 import { Document, StyleSheet } from "@react-pdf/renderer";
-import { getTemplate, KnownTemplateIds } from "../../const";
 import { Patient } from "../../models/Patient";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
+import { useTemplates } from "@/providers/TemplatesProvider";
 
 const documentStyles = StyleSheet.create({
   page: {
@@ -23,23 +23,24 @@ export const PatientListPrintout = ({
   templateId,
 }: {
   patients: Patient[];
-  templateId: KnownTemplateIds;
+  templateId: string;
 }) => {
+  const { getTemplate } = useTemplates();
+
   const ACTUAL_PATIENTS_PER_PAGE = useMemo(() => {
     const result: Patient[][] = [];
     let currentPage: Patient[] = [];
-    let remainingSpace: number = getTemplate({
-      template_id: templateId,
-    }).patientsPerPage;
+    const baseTemplate =
+      getTemplate(templateId) || getTemplate("3_pt_floor_template");
+    if (!baseTemplate) return [];
+    let remainingSpace: number = baseTemplate.patientsPerPage;
 
     for (const patient of patients) {
-      const size: number =
-        getTemplate({
-          template_id: templateId,
-          custom_override_templates: patient.display_template_overrides,
-        }).displaySize === "2x"
-          ? 2
-          : 1;
+      const patientTemplate = patient.display_template_overrides
+        ? getTemplate(templateId) || getTemplate("3_pt_floor_template")
+        : baseTemplate;
+      if (!patientTemplate) continue;
+      const size: number = patientTemplate.displaySize === "2x" ? 2 : 1;
 
       if (remainingSpace >= size) {
         currentPage.push(patient);
@@ -47,11 +48,7 @@ export const PatientListPrintout = ({
       } else {
         result.push(currentPage);
         currentPage = [patient];
-        remainingSpace =
-          getTemplate({
-            template_id: templateId,
-            custom_override_templates: patient.display_template_overrides,
-          }).patientsPerPage - size;
+        remainingSpace = baseTemplate.patientsPerPage - size;
       }
     }
 
@@ -60,7 +57,7 @@ export const PatientListPrintout = ({
     }
 
     return result;
-  }, [templateId, patients]);
+  }, [templateId, patients, getTemplate]);
 
   const totalPatients = patients.length;
   const patientsPerPage =
@@ -69,15 +66,13 @@ export const PatientListPrintout = ({
       : 0;
   const totalPages = Math.ceil(totalPatients / patientsPerPage);
 
-  const instanceToReturn = useMemo(
-    () => (
-      <Document
-        title={
-          getTemplate({
-            template_id: templateId,
-          }).templateName || "ScutSheet"
-        }
-      >
+  const instanceToReturn = useMemo(() => {
+    const template =
+      getTemplate(templateId) || getTemplate("3_pt_floor_template");
+    const documentTitle = template?.templateName || "ScutSheet";
+
+    return (
+      <Document title={documentTitle}>
         {ACTUAL_PATIENTS_PER_PAGE.map((patients, pageIndex) => (
           <Page key={pageIndex} size={"LETTER"} style={documentStyles.page}>
             <View
@@ -116,9 +111,8 @@ export const PatientListPrintout = ({
           </Page>
         ))}
       </Document>
-    ),
-    [templateId, ACTUAL_PATIENTS_PER_PAGE, totalPages]
-  );
+    );
+  }, [templateId, ACTUAL_PATIENTS_PER_PAGE, totalPages, getTemplate]);
 
   return instanceToReturn;
 };

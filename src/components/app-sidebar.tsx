@@ -1,8 +1,10 @@
 import * as React from "react";
-import { GalleryVerticalEnd } from "lucide-react";
+import { GalleryVerticalEnd, Trash2 } from "lucide-react";
 import { Modal } from "@/components/Modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useTemplates } from "@/providers/TemplatesProvider";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 import {
   Sidebar,
@@ -16,7 +18,6 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { getTemplate, KnownTemplateIds } from "@/const";
 import { useParams, useLocation, Link } from "react-router-dom";
 import { usePatientList } from "@/providers/usePatientList";
 
@@ -173,16 +174,71 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     newListName,
     setNewListName,
     handleNewListSubmit,
-    state,
-    error,
+    state: patientListState,
+    error: patientListError,
   } = usePatientList();
 
-  // get all templates
-  const templates = KnownTemplateIds.map((id) =>
-    getTemplate({ template_id: id })
-  );
+  const {
+    allTemplates,
+    deleteTemplate,
+    state: templateState,
+    error: templateError,
+  } = useTemplates();
 
-  if (state === "LOADING") {
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+  const [templateToDelete, setTemplateToDelete] = React.useState<string | null>(
+    null
+  );
+  const [editingListName, setEditingListName] = React.useState<string | null>(
+    null
+  );
+  const [newEditedName, setNewEditedName] = React.useState("");
+
+  const handleDeleteClick = (templateId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setTemplateToDelete(templateId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (templateToDelete) {
+      await deleteTemplate(templateToDelete);
+      setIsDeleteDialogOpen(false);
+      setTemplateToDelete(null);
+    }
+  };
+
+  const handleStartEditingList = (name: string) => {
+    setEditingListName(name);
+    setNewEditedName(name);
+  };
+
+  const handleSaveListName = async () => {
+    if (
+      !editingListName ||
+      !newEditedName.trim() ||
+      newEditedName === editingListName
+    ) {
+      setEditingListName(null);
+      return;
+    }
+
+    if (allListNames.includes(newEditedName)) {
+      alert("A list with this name already exists");
+      return;
+    }
+
+    try {
+      // Update the list name
+      await setCurrentListName(newEditedName, editingListName);
+      setEditingListName(null);
+    } catch {
+      alert("Failed to update list name");
+    }
+  };
+
+  if (templateState === "LOADING" || patientListState === "LOADING") {
     return (
       <Sidebar variant="floating" {...props}>
         <SidebarHeader>
@@ -194,13 +250,13 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     );
   }
 
-  if (state === "ERROR") {
+  if (templateState === "ERROR" || patientListState === "ERROR") {
     return (
       <Sidebar variant="floating" {...props}>
         <SidebarHeader>
           <div className="flex items-center justify-center h-32">
             <div className="text-red-500 text-sm">
-              Error loading lists: {error}
+              Error loading: {templateError || patientListError}
             </div>
           </div>
         </SidebarHeader>
@@ -238,24 +294,37 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <Link
-                  to={`/scutsheet/${templates[0].templateId}`}
+                  to={`/scutsheet/${allTemplates[0].templateId}`}
                   className="font-medium"
                 >
                   Scutsheet
                 </Link>
               </SidebarMenuButton>
               <SidebarMenuSub className="ml-0 border-l-0 px-1.5">
-                {templates.map((template) => (
+                {allTemplates.map((template) => (
                   <SidebarMenuSubItem key={template.templateId}>
                     <SidebarMenuSubButton
                       asChild
                       isActive={template.templateId === templateId}
+                      className="flex items-center justify-between"
                     >
                       <Link
                         to={`/scutsheet/${template.templateId}`}
-                        className="font-medium"
+                        className="font-medium w-full flex items-center justify-between"
                       >
-                        {template.templateName}
+                        <span>{template.templateName}</span>
+                        {template.templateId.startsWith("custom_") && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={(e) =>
+                              handleDeleteClick(template.templateId, e)
+                            }
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </Link>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
@@ -269,14 +338,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                 </Link>
               </SidebarMenuButton>
               <SidebarMenuSub className="ml-0 border-l-0 px-1.5">
-                {/* <SidebarMenuSubItem>
-                  <SidebarMenuSubButton
-                    asChild
-                    isActive={location.pathname === "/scutsheet/generate-pdf"}
-                  >
-                    <a href="/scutsheet/generate-pdf">Manage Lists</a>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem> */}
                 {allListNames.map((name) => (
                   <SidebarMenuSubItem
                     key={name}
@@ -290,8 +351,62 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                     <SidebarMenuSubButton
                       isActive={name === currentListName}
                       onClick={() => setCurrentListName(name)}
+                      className="w-full"
                     >
-                      <Link to={`/scutsheet/generate-pdf`}>{name}</Link>
+                      <div className="flex items-center justify-between w-full">
+                        {editingListName === name ? (
+                          <div className="flex items-center gap-2 w-full">
+                            <Input
+                              value={newEditedName}
+                              onChange={(e) => setNewEditedName(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleSaveListName();
+                                } else if (e.key === "Escape") {
+                                  setEditingListName(null);
+                                }
+                              }}
+                              className="h-6 text-sm"
+                              autoFocus
+                            />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={handleSaveListName}
+                            >
+                              ✓
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={() => setEditingListName(null)}
+                            >
+                              ✕
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between w-full">
+                            <Link to={`/scutsheet/generate-pdf`}>{name}</Link>
+                            {location.pathname === "/scutsheet/generate-pdf" &&
+                              name === currentListName && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6 opacity-0 group-hover:opacity-100"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleStartEditingList(name);
+                                  }}
+                                >
+                                  ✎
+                                </Button>
+                              )}
+                          </div>
+                        )}
+                      </div>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                 ))}
@@ -303,6 +418,13 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
               </SidebarMenuSub>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link to="/template-config" className="font-medium">
+                  Template Configuration
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
@@ -326,6 +448,16 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           </Button>
         </div>
       </Modal>
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false);
+          setTemplateToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Delete Template"
+        description="Are you sure you want to delete this template? This action cannot be undone."
+      />
     </Sidebar>
   );
 }

@@ -118,12 +118,31 @@ export function usePatientListManager() {
     }
   }, [state.lists, state.listNames, state.currentListName]);
 
-  const setCurrentListName = useCallback((name: string) => {
-    setState((prev) => ({
-      ...prev,
-      currentListName: name,
-      state: prev.state,
-    }));
+  const setCurrentListName = useCallback((name: string, oldName?: string) => {
+    setState((prev) => {
+      // If oldName is provided, we're renaming a list
+      if (oldName) {
+        const patients = prev.lists[oldName];
+        const newLists = { ...prev.lists };
+        delete newLists[oldName];
+        newLists[name] = patients;
+
+        return {
+          ...prev,
+          lists: newLists,
+          listNames: prev.listNames.map((n) => (n === oldName ? name : n)),
+          currentListName: name,
+          state: prev.state,
+        };
+      }
+
+      // Otherwise, just switching to a different list
+      return {
+        ...prev,
+        currentListName: name,
+        state: prev.state,
+      };
+    });
   }, []);
 
   const setPatients = useCallback(

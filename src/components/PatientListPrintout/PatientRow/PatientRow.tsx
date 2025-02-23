@@ -1,11 +1,11 @@
 import { Text, View, StyleSheet } from "@react-pdf/renderer";
 import { Patient } from "../../../models/Patient";
-import { getTemplate, KnownTemplateIds } from "../../../const";
 import { GridSection } from "./GridSection";
 import { AssessmentAndPlan } from "./AssessmentAndPlan";
 import { HPISection } from "./HPISection";
 import { TodoSection } from "./TodoSection";
 import { Banner } from "./Banner";
+import { useTemplates } from "@/providers/TemplatesProvider";
 
 export interface BannerProps {
   patient: Patient;
@@ -13,17 +13,17 @@ export interface BannerProps {
 
 export interface HPISectionProps {
   patient: Patient;
-  templateId: KnownTemplateIds;
+  templateId: string;
 }
 
 export interface GridSectionProps {
   patient: Patient;
-  templateId: KnownTemplateIds;
+  templateId: string;
 }
 
 export interface AssessmentAndPlanProps {
   patient: Patient;
-  templateId: KnownTemplateIds;
+  templateId: string;
 }
 
 const patientRowStyles = StyleSheet.create({
@@ -95,7 +95,7 @@ interface PatientRowProps {
   patient: Patient;
   pageIndex: number;
   index: number;
-  templateId: KnownTemplateIds;
+  templateId: string;
 }
 
 export const PatientRow: React.FC<PatientRowProps> = ({
@@ -104,10 +104,10 @@ export const PatientRow: React.FC<PatientRowProps> = ({
   index,
   templateId,
 }) => {
-  const template = getTemplate({
-    template_id: templateId,
-    custom_override_templates: patient.display_template_overrides,
-  });
+  const { getTemplate } = useTemplates();
+  const template =
+    getTemplate(templateId) || getTemplate("3_pt_floor_template");
+  if (!template) return null;
 
   const isDoubleSize = template.displaySize === "2x";
   const heightPercentage = isDoubleSize

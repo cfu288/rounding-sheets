@@ -1,19 +1,20 @@
-import { ReactNode } from "react";
-import { Navbar } from "./Navbar";
+import { Outlet } from "react-router-dom";
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
-interface AppLayoutProps {
-  children: ReactNode;
-  fixedNavbar?: boolean;
-}
-
-export const AppLayout: React.FC<AppLayoutProps> = ({
-  children,
-  fixedNavbar = false,
-}) => {
+export function AppLayout() {
   return (
-    <main className="flex flex-col h-full">
-      <Navbar isAbsolute={fixedNavbar}></Navbar>
-      {children}
-    </main>
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "19rem",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar />
+      <SidebarInset>
+        <Outlet />
+      </SidebarInset>
+    </SidebarProvider>
   );
-};
+}

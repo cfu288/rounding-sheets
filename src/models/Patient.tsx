@@ -7,6 +7,14 @@ export interface AssessmentAndPlanItem {
   category?: string;
 }
 
+export interface Med {
+  name: string;
+  route: string;
+  frequency: string;
+  dose: string | number;
+  unit: string;
+}
+
 export interface Patient {
   id: string;
   mrn?: string;
@@ -17,6 +25,7 @@ export interface Patient {
   one_liner?: string;
   hpi?: string;
   todos?: Todo[];
+  meds?: Partial<Med>[];
   assessment_and_plan?: AssessmentAndPlanItem[];
   display_template_overrides?: Partial<DisplayTemplate>[];
 }
