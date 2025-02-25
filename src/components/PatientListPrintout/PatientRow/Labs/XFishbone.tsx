@@ -11,7 +11,7 @@ const fishboneStyles = StyleSheet.create({
     color: "rgba(243, 244, 246, 0.1)",
   },
   fishboneValueText: {
-    fontSize: "8px",
+    fontSize: "6px",
   },
 });
 
@@ -44,16 +44,18 @@ export function XFishbone({
   bili,
   ast,
   alkPhos,
+  date,
 }: {
   alt?: number;
   bili?: number;
   ast?: number;
   alkPhos?: number;
+  date?: string;
 }) {
   const formattedValues = formatXFishboneValues({ alt, bili, ast, alkPhos });
 
   return (
-    <Svg height="40" width="60" style={fishboneStyles.fishboneSvg}>
+    <Svg height="45" width="60" style={fishboneStyles.fishboneSvg}>
       <Line x1="20" y1="10" x2="40" y2="30" stroke="black" strokeWidth="1" />
       <Line x1="20" y1="30" x2="40" y2="10" stroke="black" strokeWidth="1" />
       <Text
@@ -119,6 +121,14 @@ export function XFishbone({
         style={fishboneStyles.fishboneValueText}
       >
         {formattedValues.alkPhos}
+      </Text>
+      <Text
+        x="30"
+        y="42"
+        textAnchor="middle"
+        style={fishboneStyles.fishboneValueText}
+      >
+        {date || ""}
       </Text>
     </Svg>
   );

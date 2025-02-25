@@ -1,5 +1,5 @@
 import { Text, View, StyleSheet } from "@react-pdf/renderer";
-import { Patient } from "../../../models/Patient";
+import { Patient } from "@/models/Patient";
 import { GridSection } from "./GridSection";
 import { AssessmentAndPlan } from "./AssessmentAndPlan";
 import { HPISection } from "./HPISection";
@@ -22,6 +22,11 @@ export interface GridSectionProps {
 }
 
 export interface AssessmentAndPlanProps {
+  patient: Patient;
+  templateId: string;
+}
+
+export interface TodoSectionProps {
   patient: Patient;
   templateId: string;
 }

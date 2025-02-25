@@ -11,7 +11,7 @@ const yFishboneStyles = StyleSheet.create({
     color: "rgba(243, 244, 246, 0.1)",
   },
   fishboneValueText: {
-    fontSize: "8px",
+    fontSize: "6px",
   },
 });
 
@@ -39,15 +39,17 @@ export function YFishbone({
   inr,
   pt,
   ptt,
+  date,
 }: {
   inr?: number;
   pt?: number;
   ptt?: number;
+  date?: string;
 }) {
   const formattedValues = formatYFishboneValues({ inr, pt, ptt });
 
   return (
-    <Svg height="40" width="40" style={yFishboneStyles.fishboneSvg}>
+    <Svg height="45" width="40" style={yFishboneStyles.fishboneSvg}>
       <Line x1="10" y1="10" x2="20" y2="20" stroke="black" strokeWidth="1" />
       <Line x1="20" y1="20" x2="30" y2="10" stroke="black" strokeWidth="1" />
       <Line x1="20" y1="20" x2="20" y2="30" stroke="black" strokeWidth="1" />
@@ -98,6 +100,14 @@ export function YFishbone({
         style={yFishboneStyles.fishboneValueText}
       >
         {formattedValues.ptt}
+      </Text>
+      <Text
+        x="20"
+        y="42"
+        textAnchor="middle"
+        style={yFishboneStyles.fishboneValueText}
+      >
+        {date || ""}
       </Text>
     </Svg>
   );

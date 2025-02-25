@@ -11,7 +11,7 @@ const fishboneStyles = StyleSheet.create({
     color: "rgba(243, 244, 246, 0.1)",
   },
   fishboneValueText: {
-    fontSize: "8px",
+    fontSize: "6px",
   },
 });
 
@@ -44,16 +44,18 @@ export function HHFishbone({
   hct,
   wbc,
   plt,
+  date,
 }: {
   hgb?: number;
   hct?: number;
   wbc?: number;
   plt?: number;
+  date?: string;
 }) {
   const formattedValues = formatHHFishboneValues({ hgb, hct, wbc, plt });
 
   return (
-    <Svg height="40" width="80" style={fishboneStyles.fishboneSvg}>
+    <Svg height="45" width="80" style={fishboneStyles.fishboneSvg}>
       {/* top diagonal and up to left */}
       <Line x1="30" y1="20" x2="20" y2="10" stroke="black" strokeWidth="1" />
       {/* top diagonal and up to right */}
@@ -90,7 +92,7 @@ export function HHFishbone({
       </Text>
       <Text
         x="35"
-        y="11"
+        y="13"
         textAnchor="middle"
         style={fishboneStyles.fishboneValueText}
       >
@@ -106,7 +108,7 @@ export function HHFishbone({
       </Text>
       <Text
         x="35"
-        y="34"
+        y="31"
         textAnchor="middle"
         style={fishboneStyles.fishboneValueText}
       >
@@ -127,6 +129,14 @@ export function HHFishbone({
         style={fishboneStyles.fishboneValueText}
       >
         {formattedValues.plt}
+      </Text>
+      <Text
+        x="35"
+        y="42"
+        textAnchor="middle"
+        style={fishboneStyles.fishboneValueText}
+      >
+        {date || ""}
       </Text>
     </Svg>
   );

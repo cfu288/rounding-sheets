@@ -6,6 +6,7 @@ import { YFishbone } from "./Labs/YFishbone";
 import { GridSectionProps } from "./PatientRow";
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import { useTemplates } from "@/providers/TemplatesProvider";
+import { Lab, Vital } from "@/models/Patient";
 
 const patientRowStyles = StyleSheet.create({
   bannerContainer: {
@@ -149,7 +150,7 @@ const patientRowStyles = StyleSheet.create({
     marginVertical: "2px",
   },
   fishboneValueText: {
-    fontSize: "8px",
+    fontSize: "6px",
   },
   peText: {
     paddingLeft: "2px",
@@ -157,6 +158,8 @@ const patientRowStyles = StyleSheet.create({
   medsText: {
     paddingLeft: "2px",
     fontSize: "6px",
+    display: "flex",
+    flexWrap: "wrap",
   },
   medsEmptyPlaceholder: {
     marginLeft: "2px",
@@ -186,6 +189,158 @@ export const GridSection: React.FC<GridSectionProps> = ({
   const template =
     getTemplate(templateId) || getTemplate("3_pt_floor_template");
   if (!template) return null;
+
+  // Extract lab values
+  interface LabValueWithDate {
+    value?: number;
+    date?: string;
+  }
+
+  const findLabValue = (id: string): LabValueWithDate => {
+    const matchingLabs = patient.labs?.filter((l) =>
+      l.identifiers?.some((i) => i.id === id && i.system === "powerchart-touch")
+    ) as Lab[] | undefined;
+
+    if (!matchingLabs?.length) return {};
+
+    // Sort by date descending and get the most recent
+    const mostRecent = matchingLabs.sort(
+      (a, b) =>
+        new Date(b.effective_datetime).getTime() -
+        new Date(a.effective_datetime).getTime()
+    )[0];
+
+    if (!("value_number" in mostRecent)) return {};
+
+    return {
+      value: mostRecent.value_number,
+      date: new Date(mostRecent.effective_datetime).toLocaleDateString(
+        "en-US",
+        {
+          month: "2-digit",
+          day: "2-digit",
+        }
+      ),
+    };
+  };
+
+  // Add this function after the findLabValue function
+  const findVitalValue = (
+    id: string,
+    vitals?: Partial<Vital>[],
+    type?: "systolic" | "diastolic"
+  ): { value?: string; date?: string } => {
+    const matchingVitals = vitals?.filter((v) =>
+      v.identifiers?.some(
+        (i: { id: string; system: string }) =>
+          i.id === id && i.system === "powerchart-touch"
+      )
+    );
+
+    if (!matchingVitals?.length) return {};
+
+    // For blood pressure, we need to handle systolic and diastolic separately
+    if (id === "BLOOD_PRESSURE_ALL" && type) {
+      const bpVitals = matchingVitals.filter((v) =>
+        type === "systolic"
+          ? v.display_name?.includes("Systolic")
+          : v.display_name?.includes("Diastolic")
+      );
+
+      if (!bpVitals.length) return {};
+
+      // Sort by date descending and get the most recent
+      const mostRecent = bpVitals.sort(
+        (a, b) =>
+          new Date(b.effective_datetime || "").getTime() -
+          new Date(a.effective_datetime || "").getTime()
+      )[0];
+
+      return {
+        value: mostRecent.display_value,
+        date: mostRecent.effective_datetime
+          ? new Date(mostRecent.effective_datetime).toLocaleDateString(
+              "en-US",
+              {
+                month: "2-digit",
+                day: "2-digit",
+              }
+            )
+          : undefined,
+      };
+    }
+
+    // For non-blood pressure vitals, just get the most recent
+    const mostRecent = matchingVitals.sort(
+      (a, b) =>
+        new Date(b.effective_datetime || "").getTime() -
+        new Date(a.effective_datetime || "").getTime()
+    )[0];
+
+    return {
+      value: mostRecent.display_value,
+      date: mostRecent.effective_datetime
+        ? new Date(mostRecent.effective_datetime).toLocaleDateString("en-US", {
+            month: "2-digit",
+            day: "2-digit",
+          })
+        : undefined,
+    };
+  };
+
+  // HH Fishbone values
+  const { value: hgb, date: hgbDate } = findLabValue("3995021");
+  const { value: hct, date: hctDate } = findLabValue("3995022");
+  const { value: wbc, date: wbcDate } = findLabValue("3995018");
+  const { value: plt, date: pltDate } = findLabValue("3995028");
+
+  // CMP Fishbone values
+  const { value: sodium, date: sodiumDate } = findLabValue("2570625249");
+  const { value: potassium, date: potassiumDate } = findLabValue("2570625243");
+  const { value: chloride, date: chlorideDate } = findLabValue("3995151");
+  const { value: co2, date: co2Date } = findLabValue("2570625237");
+  const { value: bun, date: bunDate } = findLabValue("3995154");
+  const { value: creatinine, date: creatinineDate } = findLabValue("3995155");
+  const { value: glucose, date: glucoseDate } = findLabValue("2570637877");
+
+  // X Fishbone values
+  const { value: alt, date: altDate } = findLabValue("2570624901");
+  const { value: bili, date: biliDate } = findLabValue("2570625573");
+  const { value: ast, date: astDate } = findLabValue("2570625213");
+  const { value: alkPhos, date: alkPhosDate } = findLabValue("2570636921");
+
+  // Y Fishbone values
+  const { value: inr, date: inrDate } = findLabValue("3995078");
+  const { value: pt, date: ptDate } = findLabValue("3995077");
+  const { value: ptt, date: pttDate } = findLabValue("2570625189");
+
+  // Reverse Y Fishbone values
+  const { value: ca, date: caDate } = findLabValue("2570625231");
+  const { value: mg, date: mgDate } = findLabValue("3995206");
+  const { value: po4, date: po4Date } = findLabValue("2570627835");
+
+  // Get the most recent date from each fishbone group
+  const getLatestDate = (
+    ...dates: (string | undefined)[]
+  ): string | undefined => {
+    const validDates = dates.filter((d): d is string => !!d);
+    if (!validDates.length) return undefined;
+    return validDates.sort().reverse()[0];
+  };
+
+  const hhDate = getLatestDate(hgbDate, hctDate, wbcDate, pltDate);
+  const cmpDate = getLatestDate(
+    sodiumDate,
+    potassiumDate,
+    chlorideDate,
+    co2Date,
+    bunDate,
+    creatinineDate,
+    glucoseDate
+  );
+  const xDate = getLatestDate(altDate, biliDate, astDate, alkPhosDate);
+  const yDate = getLatestDate(inrDate, ptDate, pttDate);
+  const reverseYDate = getLatestDate(caDate, mgDate, po4Date);
 
   const vitals = template.vitals?.sections || [];
   const vitalsEnabled = template.vitals?.enabled || false;
@@ -217,8 +372,11 @@ export const GridSection: React.FC<GridSectionProps> = ({
 
   const microEnabled = template.micro?.enabled || false;
 
-  const getStyle = (height: string, fullWidth: boolean) => {
-    const styleMap: { [key: string]: any } = {
+  const getStyle = (
+    height: "1/12" | "1/6" | "1/4" | "1/3",
+    fullWidth: boolean
+  ) => {
+    const styleMap: Record<"1/12" | "1/6" | "1/4" | "1/3", unknown> = {
       "1/12": fullWidth
         ? patientRowStyles.gridBox1FullWidth
         : patientRowStyles.gridBox1HalfWidth,
@@ -283,11 +441,89 @@ export const GridSection: React.FC<GridSectionProps> = ({
       {vitalsEnabled && (
         <View style={patientRowStyles.gridBox3HalfWidth}>
           <Text style={patientRowStyles.gridBoxText}>Vitals:</Text>
-          {vitals.map((vital, i) => (
-            <Text key={i} style={patientRowStyles.peText}>
-              {vital}:
-            </Text>
-          ))}
+          {vitals.map((vital: string, i: number) => {
+            let vitalId = "";
+            let displayValue = "";
+            let vitalValue: { value?: string; date?: string } = {};
+            let o2Type: { value?: string; date?: string } = {};
+            let systolic: { value?: string; date?: string } = {};
+            let diastolic: { value?: string; date?: string } = {};
+
+            // Map vital section names to their corresponding IDs
+            switch (vital.toLowerCase()) {
+              case "temp":
+                vitalId = "TEMPERATURE";
+                vitalValue = findVitalValue(vitalId, patient.vitals);
+                displayValue = vitalValue.value ? `${vitalValue.value}°C` : "";
+                break;
+              case "sys":
+                vitalId = "BLOOD_PRESSURE_ALL";
+                vitalValue = findVitalValue(
+                  vitalId,
+                  patient.vitals,
+                  "systolic"
+                );
+                displayValue = vitalValue.value || "";
+                break;
+              case "dias":
+                vitalId = "BLOOD_PRESSURE_ALL";
+                vitalValue = findVitalValue(
+                  vitalId,
+                  patient.vitals,
+                  "diastolic"
+                );
+                displayValue = vitalValue.value || "";
+                break;
+              case "bp (map)":
+                vitalId = "BLOOD_PRESSURE_ALL";
+                systolic = findVitalValue(vitalId, patient.vitals, "systolic");
+                diastolic = findVitalValue(
+                  vitalId,
+                  patient.vitals,
+                  "diastolic"
+                );
+                if (systolic.value && diastolic.value) {
+                  const map =
+                    (1 / 3) * parseFloat(systolic.value) +
+                    (2 / 3) * parseFloat(diastolic.value);
+                  displayValue = `${systolic.value}/${
+                    diastolic.value
+                  } (${map.toFixed(0)})`;
+                }
+                break;
+              case "rr":
+                vitalId = "RESPIRATORY_RATE";
+                vitalValue = findVitalValue(vitalId, patient.vitals);
+                displayValue = vitalValue.value || "";
+                break;
+              case "hr":
+                vitalId = "HEART_RATE_ALL";
+                vitalValue = findVitalValue(vitalId, patient.vitals);
+                displayValue = vitalValue.value || "";
+                break;
+              case "spo2":
+                vitalId = "OXYGEN_SATURATION";
+                vitalValue = findVitalValue(vitalId, patient.vitals);
+                displayValue = vitalValue.value ? `${vitalValue.value}%` : "";
+                o2Type = findVitalValue("OXYGEN_THERAPY_TYPE", patient.vitals);
+                if (o2Type.value) {
+                  displayValue += ` on ${o2Type.value}`;
+                }
+                break;
+              default:
+                break;
+            }
+
+            return (
+              <View
+                key={i}
+                style={{ flexDirection: "row", alignItems: "center" }}
+              >
+                <Text style={patientRowStyles.peText}>{vital}: </Text>
+                <Text style={patientRowStyles.peText}>{displayValue}</Text>
+              </View>
+            );
+          })}
         </View>
       )}
       {physicalExamEnabled && (
@@ -311,13 +547,34 @@ export const GridSection: React.FC<GridSectionProps> = ({
           <Text style={patientRowStyles.gridBoxText}>Labs:</Text>
           <View style={patientRowStyles.labsGridBox}>
             <View style={patientRowStyles.fishboneContainer}>
-              <HHFishbone />
-              <CMPFishbone />
+              <HHFishbone
+                hgb={hgb}
+                hct={hct}
+                wbc={wbc}
+                plt={plt}
+                date={hhDate}
+              />
+              <CMPFishbone
+                sodium={sodium}
+                potassium={potassium}
+                chloride={chloride}
+                co2={co2}
+                bun={bun}
+                creatinine={creatinine}
+                glucose={glucose}
+                date={cmpDate}
+              />
             </View>
             <View style={patientRowStyles.fishboneContainer}>
-              <XFishbone />
-              <YFishbone />
-              <ReverseYFishbone />
+              <XFishbone
+                alt={alt}
+                bili={bili}
+                ast={ast}
+                alkPhos={alkPhos}
+                date={xDate}
+              />
+              <YFishbone inr={inr} pt={pt} ptt={ptt} date={yDate} />
+              <ReverseYFishbone ca={ca} mg={mg} po4={po4} date={reverseYDate} />
             </View>
           </View>
         </View>
@@ -332,20 +589,52 @@ export const GridSection: React.FC<GridSectionProps> = ({
         <View style={patientRowStyles.gridBox3HalfWidth}>
           <Text style={patientRowStyles.gridBoxText}>Meds:</Text>
           <View style={patientRowStyles.medsContainer}>
-            {patient.meds && patient.meds.length > 0
-              ? patient.meds.sort().map((med, i) => (
-                  <Text key={i} style={patientRowStyles.medsText}>
-                    {[med.name, med.dose, med.unit, med.route, med.frequency]
-                      .filter(Boolean)
-                      .join(" ") || ""}
-                    ;
-                  </Text>
-                ))
-              : Array.from({ length: 10 }).map((_, i) => (
-                  <Text key={i} style={patientRowStyles.medsEmptyPlaceholder}>
-                    {" "}
-                  </Text>
-                ))}
+            {patient.meds && patient.meds.length > 0 ? (
+              template.meds?.compactView ? (
+                <Text style={patientRowStyles.medsText}>
+                  {patient.meds
+                    .sort((a, b) => {
+                      const frequencyA = a.frequency?.toLowerCase() || "";
+                      const frequencyB = b.frequency?.toLowerCase() || "";
+                      const isPRNA = frequencyA.includes("prn");
+                      const isPRNB = frequencyB.includes("prn");
+                      if (isPRNA && !isPRNB) return 1;
+                      if (!isPRNA && isPRNB) return -1;
+                      return (a.name || "").localeCompare(b.name || "");
+                    })
+                    .map((med) =>
+                      [med.name, med.dose, med.unit, med.route, med.frequency]
+                        .filter(Boolean)
+                        .join(" ")
+                    )
+                    .join(" • ")}
+                </Text>
+              ) : (
+                patient.meds
+                  .sort((a, b) => {
+                    const frequencyA = a.frequency?.toLowerCase() || "";
+                    const frequencyB = b.frequency?.toLowerCase() || "";
+                    const isPRNA = frequencyA.includes("prn");
+                    const isPRNB = frequencyB.includes("prn");
+                    if (isPRNA && !isPRNB) return 1;
+                    if (!isPRNA && isPRNB) return -1;
+                    return (a.name || "").localeCompare(b.name || "");
+                  })
+                  .map((med, i) => (
+                    <Text key={i} style={patientRowStyles.medsText}>
+                      {[med.name, med.dose, med.unit, med.route, med.frequency]
+                        .filter(Boolean)
+                        .join(" ") || ""}{" "}
+                    </Text>
+                  ))
+              )
+            ) : (
+              Array.from({ length: 10 }).map((_, i) => (
+                <Text key={i} style={patientRowStyles.medsEmptyPlaceholder}>
+                  {" "}
+                </Text>
+              ))
+            )}
           </View>
         </View>
       )}

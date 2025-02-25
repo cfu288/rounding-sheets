@@ -30,6 +30,9 @@ Font.register({
     { src: source4, fontWeight: 700 },
   ],
 });
+Font.registerHyphenationCallback((word) => {
+  return [word];
+});
 
 export const ShowPDF = () => {
   const { templateId } = useParams<{ templateId: string }>();

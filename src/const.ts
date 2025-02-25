@@ -28,6 +28,7 @@ export const display_templates: DisplayTemplate[] = [
     },
     meds: {
       enabled: true,
+      compactView: false,
     },
     consults: {
       enabled: false,
@@ -77,6 +78,7 @@ export const display_templates: DisplayTemplate[] = [
     },
     meds: {
       enabled: true,
+      compactView: false,
     },
     consults: {
       enabled: false,
@@ -149,6 +151,7 @@ export const display_templates: DisplayTemplate[] = [
     },
     meds: {
       enabled: true,
+      compactView: false,
     },
     consults: {
       enabled: true,
@@ -220,6 +223,7 @@ export const display_templates: DisplayTemplate[] = [
     },
     meds: {
       enabled: true,
+      compactView: false,
     },
     consults: {
       enabled: true,

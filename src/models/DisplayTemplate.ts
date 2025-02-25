@@ -60,7 +60,9 @@ export interface DisplayTemplate {
   };
 
   // Simple sections
-  meds?: BaseSection;
+  meds?: BaseSection & {
+    compactView?: boolean;
+  };
   consults?: BaseSection;
   imaging?: BaseSection;
   micro?: BaseSection;

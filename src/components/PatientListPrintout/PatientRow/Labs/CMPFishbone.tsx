@@ -15,7 +15,7 @@ const fishboneStyles = StyleSheet.create({
     color: "rgba(243, 244, 246, 0.1)",
   },
   fishboneValueText: {
-    fontSize: "8px",
+    fontSize: "6px",
   },
 });
 
@@ -68,6 +68,7 @@ export function CMPFishbone({
   bun,
   creatinine,
   glucose,
+  date,
 }: {
   sodium?: number;
   potassium?: number;
@@ -76,6 +77,7 @@ export function CMPFishbone({
   bun?: number;
   creatinine?: number;
   glucose?: number;
+  date?: string;
 }) {
   const formattedValues = formatCMPValues({
     sodium,
@@ -89,7 +91,7 @@ export function CMPFishbone({
 
   return (
     <View style={fishboneStyles.fishboneRow}>
-      <Svg height="40" width="110" style={fishboneStyles.fishboneSvg}>
+      <Svg height="45" width="110" style={fishboneStyles.fishboneSvg}>
         <Line x1="5" y1="20" x2="60" y2="20" stroke="black" strokeWidth="1" />
         <Text
           x="24"
@@ -204,6 +206,14 @@ export function CMPFishbone({
           style={fishboneStyles.fishboneValueText}
         >
           {formattedValues.glucose}
+        </Text>
+        <Text
+          x="35"
+          y="42"
+          textAnchor="middle"
+          style={fishboneStyles.fishboneValueText}
+        >
+          {date || ""}
         </Text>
         <Line x1="60" y1="20" x2="70" y2="10" stroke="black" strokeWidth="1" />
         <Line x1="60" y1="20" x2="70" y2="30" stroke="black" strokeWidth="1" />

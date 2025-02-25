@@ -15,6 +15,52 @@ export interface Med {
   unit: string;
 }
 
+export interface LabBase {
+  display_name: string;
+  units: string;
+  display_value: string;
+  effective_datetime: string;
+  identifiers: {
+    id: string;
+    system: "powerchart-touch";
+  }[];
+}
+
+export interface LabNumber extends LabBase {
+  value_number: number;
+  reference_range: {
+    low: number;
+    high: number;
+  };
+}
+
+export interface LabString extends LabBase {
+  value_string: string;
+}
+
+export type Lab = LabNumber | LabString;
+
+export interface VitalBase {
+  display_name: string;
+  units: string;
+  display_value: string;
+  effective_datetime: string;
+  identifiers: {
+    id: string;
+    system: "powerchart-touch";
+  }[];
+}
+
+export interface VitalNumber extends VitalBase {
+  value_number: number;
+}
+
+export interface VitalString extends VitalBase {
+  value_string: string;
+}
+
+export type Vital = VitalNumber | VitalString;
+
 export interface Patient {
   id: string;
   mrn?: string;
@@ -28,6 +74,8 @@ export interface Patient {
   meds?: Partial<Med>[];
   assessment_and_plan?: AssessmentAndPlanItem[];
   display_template_overrides?: Partial<DisplayTemplate>[];
+  labs?: Partial<Lab>[];
+  vitals?: Partial<Vital>[];
 }
 
 export function generateUUID(): string {
@@ -50,6 +98,8 @@ export function createEmptyPatient(): Patient {
     hpi: "",
     todos: [],
     assessment_and_plan: [],
+    labs: [],
+    vitals: [],
   };
 }
 
