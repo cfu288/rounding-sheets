@@ -159,3 +159,111 @@
     "display_size": "1x"
   }
 ]
+
+
+{
+  "model": "gpt-4o",
+  "messages": [
+    {
+      "role": "system",
+      "content": "Given a freetext admission note below, map the admission note to a following JSON schema and return only a json response. Do not respond with any other comments"
+    },
+    {
+      "role": "user",
+      "content": "Patient Information example"
+    }
+  ],
+  "response_format": {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "patient_response",
+      "strict": true,
+      "schema": {
+        "type": "object",
+        "properties": {
+          "last_name": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "dob": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "mrn": {
+            "type": "string"
+          },
+          "one_liner": {
+            "type": "string"
+          },
+          "hpi": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          // "todos": {
+          //   "type": "array",
+          //   "items": {
+          //     "type": "object",
+          //     "properties": {
+          //       "description": {
+          //         "type": "string"
+          //       },
+          //       "due_date": {
+          //         "type": ["string", "null"]
+          //       },
+          //       "status": {
+          //         "type": "string",
+          //         "enum": ["OPEN", "CLOSED"]
+          //       }
+          //     },
+          //     "required": ["description", "status", "due_date"],
+          //     "additionalProperties": false
+          //   }
+          // },
+          "assessment_and_plan": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "assessment": {
+                  "type": "string",
+                  "description": "One element of the assessment, e.g. AKI, CHF exacerbation, Hyperkalemia, etc."
+                },
+                "plan": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": ["assessment", "plan"],
+              "additionalProperties": false
+            }
+          } //,
+          // "display_size": {
+          //   "type": "string",
+          //   "enum": ["1x", "2x", "3x"]
+          // }
+        },
+        "required": [
+          "last_name",
+          "first_name",
+          "dob",
+          "location",
+          "mrn",
+          "one_liner",
+          "hpi",
+          // "todos",
+          "assessment_and_plan"
+          // "display_size"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+},

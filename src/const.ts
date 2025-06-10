@@ -87,6 +87,7 @@ export const display_templates: DisplayTemplate[] = [
       enabled: true,
       systemsBased: false,
       systems: [],
+      enableMisc: false,
     },
     todo: {
       enabled: true,
@@ -108,8 +109,66 @@ export const display_templates: DisplayTemplate[] = [
     patientsPerPage: 2,
   },
   {
-    templateName: "Medicine Admission",
+    templateName: "Medicine Floor (1 Patient)",
     templateId: "1_pt_floor_template",
+    imagePreview: "/images/1person.png",
+    description: "One full page per patient. Great for new admissions.",
+    displaySize: "1x",
+    hpi: {
+      enabled: true,
+      blankLines: 20,
+    },
+    events: {
+      enabled: true,
+      fullWidth: true,
+      height: "1/12",
+    },
+    physicalExam: {
+      enabled: true,
+      sections: ["HEENT", "Skin", "CVS", "Pulm", "GI", "MSK", "Neuro", "Lines"],
+    },
+    vitals: {
+      enabled: true,
+      sections: ["Temp", "Sys", "Dias", "RR", "HR", "SpO2"],
+    },
+
+    labs: {
+      enabled: true,
+    },
+    meds: {
+      enabled: true,
+      compactView: false,
+    },
+    consults: {
+      enabled: true,
+    },
+    imaging: {
+      enabled: true,
+    },
+    ap: {
+      enableMisc: true,
+      enabled: true,
+      systemsBased: false,
+      systems: [],
+    },
+    todo: {
+      enabled: true,
+    },
+    dailyTodoList: [
+      {
+        description: "Note",
+        status: "OPEN",
+      },
+      {
+        description: "Orders",
+        status: "OPEN",
+      },
+    ],
+    patientsPerPage: 1,
+  },
+  {
+    templateName: "Medicine Admission",
+    templateId: "1_pt_admission_template",
     imagePreview: "/images/1person.png",
     description: "One full page per patient. Great for new admissions.",
     displaySize: "1x",
@@ -148,6 +207,7 @@ export const display_templates: DisplayTemplate[] = [
     },
     labs: {
       enabled: true,
+      fullWidth: true,
     },
     meds: {
       enabled: true,

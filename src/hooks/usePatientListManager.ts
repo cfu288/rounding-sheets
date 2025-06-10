@@ -1,6 +1,10 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { Patient, createEmptyPatient, generateUUID } from "@/models/Patient";
-import { example_patients } from "@/data/example_patients";
+import {
+  example_patients,
+  example_patients_default,
+  SHOW_EXAMPLE_PATIENTS,
+} from "@/data/example_patients";
 import { getStorage } from "@/storage/StorageAPI";
 
 interface PatientListMap {
@@ -19,26 +23,23 @@ interface PatientListState {
 
 // Store everything in a single file
 const STORAGE_KEY = "patient-lists-state";
+const EXAMPLE_LIST_NAME = "Example Patients";
 
 export function usePatientListManager() {
-  // Initialize state
+  // Initialize state with empty data while loading
   const [state, setState] = useState<PatientListState>(() => {
-    const defaultListName = "New List " + new Date().toLocaleDateString();
     return {
-      lists: {
-        [defaultListName]: example_patients.map((patient: Patient) => ({
-          ...patient,
-          id: patient.id || generateUUID(),
-        })),
-      },
-      listNames: [defaultListName],
-      currentListName: defaultListName,
+      lists: {},
+      listNames: [],
+      currentListName: "",
       state: "LOADING" as const,
     };
   });
 
   const [isNewListModalOpen, setIsNewListModalOpen] = useState<boolean>(false);
   const [newListName, setNewListName] = useState<string>("");
+  const [hasLoadedInitialData, setHasLoadedInitialData] =
+    useState<boolean>(false);
 
   // Load initial data from storage
   useEffect(() => {
@@ -46,8 +47,13 @@ export function usePatientListManager() {
       try {
         const storage = await getStorage();
         const savedState = await storage.read<PatientListState>(STORAGE_KEY);
+        console.log("savedState", savedState);
 
-        if (savedState) {
+        if (
+          savedState &&
+          savedState.lists &&
+          Object.keys(savedState.lists).length > 0
+        ) {
           // Ensure all existing patients have UUIDs
           const listsWithUUIDs = Object.entries(savedState.lists).reduce(
             (acc, [listName, patients]) => {
@@ -65,9 +71,21 @@ export function usePatientListManager() {
             state: "SUCCESS",
           });
         } else {
-          // If no saved data, keep the initial state but mark as success
-          setState((prev) => ({ ...prev, state: "SUCCESS" }));
+          // If no saved data, create default list with example patients
+          const defaultListName = "New List " + new Date().toLocaleDateString();
+          setState({
+            lists: {
+              [defaultListName]: example_patients.map((patient: Patient) => ({
+                ...patient,
+                id: patient.id || generateUUID(),
+              })),
+            },
+            listNames: [defaultListName],
+            currentListName: defaultListName,
+            state: "SUCCESS",
+          });
         }
+        setHasLoadedInitialData(true);
       } catch (error) {
         console.error("Failed to load patient lists:", error);
         setState((prev) => ({
@@ -75,17 +93,27 @@ export function usePatientListManager() {
           state: "ERROR",
           error: "Failed to load patient lists",
         }));
+        setHasLoadedInitialData(true);
       }
     }
 
     loadFromStorage();
   }, []);
 
-  // Memoize the current list's patients
-  const patients = useMemo(
-    () => state.lists[state.currentListName] || [],
-    [state.lists, state.currentListName]
-  );
+  // Memoize the current list's patients, including example list if enabled
+  const patients = useMemo(() => {
+    if (
+      SHOW_EXAMPLE_PATIENTS &&
+      state.currentListName === EXAMPLE_LIST_NAME &&
+      example_patients_default.length > 0
+    ) {
+      return example_patients_default.map((patient) => ({
+        ...patient,
+        id: patient.id || generateUUID(),
+      }));
+    }
+    return state.lists[state.currentListName] || [];
+  }, [state.lists, state.currentListName]);
 
   // Sync state to storage whenever it changes
   useEffect(() => {
@@ -113,13 +141,37 @@ export function usePatientListManager() {
       }
     }
 
-    if (state.state !== "LOADING") {
+    if (state.state !== "LOADING" && hasLoadedInitialData) {
       saveToStorage();
     }
-  }, [state.lists, state.listNames, state.currentListName]);
+  }, [
+    state.lists,
+    state.listNames,
+    state.currentListName,
+    state.state,
+    hasLoadedInitialData,
+  ]);
+
+  // Memoize all list names including the example list if enabled
+  const allListNames = useMemo(() => {
+    if (
+      SHOW_EXAMPLE_PATIENTS &&
+      example_patients_default.length > 0 &&
+      !state.listNames.includes(EXAMPLE_LIST_NAME)
+    ) {
+      return [...state.listNames, EXAMPLE_LIST_NAME];
+    }
+    return state.listNames;
+  }, [state.listNames]);
 
   const setCurrentListName = useCallback((name: string, oldName?: string) => {
     setState((prev) => {
+      // Prevent renaming the example list if feature is enabled
+      if (SHOW_EXAMPLE_PATIENTS && oldName === EXAMPLE_LIST_NAME) {
+        console.warn("Cannot rename the Example Patients list");
+        return prev;
+      }
+
       // If oldName is provided, we're renaming a list
       if (oldName) {
         const patients = prev.lists[oldName];
@@ -148,6 +200,15 @@ export function usePatientListManager() {
   const setPatients = useCallback(
     (updater: Patient[] | ((prev: Patient[]) => Patient[])) => {
       setState((prev) => {
+        // Prevent modifying the example list if feature is enabled
+        if (
+          SHOW_EXAMPLE_PATIENTS &&
+          prev.currentListName === EXAMPLE_LIST_NAME
+        ) {
+          console.warn("Cannot modify the Example Patients list");
+          return prev;
+        }
+
         const currentPatients = prev.lists[prev.currentListName];
         const newPatients =
           typeof updater === "function" ? updater(currentPatients) : updater;
@@ -180,6 +241,13 @@ export function usePatientListManager() {
   );
 
   const handleNewListSubmit = useCallback(() => {
+    if (SHOW_EXAMPLE_PATIENTS && newListName === EXAMPLE_LIST_NAME) {
+      console.warn(
+        "Cannot create a list with the reserved name 'Example Patients'"
+      );
+      return;
+    }
+
     if (newListName && !state.listNames.includes(newListName)) {
       setState((prev) => ({
         lists: {
@@ -209,11 +277,18 @@ export function usePatientListManager() {
   // Helper function to update a patient by ID
   const updatePatientById = useCallback(
     (id: string, updates: Partial<Patient>) => {
+      if (
+        SHOW_EXAMPLE_PATIENTS &&
+        state.currentListName === EXAMPLE_LIST_NAME
+      ) {
+        console.warn("Cannot modify patients in the Example Patients list");
+        return;
+      }
       setPatients((prevPatients) =>
         prevPatients.map((p) => (p.id === id ? { ...p, ...updates } : p))
       );
     },
-    [setPatients]
+    [setPatients, state.currentListName]
   );
 
   return {
@@ -221,7 +296,7 @@ export function usePatientListManager() {
     setCurrentListName,
     patients,
     setPatients,
-    allListNames: state.listNames,
+    allListNames,
     isNewListModalOpen,
     setIsNewListModalOpen,
     newListName,

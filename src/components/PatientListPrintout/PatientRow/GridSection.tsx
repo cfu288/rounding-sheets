@@ -292,7 +292,7 @@ export const GridSection: React.FC<GridSectionProps> = ({
   const { value: hgb, date: hgbDate } = findLabValue("3995021");
   const { value: hct, date: hctDate } = findLabValue("3995022");
   const { value: wbc, date: wbcDate } = findLabValue("3995018");
-  const { value: plt, date: pltDate } = findLabValue("3995028");
+  const { value: plt, date: pltDate } = findLabValue("2570637035");
 
   // CMP Fishbone values
   const { value: sodium, date: sodiumDate } = findLabValue("2570625249");
@@ -593,6 +593,9 @@ export const GridSection: React.FC<GridSectionProps> = ({
               template.meds?.compactView ? (
                 <Text style={patientRowStyles.medsText}>
                   {patient.meds
+                    .filter(
+                      (med) => !med.name?.toUpperCase().startsWith("HOME")
+                    )
                     .sort((a, b) => {
                       const frequencyA = a.frequency?.toLowerCase() || "";
                       const frequencyB = b.frequency?.toLowerCase() || "";
@@ -611,6 +614,7 @@ export const GridSection: React.FC<GridSectionProps> = ({
                 </Text>
               ) : (
                 patient.meds
+                  .filter((med) => !med.name?.toUpperCase().startsWith("HOME"))
                   .sort((a, b) => {
                     const frequencyA = a.frequency?.toLowerCase() || "";
                     const frequencyB = b.frequency?.toLowerCase() || "";

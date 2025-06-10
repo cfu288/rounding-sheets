@@ -78,12 +78,22 @@ export const AssessmentAndPlan: React.FC<AssessmentAndPlanProps> = ({
   const systems = template.ap?.systems || [];
   const enableMisc = template.ap?.enableMisc;
 
+  // Find any assessment item that has "misc" in its name (case insensitive)
+  const miscAssessmentItem = patient.assessment_and_plan?.find((ap) =>
+    ap.assessment.toLowerCase().includes("misc")
+  );
+
+  // Filter out the misc assessment item from the regular list if it exists
+  const filteredAssessmentAndPlan = patient.assessment_and_plan?.filter(
+    (ap) => !ap.assessment.toLowerCase().includes("misc")
+  );
+
   return (
     <View style={patientRowStyles.gridContainer}>
       {systemBasedAP
         ? systems.map((system, i) => {
             const matchingAPs =
-              patient.assessment_and_plan?.filter(
+              filteredAssessmentAndPlan?.filter(
                 (ap) =>
                   ap.category?.toLowerCase() === system.toLowerCase() ||
                   ap.assessment.toLowerCase() === system.toLowerCase()
@@ -135,7 +145,7 @@ export const AssessmentAndPlan: React.FC<AssessmentAndPlanProps> = ({
               </View>
             );
           })
-        : patient.assessment_and_plan?.map((ap, i) => (
+        : filteredAssessmentAndPlan?.map((ap, i) => (
             <View key={i} style={patientRowStyles.apGridBox}>
               <Text style={patientRowStyles.gridBoxText}>
                 # {ap.assessment}:
@@ -170,13 +180,23 @@ export const AssessmentAndPlan: React.FC<AssessmentAndPlanProps> = ({
             <View style={patientRowStyles.leftBulletTextUnderline}></View>
           </View>
         ))}
-      {enableMisc && (
+      {enableMisc && !miscAssessmentItem && (
         <View style={patientRowStyles.apGridBox}>
           <Text style={patientRowStyles.gridBoxText}># Misc</Text>
           <Text style={patientRowStyles.leftBulletText}>• GI PPx:</Text>
           <Text style={patientRowStyles.leftBulletText}>• DVT PPx:</Text>
           <Text style={patientRowStyles.leftBulletText}>• Code Status:</Text>
           <Text style={patientRowStyles.leftBulletText}>• HCP: </Text>
+        </View>
+      )}
+      {enableMisc && miscAssessmentItem && (
+        <View style={patientRowStyles.apGridBox}>
+          <Text style={patientRowStyles.gridBoxText}># Misc</Text>
+          {miscAssessmentItem.plan.map((plan, j) => (
+            <Text style={patientRowStyles.leftBulletText} key={j}>
+              • {plan}
+            </Text>
+          ))}
         </View>
       )}
     </View>

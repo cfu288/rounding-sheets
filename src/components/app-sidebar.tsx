@@ -231,7 +231,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
     try {
       // Update the list name
-      await setCurrentListName(newEditedName, editingListName);
+      setCurrentListName(newEditedName, editingListName);
       setEditingListName(null);
     } catch {
       alert("Failed to update list name");
@@ -388,9 +388,15 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                           </div>
                         ) : (
                           <div className="flex items-center justify-between w-full">
-                            <Link to={`/scutsheet/generate-pdf`}>{name}</Link>
+                            <Link to={`/scutsheet/generate-pdf`} className="flex items-center gap-2">
+                              <span>{name}</span>
+                              {name === "Example Patients" && (
+                                <span className="text-xs text-muted-foreground">(Read-only)</span>
+                              )}
+                            </Link>
                             {location.pathname === "/scutsheet/generate-pdf" &&
-                              name === currentListName && (
+                              name === currentListName &&
+                              name !== "Example Patients" && (
                                 <Button
                                   variant="ghost"
                                   size="icon"

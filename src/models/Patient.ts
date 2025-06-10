@@ -14,10 +14,15 @@ export interface LabBase {
 
 export interface LabNumber extends LabBase {
   value_number: number;
+  reference_range: {
+    low: number;
+    high: number;
+  };
 }
 
 export interface LabString extends LabBase {
   value_string: string;
+  reference_range: string;
 }
 
 export type Lab = LabNumber | LabString;
@@ -35,10 +40,15 @@ export interface VitalBase {
 
 export interface VitalNumber extends VitalBase {
   value_number: number;
+  reference_range: {
+    low: number;
+    high: number;
+  };
 }
 
 export interface VitalString extends VitalBase {
   value_string: string;
+  reference_range: string;
 }
 
 export type Vital = VitalNumber | VitalString;
@@ -59,29 +69,8 @@ export interface Med {
 
 export interface Patient {
   id: string;
-  name: string;
-  room: string;
-  age: number;
-  gender: string;
   mrn: string;
-  csn: string;
   dob: string;
-  admission_date: string;
-  discharge_date?: string;
-  attending_name: string;
-  attending_id: string;
-  resident_name: string;
-  resident_id: string;
-  intern_name: string;
-  intern_id: string;
-  service: string;
-  team: string;
-  diagnosis: string;
-  allergies: string[];
-  code_status: string;
-  isolation: string[];
-  diet: string;
-  activity: string;
   vitals?: Partial<Vital>[];
   labs?: Partial<Lab>[];
   meds?: Partial<Med>[];
@@ -90,33 +79,24 @@ export interface Patient {
   hpi?: string;
   assessment_and_plan?: AssessmentAndPlanItem[];
   display_template_overrides?: Partial<DisplayTemplate>[];
+  first_name?: string;
+  last_name?: string;
+  location?: string;
+}
+
+export function generateUUID(): string {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 }
 
 export function createEmptyPatient(): Patient {
   return {
-    id: "",
-    name: "",
-    room: "",
-    age: 0,
-    gender: "",
+    id: generateUUID(),
     mrn: "",
-    csn: "",
     dob: "",
-    admission_date: "",
-    attending_name: "",
-    attending_id: "",
-    resident_name: "",
-    resident_id: "",
-    intern_name: "",
-    intern_id: "",
-    service: "",
-    team: "",
-    diagnosis: "",
-    allergies: [],
-    code_status: "",
-    isolation: [],
-    diet: "",
-    activity: "",
     vitals: [],
     labs: [],
     meds: [],
@@ -124,5 +104,8 @@ export function createEmptyPatient(): Patient {
     one_liner: "",
     hpi: "",
     assessment_and_plan: [],
+    first_name: "",
+    last_name: "",
+    location: "",
   };
 }
