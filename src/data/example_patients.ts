@@ -1,4 +1,4 @@
-import { Patient, createEmptyPatient } from "@/models/Patient";
+import { Patient } from "@/models/Patient";
 
 // Feature toggle for showing the example patients list
 export const SHOW_EXAMPLE_PATIENTS = false;
