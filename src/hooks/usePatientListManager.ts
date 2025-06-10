@@ -2,7 +2,6 @@ import { useState, useCallback, useEffect, useMemo } from "react";
 import { Patient, createEmptyPatient, generateUUID } from "@/models/Patient";
 import {
   example_patients,
-  example_patients_default,
   SHOW_EXAMPLE_PATIENTS,
 } from "@/data/example_patients";
 import { getStorage } from "@/storage/StorageAPI";
@@ -105,9 +104,9 @@ export function usePatientListManager() {
     if (
       SHOW_EXAMPLE_PATIENTS &&
       state.currentListName === EXAMPLE_LIST_NAME &&
-      example_patients_default.length > 0
+      example_patients.length > 0
     ) {
-      return example_patients_default.map((patient) => ({
+      return example_patients.map((patient) => ({
         ...patient,
         id: patient.id || generateUUID(),
       }));
@@ -156,7 +155,7 @@ export function usePatientListManager() {
   const allListNames = useMemo(() => {
     if (
       SHOW_EXAMPLE_PATIENTS &&
-      example_patients_default.length > 0 &&
+      example_patients.length > 0 &&
       !state.listNames.includes(EXAMPLE_LIST_NAME)
     ) {
       return [...state.listNames, EXAMPLE_LIST_NAME];

@@ -7,14 +7,7 @@ const vitals: Partial<Patient>[] = [];
 
 const updates_to_patients: Patient[] = [];
 
-export const example_patients_default: Patient[] = [
-  createEmptyPatient(),
-  createEmptyPatient(),
-  createEmptyPatient(),
-  createEmptyPatient(),
-  createEmptyPatient(),
-  createEmptyPatient(),
-];
+export const example_patients_default: Patient[] = [];
 
 // for patient in existing patients, find matching patient in updates, if exists, and update existing patients with properties if they exist
 function applyUpdatesToPatients(
